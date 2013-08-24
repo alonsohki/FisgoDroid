@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -23,6 +24,7 @@ import org.apache.http.protocol.HttpContext;
 public class HttpService implements IHttpService
 {
     private HttpContext mContext = new BasicHttpContext();
+    private HttpClient mClient = new DefaultHttpClient();
     
     @Override
     public String get(String uri)
@@ -66,12 +68,10 @@ public class HttpService implements IHttpService
 
         try
         {
-            // Construct a default HTTP client
-            DefaultHttpClient client = new DefaultHttpClient();
-            client.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
+            mClient.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
             
             // Perform the request
-            HttpResponse response = client.execute(req, mContext);
+            HttpResponse response = mClient.execute(req, mContext);
             
             // Get the response data and transform it into a String
             InputStream content = response.getEntity().getContent();
