@@ -64,7 +64,7 @@ public class HttpService implements IHttpService
 
     public String performRequest(HttpUriRequest req)
     {
-        String output = new String();
+        StringBuilder output = new StringBuilder();
 
         try
         {
@@ -75,11 +75,11 @@ public class HttpService implements IHttpService
             
             // Get the response data and transform it into a String
             InputStream content = response.getEntity().getContent();
-            byte[] buffer = new byte[64]; // Adjust if you want
+            byte[] buffer = new byte[512];
             int bytesRead;
             while ((bytesRead = content.read(buffer)) != -1)
             {
-                output += new String(buffer, 0, bytesRead);
+                output.append(new String(buffer, 0, bytesRead));
             }
         }
         catch ( ClientProtocolException e )
@@ -91,6 +91,6 @@ public class HttpService implements IHttpService
             e.printStackTrace();
         }
         
-        return output;
+        return output.toString();
     }
 }

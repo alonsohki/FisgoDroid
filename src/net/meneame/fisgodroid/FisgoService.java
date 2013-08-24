@@ -22,6 +22,7 @@ import android.util.Log;
 public class FisgoService extends Service
 {
     private static final String TAG = "FisgoService";
+    private static final String LOGIN_GET_URL = "http://www.meneame.net/login.php";
     private static final String LOGIN_URL = "https://www.meneame.net/login.php";
     private static final String SNEAK_BACKEND_URL = "http://www.meneame.net/backend/sneaker2.php";
 
@@ -126,7 +127,7 @@ public class FisgoService extends Service
 
         public boolean logIn(String username, String password)
         {
-            String step1 = mHttp.get(LOGIN_URL);
+            String step1 = mHttp.get(LOGIN_GET_URL);
             if ( "".equals(step1) )
                 return false;
             
