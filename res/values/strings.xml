@@ -4,9 +4,11 @@
     <string name="app_name">Fisgodroid</string>
     <string name="title_activity_chat">ChatActivity</string>
     <string name="action_settings">Settings</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+    <string name="title_general">General</string>
+    <string name="title_friends">Friends</string>
     <string name="remember_me">Remember me</string>
+    <string name="send_chat">Send</string>
+	<string name="general">General</string>
+	<string name="friends">Friends</string>
 
 </resources>
