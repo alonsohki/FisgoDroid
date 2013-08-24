@@ -8,6 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +19,9 @@ import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -27,6 +31,11 @@ import android.widget.TextView;
  */
 public class LoginActivity extends Activity
 {
+    // Shared preferences settings for remember username/password feature.
+    private static final String PREFS_NAME = "FisgoDroid";
+    private static final String PREF_USERNAME = "username";
+    private static final String PREF_PASSWORD = "password";
+    
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -35,10 +44,12 @@ public class LoginActivity extends Activity
     // Values for email and password at the time of the login attempt.
     private String mUsername;
     private String mPassword;
+    private boolean mRememberMe;
 
     // UI references.
     private EditText mUsernameView;
     private EditText mPasswordView;
+    private CheckBox mRememberMeCheckbox;
     private View mLoginFormView;
     private View mLoginStatusView;
     private TextView mLoginStatusMessageView;
@@ -86,8 +97,9 @@ public class LoginActivity extends Activity
 
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.username);
-
         mPasswordView = (EditText) findViewById(R.id.password);
+        mRememberMeCheckbox = (CheckBox)findViewById(R.id.checkbox_remember_me);
+        
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener()
         {
             @Override
@@ -101,6 +113,18 @@ public class LoginActivity extends Activity
                 return false;
             }
         });
+        
+        
+        // Restore remembered username / password
+        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);   
+        String username = pref.getString(PREF_USERNAME, null);
+        String password = pref.getString(PREF_PASSWORD, null);
+        if ( username != null && password != null )
+        {
+            mUsernameView.setText(username);
+            mPasswordView.setText(password);
+            mRememberMeCheckbox.setChecked(true);
+        }
 
 
         mLoginFormView = findViewById(R.id.login_form);
@@ -113,6 +137,19 @@ public class LoginActivity extends Activity
             public void onClick(View view)
             {
                 attemptLogin();
+            }
+        });
+        
+        
+        // Handle clicks on the "Remember me" checkbox to
+        // forget credentials when disabling it.
+        mRememberMeCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if ( !isChecked )
+                    rememberCredentials(null, null);
             }
         });
     }
@@ -136,9 +173,9 @@ public class LoginActivity extends Activity
         {
             return;
         }
-        
+
         // Hide the soft keyboard
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mUsernameView.getWindowToken(), 0);
         imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
 
@@ -149,7 +186,8 @@ public class LoginActivity extends Activity
         // Store values at the time of the login attempt.
         mUsername = mUsernameView.getText().toString();
         mPassword = mPasswordView.getText().toString();
-
+        mRememberMe = mRememberMeCheckbox.isChecked();
+        
         boolean cancel = false;
         View focusView = null;
 
@@ -249,10 +287,13 @@ public class LoginActivity extends Activity
 
             if (success)
             {
+                if ( mRememberMe )
+                {
+                    rememberCredentials(mUsername, mPassword);
+                }
                 startActivity(new Intent(LoginActivity.this, ChatActivity.class));
                 finish();
-            }
-            else
+            } else
             {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
@@ -265,5 +306,14 @@ public class LoginActivity extends Activity
             mAuthTask = null;
             showProgress(false);
         }
+    }
+    
+    private void rememberCredentials ( String username, String password )
+    {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        .edit()
+        .putString(PREF_USERNAME, username)
+        .putString(PREF_PASSWORD, password)
+        .commit();
     }
 }
