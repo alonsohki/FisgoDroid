@@ -210,6 +210,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
 
         public void updateMessages(List<ChatMessage> messages)
         {
+            mAdapter.setUsername(mFisgoBinder.getUsername());
             mAdapter.setMessages(messages);
         }
     }

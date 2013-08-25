@@ -15,11 +15,17 @@ public class ChatMessageAdapter extends BaseAdapter
     private Context mContext;
     private AvatarStorage mAvatarStorage;
     private ChatType mType = ChatType.PUBLIC;
+    private String mUsername;
     
     public ChatMessageAdapter ( Context context, AvatarStorage avatarStorage )
     {
         mContext = context;
         mAvatarStorage = avatarStorage;
+    }
+    
+    public void setUsername ( String username )
+    {
+        mUsername = username;
     }
     
     public void setMessages ( List<ChatMessage> messages )
@@ -90,7 +96,7 @@ public class ChatMessageAdapter extends BaseAdapter
             line = new ChatLineView(mContext, mAvatarStorage);
         }
         ChatMessage chatmsg = (ChatMessage)getItem(position);
-        line.setChatMessage(chatmsg);
+        line.setChatMessage(mUsername, chatmsg);
                 
         return line;
     }

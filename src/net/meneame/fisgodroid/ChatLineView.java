@@ -47,12 +47,19 @@ public class ChatLineView extends LinearLayout
         mAvatar = (ImageView)findViewById(R.id.chat_avatar);
     }
 
-    public void setChatMessage ( ChatMessage chatMsg )
+    public void setChatMessage ( String username, ChatMessage chatMsg )
     {
         mChatMsg = chatMsg;
         if ( mChatMsg != null )
         {
             String parsedMessage = Smileys.parseMessage(mChatMsg.getMessage());
+            
+            // Highlight when they mention our name
+            if ( parsedMessage.toLowerCase().contains(username.toLowerCase()) )
+            {
+                parsedMessage = "<b>" + parsedMessage + "</b>";
+            }
+            
             Spanned spannedMessage = Html.fromHtml(parsedMessage, Smileys.getImageGetter(getContext()), null);
             mMessage.setText(spannedMessage);
             mUsername.setText(mChatMsg.getUser());

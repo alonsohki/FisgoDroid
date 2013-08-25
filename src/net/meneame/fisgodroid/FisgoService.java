@@ -36,6 +36,7 @@ public class FisgoService extends Service
     private IHttpService mHttp = new HttpService();
     private List<ChatMessage> mMessages = new ArrayList<ChatMessage>();
     private double mLastMessageTime = 0.0;
+    private String mUsername;
 
     @Override
     public void onCreate()
@@ -183,7 +184,14 @@ public class FisgoService extends Service
             
             mThread.interrupt();
             
+            mUsername = username;
+            
             return mIsLoggedIn;
+        }
+        
+        public String getUsername ()
+        {
+            return mUsername;
         }
         
         public List<ChatMessage> getMessages ()

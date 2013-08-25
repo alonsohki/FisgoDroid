@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Fisgodroid</string>
-    <string name="title_activity_chat">ChatActivity</string>
+    <string name="title_activity_chat">FisgoDroid</string>
     <string name="action_settings">Settings</string>
     <string name="title_general">General</string>
     <string name="title_friends">Friends</string>
