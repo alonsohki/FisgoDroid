@@ -200,10 +200,12 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
         public void setType(ChatType type)
         {
             mType = type;
-            if (mRadioGroup != null)
-            {
+
+            if ( mRadioGroup != null )
                 mRadioGroup.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
-            }
+            
+            if ( mAdapter != null )
+                mAdapter.setType(mType);
         }
 
         public void updateMessages(List<ChatMessage> messages)

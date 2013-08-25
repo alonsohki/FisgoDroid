@@ -95,7 +95,7 @@ public class FisgoService extends Service
                                         Date when = new Date(ts * 1000L);
                                         
                                         // Construct the message and add it to the message list
-                                        ChatType type = ( status == "amigo" ? ChatType.FRIENDS : ChatType.PUBLIC );
+                                        ChatType type = ( status.equals("amigo") ? ChatType.FRIENDS : ChatType.PUBLIC );
                                         ChatMessage msg = new ChatMessage(when, who, title, type, icon);
                                         newList.add(msg);
                                     }
