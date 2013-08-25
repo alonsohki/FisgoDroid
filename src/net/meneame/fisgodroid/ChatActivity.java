@@ -238,7 +238,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
                 int delayBetweenMessages = res.getInteger(R.integer.time_between_messages);
                 
                 // Check for too small messages
-                if ( text.length() < 5 )
+                if ( text.length() < res.getInteger(R.integer.min_message_length) )
                 {   
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(R.string.error)
@@ -259,6 +259,10 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
                 }
                 else
                 {
+                    // If it's a friends chat, prefix the message with '@'
+                    if ( mRadioGroup.getCheckedRadioButtonId() == R.id.radio_friends )
+                        text = "@" + text;
+                    
                     mFisgoBinder.sendChat(text);
                     mMessagebox.setText("");
                     mLastMessage = now;
