@@ -96,7 +96,7 @@ public class LoginActivity extends Activity
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mUsernameView = (EditText) findViewById(R.id.username);
+        mUsernameView = (EditText) findViewById(R.id.chat_username);
         mPasswordView = (EditText) findViewById(R.id.password);
         mRememberMeCheckbox = (CheckBox)findViewById(R.id.checkbox_remember_me);
         

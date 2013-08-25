@@ -121,8 +121,17 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
      */
     public static class ChatFragment extends Fragment
     {
+        // Create a handler to update the view from the UI thread
+        // when the message list changes.
+        private Handler mHandler = new Handler ()
+        {
+            public void handleMessage ( Message msg )
+            {
+                updateMessages(mFisgoBinder.getMessages());
+            }
+        };
+
         // Reference to the service binder
-        private Handler mHandler = null;
         private FisgoService.FisgoBinder mFisgoBinder = null;
         private ServiceConnection mServiceConn = new ServiceConnection()
         {
@@ -168,16 +177,6 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             mAdapter = new ChatMessageAdapter(getActivity());
             mMessages.setAdapter(mAdapter);
             setType(mType);
-
-            // Create a handler to update the view from the UI thread
-            // when the message list changes.
-            mHandler = new Handler ()
-            {
-                public void handleMessage ( Message msg )
-                {
-                    updateMessages(mFisgoBinder.getMessages());
-                }
-            };
 
             // Connect with the chat service
             getActivity().bindService(new Intent(getActivity(), FisgoService.class), mServiceConn, BIND_AUTO_CREATE);

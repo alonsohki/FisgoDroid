@@ -3,6 +3,7 @@ package net.meneame.fisgodroid;
 import java.util.List;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -47,9 +48,14 @@ public class ChatMessageAdapter extends BaseAdapter
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        TextView view = new TextView(mContext);
-        ChatMessage message = (ChatMessage)getItem(position);
-        view.setText(message.getMessage());
+        View view = LayoutInflater.from(mContext).inflate(R.layout.chat_line, null);
+        TextView message = (TextView)view.findViewById(R.id.chat_message);
+        TextView username = (TextView)view.findViewById(R.id.chat_username);
+        ChatMessage chatmsg = (ChatMessage)getItem(position);
+        
+        message.setText(chatmsg.getMessage());
+        username.setText(chatmsg.getUser());
+        
         return view;
     }
 }

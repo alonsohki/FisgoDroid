@@ -75,32 +75,39 @@ public class FisgoService extends Service
                                 mLastMessageTime = root.getDouble("ts");
                                 
                                 JSONArray events = root.getJSONArray("events");
-                                for ( int i = 0; i < events.length(); ++i )
-                                {
-                                    JSONObject event = events.getJSONObject(i);
-                                    String icon = event.getString("icon");
-                                    String title = event.getString("title");
-                                    int ts = event.getInt("ts");
-                                    String status = event.getString("status");
-                                    String who = event.getString("who");
-                                    
-                                    // Remove the escaped slashes from the icon path
-                                    icon = icon.replace("\\/", "/");
-                                    
-                                    // Parse the date
-                                    Date when = new Date(ts * 1000L);
-                                    
-                                    // Construct the message and add it to the message list
-                                    ChatType type = ( status == "amigo" ? ChatType.FRIENDS : ChatType.PUBLIC );
-                                    ChatMessage msg = new ChatMessage(when, who, title, type, icon);
-                                    mMessages.add(msg);
-                                }
-                                
                                 if ( events.length() > 0 )
                                 {
+                                    // Create a new list with the new messages
+                                    List<ChatMessage> newList = new ArrayList<ChatMessage>();
+                                    for ( int i = 0; i < events.length(); ++i )
+                                    {
+                                        JSONObject event = events.getJSONObject(i);
+                                        String icon = event.getString("icon");
+                                        String title = event.getString("title");
+                                        int ts = event.getInt("ts");
+                                        String status = event.getString("status");
+                                        String who = event.getString("who");
+                                        
+                                        // Remove the escaped slashes from the icon path
+                                        icon = icon.replace("\\/", "/");
+                                        
+                                        // Parse the date
+                                        Date when = new Date(ts * 1000L);
+                                        
+                                        // Construct the message and add it to the message list
+                                        ChatType type = ( status == "amigo" ? ChatType.FRIENDS : ChatType.PUBLIC );
+                                        ChatMessage msg = new ChatMessage(when, who, title, type, icon);
+                                        newList.add(msg);
+                                    }
+                                    
+                                    // Append all the previous messages
+                                    newList.addAll(mMessages);
+                                    mMessages = newList;
+
+                                    // Notify the handlers
                                     for ( Handler handler : mBinder.getHandlers() )
                                     {
-                                        handler.dispatchMessage(new Message());
+                                        handler.sendMessage(new Message());
                                     }
                                 }
                             }
