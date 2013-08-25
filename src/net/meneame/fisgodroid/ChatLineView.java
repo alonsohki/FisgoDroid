@@ -1,10 +1,13 @@
 package net.meneame.fisgodroid;
 
+import org.xml.sax.XMLReader;
+
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.Editable;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,7 +52,9 @@ public class ChatLineView extends LinearLayout
         mChatMsg = chatMsg;
         if ( mChatMsg != null )
         {
-            mMessage.setText(Html.fromHtml(mChatMsg.getMessage()));
+            String parsedMessage = Smileys.parseMessage(mChatMsg.getMessage());
+            Spanned spannedMessage = Html.fromHtml(parsedMessage, Smileys.getImageGetter(getContext()), null);
+            mMessage.setText(spannedMessage);
             mUsername.setText(mChatMsg.getUser());
             mAvatarStorage.request(mChatMsg.getIcon(), mSetAvatarRunnable);
             
