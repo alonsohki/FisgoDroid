@@ -2,6 +2,7 @@ package net.meneame.fisgodroid;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -48,7 +49,7 @@ public class ChatLineView extends LinearLayout
         mChatMsg = chatMsg;
         if ( mChatMsg != null )
         {
-            mMessage.setText(mChatMsg.getMessage());
+            mMessage.setText(Html.fromHtml(mChatMsg.getMessage()));
             mUsername.setText(mChatMsg.getUser());
             mAvatarStorage.request(mChatMsg.getIcon(), mSetAvatarRunnable);
             
