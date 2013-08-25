@@ -51,6 +51,11 @@ public class ChatLineView extends LinearLayout
             mMessage.setText(mChatMsg.getMessage());
             mUsername.setText(mChatMsg.getUser());
             mAvatarStorage.request(mChatMsg.getIcon(), mSetAvatarRunnable);
+            
+            if ( mChatMsg.getType() == ChatType.PUBLIC )
+                mMessage.setTextColor(getResources().getColor(R.color.text_chat_general));
+            else if ( mChatMsg.getType() == ChatType.FRIENDS )
+                mMessage.setTextColor(getResources().getColor(R.color.text_chat_friends));
         }
     }
 }
