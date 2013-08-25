@@ -48,14 +48,14 @@ public class ChatMessageAdapter extends BaseAdapter
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.chat_line, null);
-        TextView message = (TextView)view.findViewById(R.id.chat_message);
-        TextView username = (TextView)view.findViewById(R.id.chat_username);
+        ChatLineView line = (ChatLineView)convertView;
+        if ( line == null )
+        {
+            line = new ChatLineView(mContext);
+        }
         ChatMessage chatmsg = (ChatMessage)getItem(position);
-        
-        message.setText(chatmsg.getMessage());
-        username.setText(chatmsg.getUser());
-        
-        return view;
+        line.setChatMessage(chatmsg);
+                
+        return line;
     }
 }
