@@ -1,5 +1,7 @@
 package net.meneame.fisgodroid;
 
+import java.util.List;
+
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.ComponentName;
@@ -8,7 +10,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -16,27 +20,14 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.RadioGroup;
 
 public class ChatActivity extends FragmentActivity implements ActionBar.OnNavigationListener
 {
     private ChatFragment mFragment = null;
 
-    // Reference to the service binder
-    private FisgoService.FisgoBinder mFisgoBinder = null;
-    private ServiceConnection mServiceConn = new ServiceConnection()
-    {
-        @Override
-        public void onServiceConnected(ComponentName arg0, IBinder binder)
-        {
-            mFisgoBinder = (FisgoService.FisgoBinder) binder;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0)
-        {
-        }
-    };
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -50,9 +41,6 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         
-        // Connect with the chat service
-        bindService(new Intent(this, FisgoService.class), mServiceConn, BIND_AUTO_CREATE);
-
         // Set up the action bar to show a dropdown list.
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
@@ -64,15 +52,12 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
                 new ArrayAdapter<String>(getActionBarThemedContextCompat(), android.R.layout.simple_list_item_1, android.R.id.text1, new String[] {
                         getString(R.string.title_general), getString(R.string.title_friends), }), this);
     }
-    
-    
+
     @Override
     protected void onStop()
     {
         super.onStop();
-        unbindService(mServiceConn);
     }
-    
 
     /**
      * Backward-compatible version of {@link ActionBar#getThemedContext()} that
@@ -136,8 +121,29 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
      */
     public static class ChatFragment extends Fragment
     {
+        // Reference to the service binder
+        private Handler mHandler = null;
+        private FisgoService.FisgoBinder mFisgoBinder = null;
+        private ServiceConnection mServiceConn = new ServiceConnection()
+        {
+            @Override
+            public void onServiceConnected(ComponentName arg0, IBinder binder)
+            {
+                mFisgoBinder = (FisgoService.FisgoBinder) binder;
+                mFisgoBinder.addHandler(mHandler);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName arg0)
+            {
+                mFisgoBinder.removeHandler(mHandler);
+            }
+        };
+        
         private RadioGroup mRadioGroup;
+        private ListView mMessages;
         private ChatType mType;
+        private ChatMessageAdapter mAdapter;
 
         /**
          * The fragment argument representing the section number for this
@@ -153,13 +159,37 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View rootView = inflater.inflate(R.layout.chat_layout, container, false);
-
+            
             // Get views
             mRadioGroup = (RadioGroup) rootView.findViewById(R.id.radio_group_chattype);
+            mMessages = (ListView) rootView.findViewById(R.id.chat_messages);
 
+            // Setup
+            mAdapter = new ChatMessageAdapter(getActivity());
+            mMessages.setAdapter(mAdapter);
             setType(mType);
 
+            // Create a handler to update the view from the UI thread
+            // when the message list changes.
+            mHandler = new Handler ()
+            {
+                public void handleMessage ( Message msg )
+                {
+                    updateMessages(mFisgoBinder.getMessages());
+                }
+            };
+
+            // Connect with the chat service
+            getActivity().bindService(new Intent(getActivity(), FisgoService.class), mServiceConn, BIND_AUTO_CREATE);
+            
             return rootView;
+        }
+        
+        @Override
+        public void onDestroyView ()
+        {
+            getActivity().unbindService(mServiceConn);
+            super.onDestroyView();
         }
 
         public void setType(ChatType type)
@@ -169,6 +199,11 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             {
                 mRadioGroup.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
             }
+        }
+
+        public void updateMessages(List<ChatMessage> messages)
+        {
+            mAdapter.setMessages(messages);
         }
     }
 

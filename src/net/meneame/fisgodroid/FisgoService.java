@@ -1,11 +1,13 @@
 package net.meneame.fisgodroid;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +18,9 @@ import org.json.JSONObject;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 
 public class FisgoService extends Service
@@ -26,11 +30,11 @@ public class FisgoService extends Service
     private static final String LOGIN_URL = "https://www.meneame.net/login.php";
     private static final String SNEAK_BACKEND_URL = "http://www.meneame.net/backend/sneaker2.php";
 
-    private IBinder mBinder = new FisgoBinder();
+    private FisgoBinder mBinder = new FisgoBinder();
     private Thread mThread = null;
     private boolean mIsLoggedIn = false;
     private IHttpService mHttp = new HttpService();
-    private List<ChatMessage> mMessages = new LinkedList<ChatMessage>();
+    private List<ChatMessage> mMessages = new ArrayList<ChatMessage>();
     private double mLastMessageTime = 0.0;
 
     @Override
@@ -89,7 +93,15 @@ public class FisgoService extends Service
                                     // Construct the message and add it to the message list
                                     ChatType type = ( status == "amigo" ? ChatType.FRIENDS : ChatType.PUBLIC );
                                     ChatMessage msg = new ChatMessage(when, who, title, type, icon);
-                                    mMessages.add(0, msg);
+                                    mMessages.add(msg);
+                                }
+                                
+                                if ( events.length() > 0 )
+                                {
+                                    for ( Handler handler : mBinder.getHandlers() )
+                                    {
+                                        handler.dispatchMessage(new Message());
+                                    }
                                 }
                             }
                             wait(5000);
@@ -116,6 +128,8 @@ public class FisgoService extends Service
 
     public class FisgoBinder extends Binder
     {
+        private Set<Handler> mHandlers = new HashSet<Handler>();
+        
         private final Pattern mUseripPattern = Pattern.compile("<input type=\"hidden\" name=\"userip\" value=\"([^\"]+)\"/>");
         private final Pattern mIpcontrolPattern = Pattern.compile("<input type=\"hidden\" name=\"useripcontrol\" value=\"([^\"]+)\"/>");
         private final Pattern mLogoutPattern = Pattern.compile("<a href=\"/login\\.php\\?op=logout");
@@ -163,6 +177,27 @@ public class FisgoService extends Service
             mThread.interrupt();
             
             return mIsLoggedIn;
+        }
+        
+        public List<ChatMessage> getMessages ()
+        {
+            return mMessages;
+        }
+        
+        public Set<Handler> getHandlers ()
+        {
+            return mHandlers;
+        }
+        
+        public void addHandler(Handler handler)
+        {
+            mHandlers.add(handler);
+            handler.dispatchMessage(new Message());
+        }
+        
+        public void removeHandler(Handler handler)
+        {
+            mHandlers.remove(handler);
         }
     }
 }
