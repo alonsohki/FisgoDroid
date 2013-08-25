@@ -11,5 +11,9 @@
 	<string name="general">General</string>
 	<string name="friends">Friends</string>
 	<string name="send_as">Send as:</string>
+	<string name="error">Error</string>
+	<string name="message_too_short">Message too short</string>
+	<string name="message_too_soon">You have to wait %1$d seconds between messages</string>
+	<item name="time_between_messages" format="integer" type="integer">5</item>
 
 </resources>

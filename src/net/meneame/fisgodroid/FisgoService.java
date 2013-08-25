@@ -274,6 +274,7 @@ public class FisgoService extends Service
             if ( mIsLoggedIn )
             {
                 mOutgoingMessages.add(msg);
+                mThread.interrupt();
             }
         }
     }
