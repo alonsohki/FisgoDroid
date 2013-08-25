@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ public class FisgoService extends Service
     private static final String TAG = "FisgoService";
     private static final String LOGIN_GET_URL = "http://www.meneame.net/login.php";
     private static final String LOGIN_URL = "https://www.meneame.net/login.php";
+    private static final String SNEAK_URL = "http://www.meneame.net/sneak.php";
     private static final String SNEAK_BACKEND_URL = "http://www.meneame.net/backend/sneaker2.php";
 
     private FisgoBinder mBinder = new FisgoBinder();
@@ -37,6 +39,8 @@ public class FisgoService extends Service
     private List<ChatMessage> mMessages = new ArrayList<ChatMessage>();
     private double mLastMessageTime = 0.0;
     private String mUsername;
+    private String mMyKey;
+    private List<String> mOutgoingMessages = new LinkedList<String>();
 
     @Override
     public void onCreate()
@@ -59,18 +63,53 @@ public class FisgoService extends Service
                                 wait();
                             }
 
-                            // Build the request parameters
-                            String uri = SNEAK_BACKEND_URL + "?nopost=1&novote=1&noproblem=1&nocomment=1&nonew=1&nopublished=1&nopubvotes=1";
-                            // If we have previous messages, get only the new ones
-                            if ( mLastMessageTime > 0.0 )
+                            String result;
+                            boolean failed = false;
+                            boolean containsChat = mOutgoingMessages.size() > 0;
+                            
+                            if ( containsChat )
                             {
-                                DecimalFormat df = new DecimalFormat("0.00");
-                                uri += "&time=" + df.format(mLastMessageTime);
+                                Map<String, Object> params = new HashMap<String, Object>();
+                                
+                                params.put("k", mMyKey);
+                                params.put("chat", mOutgoingMessages.get(0));
+                                params.put("time", new DecimalFormat("0.00").format(mLastMessageTime));
+                                params.put("nopost", 1);
+                                params.put("novote", 1);
+                                params.put("noproblem", 1);
+                                params.put("nocomment", 1);
+                                params.put("nonew", 1);
+                                params.put("nopublished", 1);
+                                params.put("nopubvotes", 1);
+                                if ( mLastMessageTime > 0.0 )
+                                    params.put("time", new DecimalFormat("0.00").format(mLastMessageTime));
+                                result = mHttp.post(SNEAK_BACKEND_URL, params);
+                                
+                                if ( result != "" )
+                                    mOutgoingMessages.remove(0);
+                                else
+                                    failed = true;
+                            }
+                            else
+                            {
+                                // Build the request parameters
+                                String uri = SNEAK_BACKEND_URL + "?nopost=1&novote=1&noproblem=1&nocomment=1&nonew=1&nopublished=1&nopubvotes=1";
+                                // If we have previous messages, get only the new ones
+                                if ( mLastMessageTime > 0.0 )
+                                {
+                                    DecimalFormat df = new DecimalFormat("0.00");
+                                    uri += "&time=" + df.format(mLastMessageTime);
+                                }
+                                
+                                result = mHttp.get(uri);
                             }
                             
                             // Get the response JSON value and construct the chat messages from it
-                            String result = mHttp.get(uri);
-                            if ( result != "" )
+                            if ( result.equals("") )
+                            {
+                                failed = true;
+                            }
+                            else
                             {
                                 JSONObject root = new JSONObject(result);
                                 mLastMessageTime = root.getDouble("ts");
@@ -112,7 +151,9 @@ public class FisgoService extends Service
                                     }
                                 }
                             }
-                            wait(5000);
+                            
+                            if ( !failed && mOutgoingMessages.size() == 0 )
+                                wait(5000);
                         }
                         catch (InterruptedException e)
                         {
@@ -141,6 +182,7 @@ public class FisgoService extends Service
         private final Pattern mUseripPattern = Pattern.compile("<input type=\"hidden\" name=\"userip\" value=\"([^\"]+)\"/>");
         private final Pattern mIpcontrolPattern = Pattern.compile("<input type=\"hidden\" name=\"useripcontrol\" value=\"([^\"]+)\"/>");
         private final Pattern mLogoutPattern = Pattern.compile("<a href=\"/login\\.php\\?op=logout");
+        private final Pattern mMykeyPattern = Pattern.compile("var mykey = (\\d+);");
         
         public boolean isLoggedIn()
         {
@@ -182,9 +224,21 @@ public class FisgoService extends Service
             m = mLogoutPattern.matcher(step2);
             mIsLoggedIn = m.find();
             
+            if ( mIsLoggedIn )
+            {
+                mUsername = username;
+                
+                // Get the mykey value to be able to send messages
+                String step3 = mHttp.get(SNEAK_URL);
+                m = mMykeyPattern.matcher(step3);
+                if ( m.find() )
+                {
+                    mMyKey = m.group(1);
+                }
+            }
+
             mThread.interrupt();
             
-            mUsername = username;
             
             return mIsLoggedIn;
         }
@@ -213,6 +267,14 @@ public class FisgoService extends Service
         public void removeHandler(Handler handler)
         {
             mHandlers.remove(handler);
+        }
+        
+        public void sendChat ( String msg )
+        {
+            if ( mIsLoggedIn )
+            {
+                mOutgoingMessages.add(msg);
+            }
         }
     }
 }

@@ -95,12 +95,15 @@ public class HttpService implements IHttpService
             HttpResponse response = mClient.execute(req, mContext);
             
             // Get the response data and transform it into a String
-            InputStream content = response.getEntity().getContent();
-            byte[] buffer = new byte[512];
-            int bytesRead;
-            while ((bytesRead = content.read(buffer)) != -1)
+            if ( out != null )
             {
-                out.write(buffer, 0, bytesRead);
+                InputStream content = response.getEntity().getContent();
+                byte[] buffer = new byte[512];
+                int bytesRead;
+                while ((bytesRead = content.read(buffer)) != -1)
+                {
+                    out.write(buffer, 0, bytesRead);
+                }
             }
             return true;
         }
