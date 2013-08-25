@@ -13,10 +13,12 @@ public class ChatMessageAdapter extends BaseAdapter
 {
     private List<ChatMessage> mMessages = null;
     private Context mContext;
+    private AvatarStorage mAvatarStorage;
     
-    public ChatMessageAdapter ( Context context )
+    public ChatMessageAdapter ( Context context, AvatarStorage avatarStorage )
     {
         mContext = context;
+        mAvatarStorage = avatarStorage;
     }
     
     public void setMessages ( List<ChatMessage> messages )
@@ -51,7 +53,7 @@ public class ChatMessageAdapter extends BaseAdapter
         ChatLineView line = (ChatLineView)convertView;
         if ( line == null )
         {
-            line = new ChatLineView(mContext);
+            line = new ChatLineView(mContext, mAvatarStorage);
         }
         ChatMessage chatmsg = (ChatMessage)getItem(position);
         line.setChatMessage(chatmsg);

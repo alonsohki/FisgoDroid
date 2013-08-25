@@ -1,7 +1,9 @@
 package net.meneame.fisgodroid;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +31,18 @@ public class HttpService implements IHttpService
     @Override
     public String get(String uri)
     {
-        return performRequest(new HttpGet(uri));
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        performRequest(new HttpGet(uri), os);
+        return new String(os.toByteArray());
+    }
+    
+    @Override
+    public boolean get(String uri, OutputStream os)
+    {
+        return performRequest(new HttpGet(uri), os);
     }
 
-    @Override
-    public String post(String uri, Map<String, Object> params)
+    private HttpPost buildPostRequest(String uri, Map<String, Object> params)
     {
         HttpPost req = new HttpPost(uri);
 
@@ -59,13 +68,25 @@ public class HttpService implements IHttpService
             }
         }
 
-        return performRequest(req);
+        return req;
+    }
+    
+    @Override
+    public String post(String uri, Map<String, Object> params)
+    {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        performRequest(buildPostRequest(uri, params), os);
+        return new String(os.toByteArray());
+    }
+    
+    @Override
+    public boolean post(String uri, Map<String, Object> params, OutputStream os)
+    {
+        return performRequest(buildPostRequest(uri, params), os);
     }
 
-    public String performRequest(HttpUriRequest req)
+    public boolean performRequest(HttpUriRequest req, OutputStream out)
     {
-        StringBuilder output = new StringBuilder();
-
         try
         {
             mClient.getParams().setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
@@ -79,8 +100,9 @@ public class HttpService implements IHttpService
             int bytesRead;
             while ((bytesRead = content.read(buffer)) != -1)
             {
-                output.append(new String(buffer, 0, bytesRead));
+                out.write(buffer, 0, bytesRead);
             }
+            return true;
         }
         catch ( ClientProtocolException e )
         {
@@ -91,6 +113,6 @@ public class HttpService implements IHttpService
             e.printStackTrace();
         }
         
-        return output.toString();
+        return false;
     }
 }

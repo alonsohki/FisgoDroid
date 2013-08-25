@@ -153,6 +153,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
         private ListView mMessages;
         private ChatType mType;
         private ChatMessageAdapter mAdapter;
+        private AvatarStorage mAvatarStorage;
 
         /**
          * The fragment argument representing the section number for this
@@ -174,7 +175,8 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             mMessages = (ListView) rootView.findViewById(R.id.chat_messages);
 
             // Setup
-            mAdapter = new ChatMessageAdapter(getActivity());
+            mAvatarStorage = new AvatarStorage(getActivity());
+            mAdapter = new ChatMessageAdapter(getActivity(), mAvatarStorage);
             mMessages.setAdapter(mAdapter);
             setType(mType);
 
