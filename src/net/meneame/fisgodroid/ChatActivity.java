@@ -57,6 +57,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
     protected void onStop()
     {
         super.onStop();
+        mFragment = null;
     }
 
     /**
@@ -140,12 +141,12 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             {
                 mFisgoBinder = (FisgoService.FisgoBinder) binder;
                 mFisgoBinder.addHandler(mHandler);
+                updateMessages(mFisgoBinder.getMessages());
             }
 
             @Override
             public void onServiceDisconnected(ComponentName arg0)
             {
-                mFisgoBinder.removeHandler(mHandler);
             }
         };
         
@@ -181,7 +182,9 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             setType(mType);
 
             // Connect with the chat service
-            getActivity().bindService(new Intent(getActivity(), FisgoService.class), mServiceConn, BIND_AUTO_CREATE);
+            Intent intent = new Intent(getActivity(), FisgoService.class);
+            getActivity().startService(intent);
+            getActivity().bindService(intent, mServiceConn, BIND_AUTO_CREATE);
             
             return rootView;
         }
@@ -189,6 +192,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
         @Override
         public void onDestroyView ()
         {
+            mFisgoBinder.removeHandler(mHandler);
             getActivity().unbindService(mServiceConn);
             super.onDestroyView();
         }

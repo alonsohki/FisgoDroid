@@ -78,7 +78,11 @@ public class LoginActivity extends Activity
     protected void onResume()
     {
         super.onResume();
-        bindService(new Intent(this, FisgoService.class), mServiceConn, BIND_AUTO_CREATE);
+        
+        // Start and bind the chat service
+        Intent intent = new Intent(this, FisgoService.class);
+        startService(intent);
+        bindService(intent, mServiceConn, BIND_AUTO_CREATE);
     }
 
     @Override
