@@ -11,6 +11,11 @@
         android:gravity="center_horizontal"
         android:orientation="horizontal" >
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/send_as" />
+
         <RadioButton
             android:id="@+id/radio_general"
             android:layout_width="wrap_content"

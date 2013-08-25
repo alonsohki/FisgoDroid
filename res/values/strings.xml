@@ -10,5 +10,6 @@
     <string name="send_chat">Send</string>
 	<string name="general">General</string>
 	<string name="friends">Friends</string>
+	<string name="send_as">Send as:</string>
 
 </resources>
