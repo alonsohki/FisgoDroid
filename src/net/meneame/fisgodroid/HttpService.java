@@ -60,7 +60,7 @@ public class HttpService implements IHttpService
 
             try
             {
-                req.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                req.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
             }
             catch (UnsupportedEncodingException e)
             {
