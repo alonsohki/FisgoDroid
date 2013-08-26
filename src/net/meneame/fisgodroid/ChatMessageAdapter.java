@@ -14,7 +14,6 @@ public class ChatMessageAdapter extends BaseAdapter
     private List<ChatMessage> mMessages = null;
     private Context mContext;
     private AvatarStorage mAvatarStorage;
-    private ChatType mType = ChatType.PUBLIC;
     private String mUsername;
     
     public ChatMessageAdapter ( Context context, AvatarStorage avatarStorage )
@@ -33,52 +32,19 @@ public class ChatMessageAdapter extends BaseAdapter
         mMessages = messages;
         this.notifyDataSetChanged();
     }
-    
-    public void setType ( ChatType type )
-    {
-        if ( type != mType )
-        {
-            mType = type;
-            this.notifyDataSetChanged();
-        }
-    }
 
     @Override
     public int getCount()
     {
-        if ( mMessages == null )
-            return 0;
-        if ( mType == ChatType.PUBLIC )
+        if ( mMessages != null )
             return mMessages.size();
-        
-        // Count only friend messages
-        int count = 0;
-        for ( ChatMessage msg : mMessages )
-        {
-            if ( msg.getType() == ChatType.FRIENDS )
-                ++count;
-        }
-        return count;
+        return 0;
     }
 
     @Override
     public Object getItem(int position)
     {
-        if ( mType == ChatType.PUBLIC )
-            return mMessages.get(position);
-        
-        // Skip public messages
-        for ( ChatMessage msg : mMessages )
-        {
-            if ( msg.getType() == ChatType.FRIENDS )
-            {
-                if ( position == 0 )
-                    return msg;
-                --position;
-            }
-        }
-        
-        return null;
+        return mMessages.get(position);
     }
 
     @Override

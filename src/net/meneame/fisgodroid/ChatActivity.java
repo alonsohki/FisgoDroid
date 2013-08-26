@@ -52,6 +52,7 @@ public class ChatActivity extends Activity
         public void onServiceConnected(ComponentName arg0, IBinder binder)
         {
             mFisgoBinder = (FisgoService.FisgoBinder) binder;
+            mFisgoBinder.setType(mType);
             mAdapter = new ChatMessageAdapter(ChatActivity.this, mFisgoBinder.getAvatarStorage());
             mMessages.setAdapter(mAdapter);
             mFisgoBinder.addHandler(mHandler);
@@ -78,7 +79,7 @@ public class ChatActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        
+
         // Get views
         mCheckboxFriends = (CheckBox) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
@@ -89,27 +90,31 @@ public class ChatActivity extends Activity
         // Setup
         setType(mType);
         setSendAs(mSendAs);
-        
+
         // Set the different types of chat options
         mChatSpinner.setAdapter(new ArrayAdapter<String>(this, R.layout.chat_spinner_item)
         {
             @Override
-            public int getCount ()
+            public int getCount()
             {
                 return ChatType.values().length;
             }
-            
+
             @Override
-            public String getItem ( int position )
+            public String getItem(int position)
             {
                 int stringId = -1;
-                switch ( ChatType.values()[position] )
+                switch (ChatType.values()[position])
                 {
-                case PUBLIC: stringId = R.string.general; break;
-                case FRIENDS: stringId = R.string.friends; break;
+                case PUBLIC:
+                    stringId = R.string.general;
+                    break;
+                case FRIENDS:
+                    stringId = R.string.friends;
+                    break;
                 }
-                
-                if ( stringId != -1 )
+
+                if (stringId != -1)
                     return getResources().getString(stringId);
                 return "";
             }
@@ -141,13 +146,13 @@ public class ChatActivity extends Activity
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent)
             {
-                if ( id == EditorInfo.IME_NULL )
+                if (id == EditorInfo.IME_NULL)
                 {
-                    if ( keyEvent.getAction() == KeyEvent.ACTION_UP )
+                    if (keyEvent.getAction() == KeyEvent.ACTION_UP)
                         sendChat();
                     return true;
                 }
-                
+
                 return false;
             }
         });
@@ -191,14 +196,14 @@ public class ChatActivity extends Activity
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState)
     {
-        if ( savedInstanceState.containsKey("send as") )
+        if (savedInstanceState.containsKey("send as"))
         {
-            mSendAs = (ChatType)savedInstanceState.getSerializable("send as");
+            mSendAs = (ChatType) savedInstanceState.getSerializable("send as");
             setSendAs(mSendAs);
         }
-        if ( savedInstanceState.containsKey("type") )
+        if (savedInstanceState.containsKey("type"))
         {
-            mType = (ChatType)savedInstanceState.getSerializable("type");
+            mType = (ChatType) savedInstanceState.getSerializable("type");
             setType(mType);
         }
     }
@@ -218,42 +223,32 @@ public class ChatActivity extends Activity
         getMenuInflater().inflate(R.menu.chat, menu);
         return true;
     }
-    
-    private void sendChat ()
+
+    private void sendChat()
     {
         String text = mMessagebox.getText().toString();
-        if ( text.length() > 0 )
+        if (text.length() > 0)
         {
             Date now = new Date();
             Resources res = getResources();
             int delayBetweenMessages = res.getInteger(R.integer.time_between_messages);
-            
+
             // Check for too small messages
-            if ( text.length() < res.getInteger(R.integer.min_message_length) )
-            {   
+            if (text.length() < res.getInteger(R.integer.min_message_length))
+            {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.error)
-                       .setMessage(R.string.message_too_short)
-                       .setIcon(android.R.drawable.ic_dialog_alert)
-                       .setNeutralButton(android.R.string.ok, null)
-                       .create().show();
-            }
-            else if ( mLastMessage != null && (now.getTime() - mLastMessage.getTime()) < (delayBetweenMessages*1000) )
+                builder.setTitle(R.string.error).setMessage(R.string.message_too_short).setIcon(android.R.drawable.ic_dialog_alert).setNeutralButton(android.R.string.ok, null).create().show();
+            } else if (mLastMessage != null && (now.getTime() - mLastMessage.getTime()) < (delayBetweenMessages * 1000))
             {
                 String errMsg = String.format(res.getString(R.string.message_too_soon), delayBetweenMessages);
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.error)
-                       .setMessage(errMsg)
-                       .setIcon(android.R.drawable.ic_dialog_alert)
-                       .setNeutralButton(android.R.string.ok, null)
-                       .create().show();
-            }
-            else
+                builder.setTitle(R.string.error).setMessage(errMsg).setIcon(android.R.drawable.ic_dialog_alert).setNeutralButton(android.R.string.ok, null).create().show();
+            } else
             {
                 // If it's a friends chat, prefix the message with '@'
-                if ( mType == ChatType.FRIENDS || getSendAs() == ChatType.FRIENDS )
+                if (mType == ChatType.FRIENDS || getSendAs() == ChatType.FRIENDS)
                     text = "@" + text;
-                
+
                 mFisgoBinder.sendChat(text);
                 mMessagebox.setText("");
                 mLastMessage = now;
@@ -261,35 +256,35 @@ public class ChatActivity extends Activity
         }
     }
 
-    public ChatType getSendAs ()
+    public ChatType getSendAs()
     {
         return mCheckboxFriends.isChecked() ? ChatType.FRIENDS : ChatType.PUBLIC;
     }
-    
-    public void setSendAs ( ChatType type )
+
+    public void setSendAs(ChatType type)
     {
         mSendAs = type;
-        if ( mCheckboxFriends != null )
-            mCheckboxFriends.setChecked( type == ChatType.FRIENDS );
+        if (mCheckboxFriends != null)
+            mCheckboxFriends.setChecked(type == ChatType.FRIENDS);
     }
 
     public void setType(ChatType type)
     {
         mType = type;
-        
-        if ( mChatSpinner != null )
+
+        if (mChatSpinner != null)
             mChatSpinner.setSelection(type.ordinal(), false);
 
         if (mCheckboxFriends != null)
             mCheckboxFriends.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
 
-        if (mAdapter != null)
-            mAdapter.setType(mType);
+        if (mFisgoBinder != null)
+            mFisgoBinder.setType(mType);
     }
 
     public void updateMessages(List<ChatMessage> messages)
     {
-        if ( mAdapter != null )
+        if (mAdapter != null)
         {
             mAdapter.setUsername(mFisgoBinder.getUsername());
             mAdapter.setMessages(messages);
