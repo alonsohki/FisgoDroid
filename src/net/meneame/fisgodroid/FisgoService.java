@@ -37,12 +37,13 @@ public class FisgoService extends Service
     private boolean mIsLoggedIn = false;
     private IHttpService mHttp = new HttpService();
     private List<ChatMessage> mMessages = new ArrayList<ChatMessage>();
-    private double mLastMessageTime = 0.0;
+    private String mLastMessageTime;
     private String mUsername;
     private String mMyKey;
     private List<String> mOutgoingMessages = new LinkedList<String>();
     private AvatarStorage mAvatars;
     private ChatType mType = ChatType.PUBLIC;
+    private int mNumRequests = 0;
 
     @Override
     public void onCreate()
@@ -60,10 +61,10 @@ public class FisgoService extends Service
                     {
                         try
                         {
-                            if (!mIsLoggedIn)
+                            if ( !mIsLoggedIn )
                             {
                                 mMessages.clear();
-                                mLastMessageTime = 0.0;
+                                mLastMessageTime = "";
                                 wait();
                             }
 
@@ -71,13 +72,14 @@ public class FisgoService extends Service
                             boolean failed = false;
                             boolean containsChat = mOutgoingMessages.size() > 0;
 
-                            if (containsChat)
+                            if ( containsChat )
                             {
                                 Map<String, Object> params = new HashMap<String, Object>();
 
                                 params.put("k", mMyKey);
+                                params.put("v", 5);
+                                params.put("r", ++mNumRequests);
                                 params.put("chat", mOutgoingMessages.get(0));
-                                params.put("time", new DecimalFormat("0.00").format(mLastMessageTime));
                                 params.put("nopost", 1);
                                 params.put("novote", 1);
                                 params.put("noproblem", 1);
@@ -85,31 +87,31 @@ public class FisgoService extends Service
                                 params.put("nonew", 1);
                                 params.put("nopublished", 1);
                                 params.put("nopubvotes", 1);
-                                if (mType == ChatType.FRIENDS)
+                                if ( mType == ChatType.FRIENDS )
                                     params.put("friends", 1);
-                                if (mLastMessageTime > 0.0)
-                                    params.put("time", new DecimalFormat("0.00").format(mLastMessageTime));
+                                if ( mLastMessageTime.equals("") == false )
+                                    params.put("time", mLastMessageTime);
                                 result = mHttp.post(SNEAK_BACKEND_URL, params);
 
-                                if (result != "")
+                                if ( "".equals(result) == false )
                                     mOutgoingMessages.remove(0);
                                 else
                                     failed = true;
-                            } else
+                            }
+                            else
                             {
                                 // Build the request parameters
                                 String uri = SNEAK_BACKEND_URL + "?nopost=1&novote=1&noproblem=1&nocomment=1" +
-                                                                 "&nonew=1&nopublished=1&nopubvotes=1";
+                                                                 "&nonew=1&nopublished=1&nopubvotes=1&v=5&r=" + (++mNumRequests);
                                 // If we have previous messages, get only the
                                 // new ones
-                                if (mLastMessageTime > 0.0)
+                                if ( mLastMessageTime.equals("") == false )
                                 {
-                                    DecimalFormat df = new DecimalFormat("0.00");
-                                    uri += "&time=" + df.format(mLastMessageTime);
+                                    uri += "&time=" + mLastMessageTime;
                                 }
-                                
+
                                 // Do we only want friend chats?
-                                if (mType == ChatType.FRIENDS)
+                                if ( mType == ChatType.FRIENDS )
                                     uri += "&friends=1";
 
                                 result = mHttp.get(uri);
@@ -117,16 +119,17 @@ public class FisgoService extends Service
 
                             // Get the response JSON value and construct the
                             // chat messages from it
-                            if (result.equals(""))
+                            if ( result.equals("") )
                             {
                                 failed = true;
-                            } else
+                            }
+                            else
                             {
                                 JSONObject root = new JSONObject(result);
-                                mLastMessageTime = root.getDouble("ts");
+                                mLastMessageTime = root.getString("ts");
 
                                 JSONArray events = root.getJSONArray("events");
-                                if (events.length() > 0)
+                                if ( events.length() > 0 )
                                 {
                                     // Create a new list with the new messages
                                     List<ChatMessage> newList = new ArrayList<ChatMessage>();
@@ -158,15 +161,17 @@ public class FisgoService extends Service
                                     mMessages = newList;
 
                                     // Notify the handlers
-                                    notifyHandlers ();
+                                    notifyHandlers();
                                 }
                             }
 
-                            if (!failed && mOutgoingMessages.size() == 0)
+                            if ( !failed && mOutgoingMessages.size() == 0 )
                                 wait(5000);
-                        } catch (InterruptedException e)
+                        }
+                        catch (InterruptedException e)
                         {
-                        } catch (JSONException e)
+                        }
+                        catch (JSONException e)
                         {
                             e.printStackTrace();
                         }
@@ -176,8 +181,8 @@ public class FisgoService extends Service
         });
         mThread.start();
     }
-    
-    private void notifyHandlers ()
+
+    private void notifyHandlers()
     {
         for (Handler handler : mBinder.getHandlers())
         {
@@ -208,18 +213,18 @@ public class FisgoService extends Service
         public boolean logIn(String username, String password)
         {
             String step1 = mHttp.get(LOGIN_GET_URL);
-            if ("".equals(step1))
+            if ( "".equals(step1) )
                 return false;
 
             // Get the userip field
             Matcher m = mUseripPattern.matcher(step1);
-            if (!m.find())
+            if ( !m.find() )
                 Log.e(TAG, "Couldn't find the userip form field");
             String userip = m.group(1);
 
             // Get the ip control field
             m = mIpcontrolPattern.matcher(step1);
-            if (!m.find())
+            if ( !m.find() )
                 Log.e(TAG, "Couldn't find the ip control form field");
             String ipcontrol = m.group(1);
 
@@ -233,21 +238,21 @@ public class FisgoService extends Service
             params.put("processlogin", 1);
             params.put("return", "");
             String step2 = mHttp.post(LOGIN_URL, params);
-            if ("".equals(step2))
+            if ( "".equals(step2) )
                 return false;
 
             // Did we log in correctly?
             m = mLogoutPattern.matcher(step2);
             mIsLoggedIn = m.find();
 
-            if (mIsLoggedIn)
+            if ( mIsLoggedIn )
             {
                 mUsername = username;
 
                 // Get the mykey value to be able to send messages
                 String step3 = mHttp.get(SNEAK_URL);
                 m = mMykeyPattern.matcher(step3);
-                if (m.find())
+                if ( m.find() )
                 {
                     mMyKey = m.group(1);
                 }
@@ -286,7 +291,7 @@ public class FisgoService extends Service
 
         public void sendChat(String msg)
         {
-            if (mIsLoggedIn)
+            if ( mIsLoggedIn )
             {
                 mOutgoingMessages.add(msg);
                 mThread.interrupt();
@@ -297,16 +302,16 @@ public class FisgoService extends Service
         {
             return mAvatars;
         }
-        
-        public void setType ( ChatType type )
+
+        public void setType(ChatType type)
         {
             if ( type != mType )
             {
                 // Set the new chat type, and reset all the message lists
-                synchronized ( FisgoService.this )
+                synchronized (FisgoService.this)
                 {
                     mType = type;
-                    mLastMessageTime = 0.0;
+                    mLastMessageTime = "";
                     mMessages.clear();
                     mOutgoingMessages.clear();
                     notifyHandlers();
