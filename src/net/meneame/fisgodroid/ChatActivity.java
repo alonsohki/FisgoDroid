@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -222,6 +223,20 @@ public class ChatActivity extends Activity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.chat, menu);
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch ( item.getItemId() )
+        {
+        case R.id.action_quit:
+            stopService(new Intent(this, FisgoService.class));
+            finish();
+            return true;
+        }
+        
+        return false;
     }
 
     private void sendChat()
