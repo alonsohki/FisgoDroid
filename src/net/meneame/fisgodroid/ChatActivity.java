@@ -159,8 +159,9 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             public void onServiceConnected(ComponentName arg0, IBinder binder)
             {
                 mFisgoBinder = (FisgoService.FisgoBinder) binder;
+                mAdapter = new ChatMessageAdapter(getActivity(), mFisgoBinder.getAvatarStorage());
+                mMessages.setAdapter(mAdapter);
                 mFisgoBinder.addHandler(mHandler);
-                updateMessages(mFisgoBinder.getMessages());
             }
 
             @Override
@@ -176,7 +177,6 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
         private ChatType mType;
         private ChatType mSendAs;
         private ChatMessageAdapter mAdapter;
-        private AvatarStorage mAvatarStorage;
         private Date mLastMessage = null;
 
         /**
@@ -201,9 +201,6 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             mSendButton = (Button) rootView.findViewById(R.id.button_send);
 
             // Setup
-            mAvatarStorage = new AvatarStorage(getActivity());
-            mAdapter = new ChatMessageAdapter(getActivity(), mAvatarStorage);
-            mMessages.setAdapter(mAdapter);
             setType(mType);
             setSendAs(mSendAs);
 
@@ -317,8 +314,11 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
 
         public void updateMessages(List<ChatMessage> messages)
         {
-            mAdapter.setUsername(mFisgoBinder.getUsername());
-            mAdapter.setMessages(messages);
+            if ( mAdapter != null )
+            {
+                mAdapter.setUsername(mFisgoBinder.getUsername());
+                mAdapter.setMessages(messages);
+            }
         }
     }
 

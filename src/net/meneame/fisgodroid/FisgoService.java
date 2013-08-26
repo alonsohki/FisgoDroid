@@ -41,10 +41,13 @@ public class FisgoService extends Service
     private String mUsername;
     private String mMyKey;
     private List<String> mOutgoingMessages = new LinkedList<String>();
+    private AvatarStorage mAvatars;
 
     @Override
     public void onCreate()
     {
+        mAvatars = new AvatarStorage(getApplicationContext());
+        
         mThread = new Thread(new Runnable()
         {
             @Override
@@ -276,6 +279,11 @@ public class FisgoService extends Service
                 mOutgoingMessages.add(msg);
                 mThread.interrupt();
             }
+        }
+        
+        public AvatarStorage getAvatarStorage ()
+        {
+            return mAvatars;
         }
     }
 }
