@@ -164,9 +164,9 @@ public class ChatActivity extends Activity
     }
 
     @Override
-    protected void onStop()
+    protected void onDestroy()
     {
-        super.onStop();
+        super.onDestroy();
         mFisgoBinder.removeHandler(mHandler);
         unbindService(mServiceConn);
     }
