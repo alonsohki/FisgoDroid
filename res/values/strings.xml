@@ -14,6 +14,6 @@
 	<string name="error">Error</string>
 	<string name="message_too_short">Message too short</string>
 	<string name="message_too_soon">You have to wait %1$d seconds between messages</string>
-	<string name="quit">Quit</string>
+	<string name="logout">Log out</string>
 
 </resources>

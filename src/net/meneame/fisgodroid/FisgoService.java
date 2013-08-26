@@ -63,8 +63,7 @@ public class FisgoService extends Service
                         {
                             if ( !mIsLoggedIn )
                             {
-                                mMessages.clear();
-                                mLastMessageTime = "";
+                                clearSession();
                                 wait();
                             }
 
@@ -101,8 +100,7 @@ public class FisgoService extends Service
                             else
                             {
                                 // Build the request parameters
-                                String uri = SNEAK_BACKEND_URL + "?nopost=1&novote=1&noproblem=1&nocomment=1" +
-                                                                 "&nonew=1&nopublished=1&nopubvotes=1&v=5&r=" + (++mNumRequests);
+                                String uri = SNEAK_BACKEND_URL + "?nopost=1&novote=1&noproblem=1&nocomment=1" + "&nonew=1&nopublished=1&nopubvotes=1&v=5&r=" + (++mNumRequests);
                                 // If we have previous messages, get only the
                                 // new ones
                                 if ( mLastMessageTime.equals("") == false )
@@ -181,6 +179,14 @@ public class FisgoService extends Service
         });
         mThread.start();
     }
+    
+    private void clearSession()
+    {
+        mLastMessageTime = "";
+        mMessages.clear();
+        mOutgoingMessages.clear();
+        notifyHandlers();
+    }
 
     private void notifyHandlers()
     {
@@ -208,6 +214,13 @@ public class FisgoService extends Service
         public boolean isLoggedIn()
         {
             return mIsLoggedIn;
+        }
+
+        public void logOut()
+        {
+            mIsLoggedIn = false;
+            clearSession();
+            mThread.interrupt();
         }
 
         public boolean logIn(String username, String password)
@@ -311,10 +324,7 @@ public class FisgoService extends Service
                 synchronized (FisgoService.this)
                 {
                     mType = type;
-                    mLastMessageTime = "";
-                    mMessages.clear();
-                    mOutgoingMessages.clear();
-                    notifyHandlers();
+                    clearSession();
                     mThread.interrupt();
                 }
             }

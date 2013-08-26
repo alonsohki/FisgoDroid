@@ -240,9 +240,11 @@ public class ChatActivity extends Activity
     {
         switch ( item.getItemId() )
         {
-        case R.id.action_quit:
+        case R.id.action_logout:
+            mFisgoBinder.logOut();
             stopService(new Intent(this, FisgoService.class));
             finish();
+            startActivity(new Intent(this, LoginActivity.class));
             return true;
         }
         
