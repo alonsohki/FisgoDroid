@@ -4,5 +4,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ChatActivity"
-    tools:ignore="MergeRootFrame" />
+    tools:ignore="MergeRootFrame">
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical" >
+
+        <Spinner
+            android:id="@+id/chat_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+           
+        <RadioGroup
+            android:id="@+id/radio_group_chattype"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:orientation="horizontal" >
+
+	        <TextView
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/send_as" />
+	
+	        <RadioButton
+	            android:id="@+id/radio_general"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:checked="true"
+	            android:text="@string/general" />
+	
+	        <RadioButton
+	            android:id="@+id/radio_friends"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/friends" />
+	    </RadioGroup>
+	
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal" >
+	
+	        <EditText
+	            android:id="@+id/messagebox"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	            android:ems="10"
+	            android:imeOptions="actionSend"
+	            android:inputType="text" >
+	
+	            <requestFocus />
+	        </EditText>
+	
+	        <ImageButton
+	            android:id="@+id/button_send"
+	            android:layout_width="44dp"
+	            android:layout_height="36dp"
+	            android:background="@android:drawable/btn_default_small"
+	            android:src="@android:drawable/ic_menu_send" />
+
+	    </LinearLayout>
+	
+	    <ListView
+	        android:id="@+id/chat_messages"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" >
+	    </ListView>
+	
+	</LinearLayout>
+</FrameLayout>
 
