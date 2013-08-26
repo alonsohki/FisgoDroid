@@ -270,10 +270,17 @@ public class ChatActivity extends Activity
 
     public void setType(ChatType type)
     {
-        mType = type;
-
-        if (mChatSpinner != null)
+        // This might seem a weird way to do this, but this way
+        // we avoid an infinite recursion from setSelection
+        // calling the spinner handler, and calling this function
+        // back.
+        if (type != mType && mChatSpinner != null)
+        {
+            mType = type;
             mChatSpinner.setSelection(type.ordinal(), false);
+        }
+
+        mType = type;
 
         if (mCheckboxFriends != null)
             mCheckboxFriends.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
