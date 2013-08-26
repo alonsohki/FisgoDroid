@@ -196,12 +196,18 @@ public class ChatActivity extends Activity
             mSendAs = (ChatType)savedInstanceState.getSerializable("send as");
             setSendAs(mSendAs);
         }
+        if ( savedInstanceState.containsKey("type") )
+        {
+            mType = (ChatType)savedInstanceState.getSerializable("type");
+            setType(mType);
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
         // Serialize the current dropdown position.
+        outState.putSerializable("type", mType);
         outState.putSerializable("send as", getSendAs());
     }
 
@@ -270,6 +276,9 @@ public class ChatActivity extends Activity
     public void setType(ChatType type)
     {
         mType = type;
+        
+        if ( mChatSpinner != null )
+            mChatSpinner.setSelection(type.ordinal(), false);
 
         if (mCheckboxFriends != null)
             mCheckboxFriends.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
