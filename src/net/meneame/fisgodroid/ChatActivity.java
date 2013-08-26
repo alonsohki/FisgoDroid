@@ -35,6 +35,7 @@ import android.widget.TextView;
 public class ChatActivity extends FragmentActivity implements ActionBar.OnNavigationListener
 {
     private ChatFragment mFragment = null;
+    private ChatType mSendAsType = ChatType.PUBLIC;
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -91,6 +92,14 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM))
         {
             getActionBar().setSelectedNavigationItem(savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
+            if ( savedInstanceState.containsKey("send as") )
+            {
+                mSendAsType = (ChatType)savedInstanceState.getSerializable("send as");
+                if ( mFragment != null )
+                {
+                    mFragment.setSendAs(mSendAsType);
+                }
+            }
         }
     }
 
@@ -99,6 +108,8 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
     {
         // Serialize the current dropdown position.
         outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar().getSelectedNavigationIndex());
+        if ( mFragment != null )
+            outState.putSerializable("send as", mFragment.getSendAs());
     }
 
     @Override
@@ -120,6 +131,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             getSupportFragmentManager().beginTransaction().replace(R.id.container, mFragment).commit();
         }
         mFragment.setType(position == 0 ? ChatType.PUBLIC : ChatType.FRIENDS);
+        mFragment.setSendAs(mSendAsType);
         return true;
     }
 
@@ -162,6 +174,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
         private EditText mMessagebox;
         private Button mSendButton;
         private ChatType mType;
+        private ChatType mSendAs;
         private ChatMessageAdapter mAdapter;
         private AvatarStorage mAvatarStorage;
         private Date mLastMessage = null;
@@ -192,6 +205,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             mAdapter = new ChatMessageAdapter(getActivity(), mAvatarStorage);
             mMessages.setAdapter(mAdapter);
             setType(mType);
+            setSendAs(mSendAs);
 
             // Connect with the chat service
             Intent intent = new Intent(getActivity(), FisgoService.class);
@@ -260,7 +274,7 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
                 else
                 {
                     // If it's a friends chat, prefix the message with '@'
-                    if ( mRadioGroup.getCheckedRadioButtonId() == R.id.radio_friends )
+                    if ( mType == ChatType.FRIENDS || getSendAs() == ChatType.FRIENDS )
                         text = "@" + text;
                     
                     mFisgoBinder.sendChat(text);
@@ -276,6 +290,18 @@ public class ChatActivity extends FragmentActivity implements ActionBar.OnNaviga
             mFisgoBinder.removeHandler(mHandler);
             getActivity().unbindService(mServiceConn);
             super.onDestroyView();
+        }
+        
+        public ChatType getSendAs ()
+        {
+            return mRadioGroup.getCheckedRadioButtonId() == R.id.radio_friends ? ChatType.FRIENDS : ChatType.PUBLIC;
+        }
+        
+        public void setSendAs ( ChatType type )
+        {
+            mSendAs = type;
+            if ( mRadioGroup != null )
+                mRadioGroup.check( type == ChatType.FRIENDS ? R.id.radio_friends : R.id.radio_general );
         }
 
         public void setType(ChatType type)
