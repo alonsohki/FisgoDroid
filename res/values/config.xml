@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="time_between_messages" format="integer" type="integer">5</item>
+	<item name="min_message_length" format="integer" type="integer">4</item>
+</resources>

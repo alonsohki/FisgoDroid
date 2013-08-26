@@ -14,7 +14,6 @@
 	<string name="error">Error</string>
 	<string name="message_too_short">Message too short</string>
 	<string name="message_too_soon">You have to wait %1$d seconds between messages</string>
-	<item name="time_between_messages" format="integer" type="integer">5</item>
-	<item name="min_message_length" format="integer" type="integer">4</item>
+	<string name="quit">Quit</string>
 
 </resources>
