@@ -25,10 +25,10 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -63,7 +63,7 @@ public class ChatActivity extends Activity
         }
     };
 
-    private RadioGroup mRadioGroup;
+    private CheckBox mCheckboxFriends;
     private ListView mMessages;
     private EditText mMessagebox;
     private ImageButton mSendButton;
@@ -80,9 +80,9 @@ public class ChatActivity extends Activity
         setContentView(R.layout.activity_chat);
         
         // Get views
-        mRadioGroup = (RadioGroup) findViewById(R.id.radio_group_chattype);
+        mCheckboxFriends = (CheckBox) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
-        mMessagebox = (EditText) findViewById(R.id.messagebox);
+        mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
         mSendButton = (ImageButton) findViewById(R.id.button_send);
         mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
 
@@ -257,22 +257,22 @@ public class ChatActivity extends Activity
 
     public ChatType getSendAs ()
     {
-        return mRadioGroup.getCheckedRadioButtonId() == R.id.radio_friends ? ChatType.FRIENDS : ChatType.PUBLIC;
+        return mCheckboxFriends.isChecked() ? ChatType.FRIENDS : ChatType.PUBLIC;
     }
     
     public void setSendAs ( ChatType type )
     {
         mSendAs = type;
-        if ( mRadioGroup != null )
-            mRadioGroup.check( type == ChatType.FRIENDS ? R.id.radio_friends : R.id.radio_general );
+        if ( mCheckboxFriends != null )
+            mCheckboxFriends.setChecked( type == ChatType.FRIENDS );
     }
 
     public void setType(ChatType type)
     {
         mType = type;
 
-        if (mRadioGroup != null)
-            mRadioGroup.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
+        if (mCheckboxFriends != null)
+            mCheckboxFriends.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
 
         if (mAdapter != null)
             mAdapter.setType(mType);
