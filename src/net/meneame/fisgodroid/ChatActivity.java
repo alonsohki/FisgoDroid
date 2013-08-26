@@ -53,10 +53,20 @@ public class ChatActivity extends Activity
         public void onServiceConnected(ComponentName arg0, IBinder binder)
         {
             mFisgoBinder = (FisgoService.FisgoBinder) binder;
-            mFisgoBinder.setType(mType);
-            mAdapter = new ChatMessageAdapter(ChatActivity.this, mFisgoBinder.getAvatarStorage());
-            mMessages.setAdapter(mAdapter);
-            mFisgoBinder.addHandler(mHandler);
+            
+            // If the service is not logged in, we should go back to the login screen.
+            if ( mFisgoBinder.isLoggedIn() == false )
+            {
+                finish();
+                startActivity(new Intent(ChatActivity.this, LoginActivity.class));
+            }
+            else
+            {
+                mFisgoBinder.setType(mType);
+                mAdapter = new ChatMessageAdapter(ChatActivity.this, mFisgoBinder.getAvatarStorage());
+                mMessages.setAdapter(mAdapter);
+                mFisgoBinder.addHandler(mHandler);
+            }
         }
 
         @Override

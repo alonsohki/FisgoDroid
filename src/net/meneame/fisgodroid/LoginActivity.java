@@ -64,6 +64,7 @@ public class LoginActivity extends Activity
             mFisgoBinder = (FisgoService.FisgoBinder) binder;
             if (mFisgoBinder.isLoggedIn() == true)
             {
+                finish();
                 startActivity(new Intent(LoginActivity.this, ChatActivity.class));
             }
         }
