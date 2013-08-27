@@ -1,17 +1,15 @@
 package net.meneame.fisgodroid;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 
 public class AvatarStorage
@@ -20,7 +18,7 @@ public class AvatarStorage
     private Context mContext;
     private final Handler mHandler = new Handler();
     
-    private Map<String, Bitmap> mBitmaps = new HashMap<String, Bitmap>();
+    private Map<String, Drawable> mDrawables = new HashMap<String, Drawable>();
     private Map<String, Thread> mDownloadTasks = new HashMap<String, Thread>();
     private Map<String, List<Runnable>> mCallbacks = new HashMap<String, List<Runnable>>();
     
@@ -29,20 +27,20 @@ public class AvatarStorage
         mContext = context;
     }
     
-    public Bitmap getAvatar ( String path )
+    public Drawable getAvatar ( String path )
     {
-        if ( mBitmaps.containsKey(path) )
-            return mBitmaps.get(path);
+        if ( mDrawables.containsKey(path) )
+            return mDrawables.get(path);
         return null;
     }
     
-    public Bitmap request ( final String path, Runnable callback )
+    public Drawable request ( final String path, Runnable callback )
     {
         // Do we already have this bitmap?
-        if ( mBitmaps.containsKey(path) )
+        if ( mDrawables.containsKey(path) )
         {
             callback.run();
-            return mBitmaps.get(path);
+            return mDrawables.get(path);
         }
         
         // Start a new async task to download it only if
@@ -59,10 +57,10 @@ public class AvatarStorage
                     ByteArrayOutputStream imageData = new ByteArrayOutputStream();
                     if ( service.get(path, imageData) && imageData.size() > 0 )
                     {
-                        byte[] imageBytes = imageData.toByteArray();
-                        Bitmap bmp = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                        if ( bmp != null )
-                            mBitmaps.put(path, bmp);
+                        InputStream is = new ByteArrayInputStream(imageData.toByteArray());
+                        Drawable drawable = Drawable.createFromStream(is, path);
+                        if ( drawable != null )
+                            mDrawables.put(path, drawable);
                     }
                     
                     // Call all the callbacks

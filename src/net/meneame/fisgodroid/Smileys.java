@@ -95,15 +95,16 @@ public class Smileys
             @Override
             public Drawable getDrawable(String source)
             {
-                Drawable drawable = null;
+                AnimatedGIFDrawable drawable = null;
                 if ( source.startsWith(URI_SCHEME) )
                 {
                     String smileyName = source.substring(URI_SCHEME.length());
                     if ( msResources.containsKey(smileyName) )
                     {
                         int resource = msResources.get(smileyName);
-                        drawable = context.getResources().getDrawable(resource);
-                        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight()); 
+                        drawable = new AnimatedGIFDrawable(context, resource);
+                        drawable.setBounds(0, 0, (int)(drawable.getIntrinsicWidth()*1.5), (int)(drawable.getIntrinsicHeight()*1.5));
+                        drawable.start();
                     }
                 }
                 return drawable;

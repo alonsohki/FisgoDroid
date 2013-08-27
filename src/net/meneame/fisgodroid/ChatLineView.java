@@ -1,11 +1,9 @@
 package net.meneame.fisgodroid;
 
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Html;
 import android.text.Selection;
@@ -18,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+@SuppressLint("ViewConstructor")
 public class ChatLineView extends LinearLayout
 {
     private ChatMessage mChatMsg = null;
@@ -70,18 +69,17 @@ public class ChatLineView extends LinearLayout
         {
             if ( mChatMsg != null )
             {
-                Bitmap bitmap = mAvatarStorage.getAvatar(mChatMsg.getIcon());
-                if ( bitmap != null )
-                    mAvatar.setImageBitmap(bitmap);
+                Drawable drawable = mAvatarStorage.getAvatar(mChatMsg.getIcon());
+                if ( drawable != null )
+                    mAvatar.setImageDrawable(drawable);
             }
         }
     };
-
+    
     public ChatLineView(Context context, AvatarStorage avatarStorage)
     {
         super(context);
         mAvatarStorage = avatarStorage;
-
         // Create the view
         LayoutInflater.from(getContext()).inflate(R.layout.chat_line, this, true);
         mMessage = (TextView) findViewById(R.id.chat_message);
@@ -101,7 +99,7 @@ public class ChatLineView extends LinearLayout
             mMessage.setTextIsSelectable(true);
         }
     }
-
+    
     public void setChatMessage(String username, ChatMessage chatMsg)
     {
         mChatMsg = chatMsg;
@@ -114,9 +112,9 @@ public class ChatLineView extends LinearLayout
             {
                 parsedMessage = "<b>" + parsedMessage + "</b>";
             }
-
-            Spanned spannedMessage = Html.fromHtml(parsedMessage, Smileys.getImageGetter(getContext()), null);
-            mMessage.setText(spannedMessage);
+            
+            Spanned message = Html.fromHtml(parsedMessage, Smileys.getImageGetter(getContext()), null);
+            mMessage.setText(message);
             mUsername.setText(mChatMsg.getUser());
             mAvatarStorage.request(mChatMsg.getIcon(), mSetAvatarRunnable);
 
