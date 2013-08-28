@@ -380,12 +380,12 @@ public class ChatActivity extends Activity
                 long timeThreshold = now.getTime() - 15*60*1000;
                 
                 String nameReplacement = null;
+                partialName = partialName.toLowerCase();
                 for ( ChatMessage msg : mFisgoBinder.getMessages() )
                 {
                     if ( msg.getWhen().getTime() < timeThreshold )
                         break;
-                    
-                    partialName = partialName.toLowerCase();
+
                     if ( msg.getUser().toLowerCase().startsWith(partialName) )
                     {
                         nameReplacement = msg.getUser();
