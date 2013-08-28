@@ -375,21 +375,38 @@ public class ChatActivity extends Activity
             // Perform nick completion if we at least got two characters of the name
             if ( (wordEnd - wordBegin) >= 2 )
             {
-                // Search a matching nickname in the last 15 minutes messages
+                // Search a matching nickname in the last 15 minutes messages, using
+                // at least 10 messages.
                 Date now = new Date();
                 long timeThreshold = now.getTime() - 15*60*1000;
                 
                 String nameReplacement = null;
                 partialName = partialName.toLowerCase();
+                int messageCount = 0;
                 for ( ChatMessage msg : mFisgoBinder.getMessages() )
                 {
-                    if ( msg.getWhen().getTime() < timeThreshold )
+                    ++messageCount;
+                    if ( messageCount > 10 && msg.getWhen().getTime() < timeThreshold )
                         break;
 
                     if ( msg.getUser().toLowerCase().startsWith(partialName) )
                     {
                         nameReplacement = msg.getUser();
                         break;
+                    }
+                }
+                
+                // If we didn't find anything in the last messages, search in the
+                // friend names.
+                if ( nameReplacement == null )
+                {
+                    for ( String friendName : mFisgoBinder.getFriendNames() )
+                    {
+                        if ( friendName.toLowerCase().startsWith(partialName) )
+                        {
+                            nameReplacement = friendName;
+                            break;
+                        }
                     }
                 }
                 

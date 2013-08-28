@@ -31,12 +31,14 @@ public class FisgoService extends Service
     private static final String LOGIN_URL = "https://www.meneame.net/login.php";
     private static final String SNEAK_URL = "http://www.meneame.net/sneak.php";
     private static final String SNEAK_BACKEND_URL = "http://www.meneame.net/backend/sneaker2.php";
+    private static final String FRIEND_LIST_URL = "http://www.meneame.net/user/?username/friends";
 
     private FisgoBinder mBinder = new FisgoBinder();
     private Thread mThread = null;
     private boolean mIsLoggedIn = false;
     private IHttpService mHttp = new HttpService();
     private List<ChatMessage> mMessages = new ArrayList<ChatMessage>();
+    private List<String> mFriendNames = new ArrayList<String>();
     private String mLastMessageTime;
     private String mUsername;
     private String mMyKey;
@@ -179,12 +181,13 @@ public class FisgoService extends Service
         });
         mThread.start();
     }
-    
+
     private void clearSession()
     {
         mLastMessageTime = "";
         mMessages.clear();
         mOutgoingMessages.clear();
+        mFriendNames.clear();
         notifyHandlers();
     }
 
@@ -210,6 +213,7 @@ public class FisgoService extends Service
         private final Pattern mIpcontrolPattern = Pattern.compile("<input type=\"hidden\" name=\"useripcontrol\" value=\"([^\"]+)\"/>");
         private final Pattern mLogoutPattern = Pattern.compile("<a href=\"/login\\.php\\?op=logout");
         private final Pattern mMykeyPattern = Pattern.compile("var mykey = (\\d+);");
+        private final Pattern mFriendPattern = Pattern.compile("<div class=\"friends-item\"><a href=\"\\/user\\/([^\"]+)\"");
 
         public boolean isLoggedIn()
         {
@@ -269,6 +273,18 @@ public class FisgoService extends Service
                 {
                     mMyKey = m.group(1);
                 }
+
+                // Get the friend list
+                String friendsUrl = FRIEND_LIST_URL.replace("?username", mUsername);
+                String friendList = mHttp.get(friendsUrl);
+                if ( friendList.equals("") == false )
+                {
+                    m = mFriendPattern.matcher(friendList);
+                    while (m.find())
+                    {
+                        mFriendNames.add(m.group(1));
+                    }
+                }
             }
 
             mThread.interrupt();
@@ -284,6 +300,11 @@ public class FisgoService extends Service
         public List<ChatMessage> getMessages()
         {
             return mMessages;
+        }
+
+        public List<String> getFriendNames()
+        {
+            return mFriendNames;
         }
 
         public Set<Handler> getHandlers()
