@@ -12,12 +12,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
-import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -30,9 +31,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -105,6 +104,30 @@ public class ChatActivity extends Activity
         // Setup
         setType(mType);
         setSendAs(mSendAs);
+        
+        // Handle key presses for the nick completion feature
+        mMessagebox.addTextChangedListener(new TextWatcher()
+        {
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+                String str = s.toString();
+                if ( count == 1 && str.charAt(start) == '\t' )
+                {
+                    // Remove the tab from the string
+                    str = str.substring(0, start) + str.substring(start+1);
+                    
+                    doNickCompletion(str, start);
+                }
+            }
+            
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+            }
+            
+            @Override public void afterTextChanged(Editable s)
+            {
+            }
+        });
 
         // Set the different types of chat options
         mChatSpinner.setAdapter(new ArrayAdapter<String>(this, R.layout.chat_spinner_item)
@@ -327,5 +350,67 @@ public class ChatActivity extends Activity
             mAdapter.setUsername(mFisgoBinder.getUsername());
             mAdapter.setMessages(messages);
         }
+    }
+    
+    private void doNickCompletion ( String str, int start )
+    {
+        // We will need to restore the cursor position after replacements
+        int cursorPos = start;
+
+
+        if ( str.length() > 0 )
+        {
+            int wordBegin = str.lastIndexOf(' ', Math.max(0, start-1));
+            wordBegin = Math.max(0, wordBegin);
+            if ( str.charAt(wordBegin) == ' ' )
+                ++wordBegin;
+            
+            int wordEnd = str.indexOf(' ', wordBegin);
+            if ( wordEnd == -1 )
+                wordEnd = str.length();
+            
+            // Get the partial name from the detected word
+            String partialName = str.substring(wordBegin, wordEnd);
+            
+            // Perform nick completion if we at least got two characters of the name
+            if ( (wordEnd - wordBegin) >= 2 )
+            {
+                // Search a matching nickname in the last 15 minutes messages
+                Date now = new Date();
+                long timeThreshold = now.getTime() - 15*60*1000;
+                
+                String nameReplacement = null;
+                for ( ChatMessage msg : mFisgoBinder.getMessages() )
+                {
+                    if ( msg.getWhen().getTime() < timeThreshold )
+                        break;
+                    
+                    partialName = partialName.toLowerCase();
+                    if ( msg.getUser().toLowerCase().startsWith(partialName) )
+                    {
+                        nameReplacement = msg.getUser();
+                        break;
+                    }
+                }
+                
+                // Replace it!
+                if ( nameReplacement != null )
+                {
+                    str = str.substring(0, wordBegin) + nameReplacement + str.substring(wordEnd);
+                    cursorPos = wordBegin + nameReplacement.length();
+                    
+                    // If we were at the end of the string, add an extra space.
+                    if ( cursorPos == str.length() )
+                    {
+                        str = str + " ";
+                        cursorPos++;
+                    }
+                }
+            }
+        }
+        
+        
+        mMessagebox.setText(str);
+        mMessagebox.setSelection(cursorPos);
     }
 }
