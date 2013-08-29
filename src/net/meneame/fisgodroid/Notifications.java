@@ -70,8 +70,9 @@ public class Notifications
                 new NotificationCompat.Builder(context)
                 .setSmallIcon(hasNewMessages ? R.drawable.ic_new_messages : R.drawable.ic_launcher)
                 .setContentTitle(title)
-                .setAutoCancel(true)
-                .setLights(0xffff8c00, 500, 1000);
+                .setAutoCancel(true);
+        if ( hasNewMessages )
+            builder.setLights(0xffff6000, 500, 1000);
         if ( playSound )
             builder.setSound(soundUri);
         
