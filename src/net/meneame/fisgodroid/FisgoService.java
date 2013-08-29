@@ -158,7 +158,9 @@ public class FisgoService extends Service
                                         
                                         // Send a notification if they mentioned us
                                         if ( !isFirstRequest && msg.getMessage().toLowerCase().contains(mUsername.toLowerCase()) )
-                                            Notifications.theyMentionedMe(getApplicationContext(), who, title);
+                                        {
+                                            Notifications.theyMentionedMe(FisgoService.this, msg);
+                                        }
                                     }
 
                                     // Append all the previous messages
@@ -189,6 +191,7 @@ public class FisgoService extends Service
 
     private void clearSession()
     {
+        Notifications.stopOnForeground(this);
         mLastMessageTime = "";
         mMessages.clear();
         mOutgoingMessages.clear();
@@ -290,6 +293,9 @@ public class FisgoService extends Service
                         mFriendNames.add(m.group(1));
                     }
                 }
+                
+                // Start this service on foreground
+                Notifications.startOnForeground(FisgoService.this);
             }
 
             mThread.interrupt();

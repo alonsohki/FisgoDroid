@@ -1,64 +1,112 @@
 package net.meneame.fisgodroid;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.text.Html;
 
 public class Notifications
 {
-    private static boolean msOnForeground = false;
-    private static int msTheyMentionedMeId = 1;
+    private static final int NOTIFICATION_ID = 1;
     
-    private static boolean isRunningInForeground ( Context context )
+    private static boolean msOnForeground = false;
+    private static List<ChatMessage> msNotifications = new ArrayList<ChatMessage>();
+    
+    private static boolean isRunningInForeground ()
     {
         return msOnForeground;
     }
     
-    public static void setOnForeground ( boolean onForeground )
+    public static void setOnForeground ( Context context, boolean onForeground )
     {
         msOnForeground = onForeground;
-    }
-    
-    private static void sendNotification ( Context context, int notificationId, Notification notification )
-    {
-        if ( !isRunningInForeground(context) )
+        if ( msOnForeground == true )
         {
+            msNotifications.clear();
+            
+            // Update the notification
+            Notification notification = buildNotification ( context, false );
             NotificationManager mNotificationManager =
                     (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(notificationId, notification);
+            mNotificationManager.notify(NOTIFICATION_ID, notification);
         }
     }
     
-    public static void theyMentionedMe ( Context context, String who, String message )
+    public static void startOnForeground ( Service service )
     {
-        String title = context.getResources().getString(R.string.they_mentioned_me_title);
-        title = String.format(title, who);
-        
+        startOnForeground ( service, false );
+    }
+    
+    private static void startOnForeground ( Service service, boolean playSound )
+    {
+        service.startForeground(NOTIFICATION_ID, buildNotification(service.getApplicationContext(), playSound));
+    }
+    
+    public static void stopOnForeground ( Service service )
+    {
+        service.stopForeground(true);
+    }
+    
+    private static Notification buildNotification ( Context context, boolean playSound )
+    {
+        Resources res = context.getResources();
         Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.ding);
         
-        NotificationCompat.Builder mBuilder =
+        String title = res.getString(R.string.app_name);
+        String tapToOpen = res.getString(R.string.click_to_open);
+        
+        // Build the compatible notification
+        NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle(title)
-                .setContentText(message)
-                .setSound(soundUri)
                 .setAutoCancel(true)
                 .setLights(0xffff8c00, 500, 1000);
+        if ( playSound )
+            builder.setSound(soundUri);
         
-        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
+        // Build a different message depending on wether we have notifications
+        if ( msNotifications.size() == 0 )
+        {
+            builder.setContentText(tapToOpen);
+        }
+        if ( msNotifications.size() > 0 )
+        {
+            String message = String.format(res.getString(R.string.you_have_pending_notifications), msNotifications.size()) + "\n";
+            for ( int i = msNotifications.size() - 1; i >= 0; --i )
+            {
+                ChatMessage msg = msNotifications.get(i);
+                message = message + "<" + msg.getUser() + "> " + msg.getMessage() + "\n";
+            }
+            builder.setContentText(message);
+        }
+        
+        // Make it Android 4 stylish
+        NotificationCompat.InboxStyle bigTextStyle = new NotificationCompat.InboxStyle();
         bigTextStyle.setBigContentTitle(title);
-        bigTextStyle.bigText(message);
-        mBuilder.setStyle(bigTextStyle);
+        if ( msNotifications.size() == 0 )
+        {
+            bigTextStyle.addLine(tapToOpen);
+        }
+        else
+        {
+            bigTextStyle.addLine(String.format(res.getString(R.string.you_have_pending_notifications), msNotifications.size()));
+            for ( int i = msNotifications.size() - 1; i >= 0; --i )
+            {
+                ChatMessage msg = msNotifications.get(i);
+                bigTextStyle.addLine(Html.fromHtml("<b>" + msg.getUser() + "</b> " + msg.getMessage()));
+            }
+        }
+        builder.setStyle(bigTextStyle);
         
         // Creates an explicit intent for ChatActivity
         Intent resultIntent = new Intent(context, ChatActivity.class);
@@ -66,10 +114,17 @@ public class Notifications
         resultIntent.setAction("android.intent.action.MAIN");
         
         PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.setContentIntent(resultPendingIntent);
+        builder.setContentIntent(resultPendingIntent);
 
-        sendNotification(context, msTheyMentionedMeId, mBuilder.build());
+        return builder.build();
+    }
 
-        ++msTheyMentionedMeId;
+    public static void theyMentionedMe ( Service service, ChatMessage message )
+    {
+        if ( !isRunningInForeground() )
+        {
+            msNotifications.add(message);
+            startOnForeground(service, true);
+        }
     }
 }

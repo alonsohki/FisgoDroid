@@ -222,14 +222,14 @@ public class ChatActivity extends Activity
     protected void onPause ()
     {
         super.onPause();
-        Notifications.setOnForeground(false);
+        Notifications.setOnForeground(getApplicationContext(), false);
     }
     
     @Override
     protected void onResume ()
     {
         super.onResume();
-        Notifications.setOnForeground(true);
+        Notifications.setOnForeground(getApplicationContext(), true);
     }
 
     /**

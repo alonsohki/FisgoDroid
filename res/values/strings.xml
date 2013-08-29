@@ -15,5 +15,6 @@
 	<string name="message_too_short">Message too short</string>
 	<string name="message_too_soon">You have to wait %1$d seconds between messages</string>
 	<string name="logout">Log out</string>
-	<string name="they_mentioned_me_title">%1$s mentioned you!</string>
+	<string name="click_to_open">Tap to open</string>
+	<string name="you_have_pending_notifications">You have %1$d pending notifications:</string>
 </resources>
