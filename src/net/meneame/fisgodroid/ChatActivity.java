@@ -11,6 +11,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,6 +39,11 @@ import android.widget.TextView;
 
 public class ChatActivity extends Activity
 {
+    // Shared preferences settings.
+    private static final String PREFS_NAME = "ChatActivity";
+    private static final String PREF_SENDAS = "send as";
+    
+    
     // Create a handler to update the view from the UI thread
     // when the message list changes.
     private Handler mHandler = new Handler()
@@ -101,6 +107,12 @@ public class ChatActivity extends Activity
         mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
         mSendButton = (ImageButton) findViewById(R.id.button_send);
         mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
+        
+        // Restore stuff from shared prefs
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int optionOrdinal = prefs.getInt(PREF_SENDAS, ChatType.PUBLIC.ordinal());
+        if ( optionOrdinal >= 0 && optionOrdinal < ChatType.values().length )
+            mSendAs = ChatType.values()[optionOrdinal];
 
         // Setup
         setType(mType);
@@ -213,6 +225,12 @@ public class ChatActivity extends Activity
     @Override
     protected void onDestroy()
     {
+        // Save the shared prefs
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        .edit()
+        .putInt(PREF_SENDAS, getSendAs().ordinal())
+        .commit();
+        
         super.onDestroy();
         mFisgoBinder.removeHandler(mHandler);
         unbindService(mServiceConn);
@@ -336,7 +354,8 @@ public class ChatActivity extends Activity
 
     public ChatType getSendAs()
     {
-        return mCheckboxFriends.isChecked() ? ChatType.FRIENDS : ChatType.PUBLIC;
+        mSendAs = mCheckboxFriends.isChecked() ? ChatType.FRIENDS : ChatType.PUBLIC;
+        return mSendAs;
     }
 
     public void setSendAs(ChatType type)
