@@ -63,11 +63,12 @@ public class Notifications
         
         String title = res.getString(R.string.app_name);
         String tapToOpen = res.getString(R.string.click_to_open);
+        boolean hasNewMessages = msNotifications.size() > 0;
         
         // Build the compatible notification
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(hasNewMessages ? R.drawable.ic_new_messages : R.drawable.ic_launcher)
                 .setContentTitle(title)
                 .setAutoCancel(true)
                 .setLights(0xffff8c00, 500, 1000);
@@ -75,11 +76,11 @@ public class Notifications
             builder.setSound(soundUri);
         
         // Build a different message depending on wether we have notifications
-        if ( msNotifications.size() == 0 )
+        if ( !hasNewMessages )
         {
             builder.setContentText(tapToOpen);
         }
-        if ( msNotifications.size() > 0 )
+        else
         {
             String message = String.format(res.getString(R.string.you_have_pending_notifications), msNotifications.size()) + "\n";
             for ( int i = msNotifications.size() - 1; i >= 0; --i )
@@ -93,7 +94,7 @@ public class Notifications
         // Make it Android 4 stylish
         NotificationCompat.InboxStyle bigTextStyle = new NotificationCompat.InboxStyle();
         bigTextStyle.setBigContentTitle(title);
-        if ( msNotifications.size() == 0 )
+        if ( !hasNewMessages )
         {
             bigTextStyle.addLine(tapToOpen);
         }
