@@ -42,7 +42,7 @@ public class Notifications
         String title = context.getResources().getString(R.string.they_mentioned_me_title);
         title = String.format(title, who);
         
-        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.ding);
         
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
