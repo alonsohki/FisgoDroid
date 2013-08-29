@@ -3,8 +3,10 @@ package net.meneame.fisgodroid;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.Html;
 
 public class Smileys
@@ -85,6 +87,29 @@ public class Smileys
         builder.append(message.substring(pos));
         return builder.toString();
     }
+
+    private static Drawable getAppropiateDrawable ( Context context, int resource )
+    {
+        Drawable drawable = null;
+        float size;
+        
+        // We are not supporting animated gifs before Android 3
+        if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB )
+        {
+            drawable = context.getResources().getDrawable(resource);
+            size = 1.2f;
+        }
+        else
+        {
+            AnimatedGIFDrawable temp = new AnimatedGIFDrawable(context, resource);
+            temp.start();
+            drawable = temp;
+            size = 1.5f;
+        }
+        
+        drawable.setBounds(0, 0, (int)(drawable.getIntrinsicWidth()*size), (int)(drawable.getIntrinsicHeight()*size));
+        return drawable;
+    }
     
     public static Html.ImageGetter getImageGetter ( final Context context )
     {
@@ -95,16 +120,14 @@ public class Smileys
             @Override
             public Drawable getDrawable(String source)
             {
-                AnimatedGIFDrawable drawable = null;
+                Drawable drawable = null;
                 if ( source.startsWith(URI_SCHEME) )
                 {
                     String smileyName = source.substring(URI_SCHEME.length());
                     if ( msResources.containsKey(smileyName) )
                     {
                         int resource = msResources.get(smileyName);
-                        drawable = new AnimatedGIFDrawable(context, resource);
-                        drawable.setBounds(0, 0, (int)(drawable.getIntrinsicWidth()*1.5), (int)(drawable.getIntrinsicHeight()*1.5));
-                        drawable.start();
+                        drawable = getAppropiateDrawable(context, resource);
                     }
                 }
                 return drawable;

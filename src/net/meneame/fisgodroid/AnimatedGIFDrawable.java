@@ -6,8 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
-import android.graphics.Matrix;
 import android.graphics.Movie;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -23,8 +23,8 @@ public class AnimatedGIFDrawable extends Drawable
     private Bitmap mBitmap = null;
     private Canvas mCanvas;
     private Rect mRect;
-    
-    public AnimatedGIFDrawable ( Context context, int resourceId )
+
+    public AnimatedGIFDrawable(Context context, int resourceId)
     {
         mContext = context;
         Resources res = mContext.getResources();
@@ -40,8 +40,8 @@ public class AnimatedGIFDrawable extends Drawable
             mRect = new Rect(0, 0, 0, 0);
         }
     }
-    
-    public void start ()
+
+    public void start()
     {
         if ( mMovie != null && mMovie.duration() > 0 )
         {
@@ -49,26 +49,26 @@ public class AnimatedGIFDrawable extends Drawable
             mLastUpdate = SystemClock.uptimeMillis();
         }
     }
-    
-    public void pause ()
+
+    public void pause()
     {
         mRunning = false;
     }
-    
-    public void stop ()
+
+    public void stop()
     {
         mRunning = false;
         mElapsedTime = 0;
     }
-    
+
     @Override
-    public int getIntrinsicWidth ()
+    public int getIntrinsicWidth()
     {
         return mRect.width();
     }
 
     @Override
-    public int getIntrinsicHeight ()
+    public int getIntrinsicHeight()
     {
         return mRect.height();
     }
@@ -81,22 +81,22 @@ public class AnimatedGIFDrawable extends Drawable
             long now = SystemClock.uptimeMillis();
             mElapsedTime += now - mLastUpdate;
             mLastUpdate = now;
-            
+
             // Loop
             int movieDuration = mMovie.duration();
             if ( movieDuration > 0 && mElapsedTime >= movieDuration )
             {
                 mElapsedTime = mElapsedTime % movieDuration;
             }
-            
+
             mMovie.setTime(mElapsedTime);
             invalidateSelf();
         }
-        
+
         if ( mBitmap != null )
         {
             mMovie.draw(mCanvas, 0, 0);
-            canvas.drawBitmap(mBitmap, mRect, getBounds(), null );
+            canvas.drawBitmap(mBitmap, mRect, getBounds(), null);
         }
     }
 
