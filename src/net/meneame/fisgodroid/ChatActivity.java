@@ -56,8 +56,9 @@ public class ChatActivity extends Activity
         public void onServiceConnected(ComponentName arg0, IBinder binder)
         {
             mFisgoBinder = (FisgoService.FisgoBinder) binder;
-            
-            // If the service is not logged in, we should go back to the login screen.
+
+            // If the service is not logged in, we should go back to the login
+            // screen.
             if ( mFisgoBinder.isLoggedIn() == false )
             {
                 finish();
@@ -100,31 +101,34 @@ public class ChatActivity extends Activity
         mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
         mSendButton = (ImageButton) findViewById(R.id.button_send);
         mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
-        
+
         // Setup
         setType(mType);
         setSendAs(mSendAs);
-        
+
         // Handle key presses for the nick completion feature
         mMessagebox.addTextChangedListener(new TextWatcher()
         {
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count)
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
             {
                 String str = s.toString();
                 if ( count == 1 && str.charAt(start) == '\t' )
                 {
                     // Remove the tab from the string
-                    str = str.substring(0, start) + str.substring(start+1);
-                    
+                    str = str.substring(0, start) + str.substring(start + 1);
+
                     doNickCompletion(str, start);
                 }
             }
-            
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after)
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
             {
             }
-            
-            @Override public void afterTextChanged(Editable s)
+
+            @Override
+            public void afterTextChanged(Editable s)
             {
             }
         });
@@ -152,7 +156,7 @@ public class ChatActivity extends Activity
                     break;
                 }
 
-                if (stringId != -1)
+                if ( stringId != -1 )
                     return getResources().getString(stringId);
                 return "";
             }
@@ -184,9 +188,9 @@ public class ChatActivity extends Activity
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent)
             {
-                if (id == EditorInfo.IME_NULL)
+                if ( id == EditorInfo.IME_NULL )
                 {
-                    if (keyEvent.getAction() == KeyEvent.ACTION_UP)
+                    if ( keyEvent.getAction() == KeyEvent.ACTION_UP )
                         sendChat();
                     return true;
                 }
@@ -222,10 +226,11 @@ public class ChatActivity extends Activity
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private Context getActionBarThemedContextCompat()
     {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH )
         {
             return getActionBar().getThemedContext();
-        } else
+        }
+        else
         {
             return this;
         }
@@ -234,12 +239,12 @@ public class ChatActivity extends Activity
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState)
     {
-        if (savedInstanceState.containsKey("send as"))
+        if ( savedInstanceState.containsKey("send as") )
         {
             mSendAs = (ChatType) savedInstanceState.getSerializable("send as");
             setSendAs(mSendAs);
         }
-        if (savedInstanceState.containsKey("type"))
+        if ( savedInstanceState.containsKey("type") )
         {
             mType = (ChatType) savedInstanceState.getSerializable("type");
             setType(mType);
@@ -261,11 +266,11 @@ public class ChatActivity extends Activity
         getMenuInflater().inflate(R.menu.chat, menu);
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        switch ( item.getItemId() )
+        switch (item.getItemId())
         {
         case R.id.action_logout:
             mFisgoBinder.logOut();
@@ -274,33 +279,38 @@ public class ChatActivity extends Activity
             startActivity(new Intent(this, LoginActivity.class));
             return true;
         }
-        
+
         return false;
     }
 
     private void sendChat()
     {
         String text = mMessagebox.getText().toString();
-        if (text.length() > 0)
+        if ( text.length() > 0 )
         {
             Date now = new Date();
             Resources res = getResources();
             int delayBetweenMessages = res.getInteger(R.integer.time_between_messages);
 
             // Check for too small messages
-            if (text.length() < res.getInteger(R.integer.min_message_length))
+            if ( text.length() < res.getInteger(R.integer.min_message_length) )
             {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.error).setMessage(R.string.message_too_short).setIcon(android.R.drawable.ic_dialog_alert).setNeutralButton(android.R.string.ok, null).create().show();
-            } else if (mLastMessage != null && (now.getTime() - mLastMessage.getTime()) < (delayBetweenMessages * 1000))
+            }
+            else if ( mLastMessage != null && (now.getTime() - mLastMessage.getTime()) < (delayBetweenMessages * 1000) )
             {
                 String errMsg = String.format(res.getString(R.string.message_too_soon), delayBetweenMessages);
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.error).setMessage(errMsg).setIcon(android.R.drawable.ic_dialog_alert).setNeutralButton(android.R.string.ok, null).create().show();
-            } else
+                builder.setTitle(R.string.error)
+                       .setMessage(errMsg)
+                       .setIcon(android.R.drawable.ic_dialog_alert)
+                       .setNeutralButton(android.R.string.ok, null).create().show();
+            }
+            else
             {
                 // If it's a friends chat, prefix the message with '@'
-                if (mType == ChatType.FRIENDS || getSendAs() == ChatType.FRIENDS)
+                if ( mType == ChatType.FRIENDS || getSendAs() == ChatType.FRIENDS )
                     text = "@" + text;
 
                 mFisgoBinder.sendChat(text);
@@ -318,7 +328,7 @@ public class ChatActivity extends Activity
     public void setSendAs(ChatType type)
     {
         mSendAs = type;
-        if (mCheckboxFriends != null)
+        if ( mCheckboxFriends != null )
             mCheckboxFriends.setChecked(type == ChatType.FRIENDS);
     }
 
@@ -328,7 +338,7 @@ public class ChatActivity extends Activity
         // we avoid an infinite recursion from setSelection
         // calling the spinner handler, and calling this function
         // back.
-        if (type != mType && mChatSpinner != null)
+        if ( type != mType && mChatSpinner != null )
         {
             mType = type;
             mChatSpinner.setSelection(type.ordinal(), false);
@@ -336,54 +346,55 @@ public class ChatActivity extends Activity
 
         mType = type;
 
-        if (mCheckboxFriends != null)
+        if ( mCheckboxFriends != null )
             mCheckboxFriends.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
 
-        if (mFisgoBinder != null)
+        if ( mFisgoBinder != null )
             mFisgoBinder.setType(mType);
     }
 
     public void updateMessages(List<ChatMessage> messages)
     {
-        if (mAdapter != null)
+        if ( mAdapter != null )
         {
             mAdapter.setUsername(mFisgoBinder.getUsername());
             mAdapter.setMessages(messages);
         }
     }
-    
-    private void doNickCompletion ( String str, int start )
+
+    private void doNickCompletion(String str, int start)
     {
         // We will need to restore the cursor position after replacements
         int cursorPos = start;
 
-
         if ( str.length() > 0 )
         {
-            int wordBegin = str.lastIndexOf(' ', Math.max(0, start-1));
+            int wordBegin = str.lastIndexOf(' ', Math.max(0, start - 1));
             wordBegin = Math.max(0, wordBegin);
             if ( str.charAt(wordBegin) == ' ' )
                 ++wordBegin;
-            
+
             int wordEnd = str.indexOf(' ', wordBegin);
             if ( wordEnd == -1 )
                 wordEnd = str.length();
-            
+
             // Get the partial name from the detected word
             String partialName = str.substring(wordBegin, wordEnd);
-            
-            // Perform nick completion if we at least got two characters of the name
+
+            // Perform nick completion if we at least got two characters of the
+            // name
             if ( (wordEnd - wordBegin) >= 2 )
             {
-                // Search a matching nickname in the last 15 minutes messages, using
+                // Search a matching nickname in the last 15 minutes messages,
+                // using
                 // at least 10 messages.
                 Date now = new Date();
-                long timeThreshold = now.getTime() - 15*60*1000;
-                
+                long timeThreshold = now.getTime() - 15 * 60 * 1000;
+
                 String nameReplacement = null;
                 partialName = partialName.toLowerCase();
                 int messageCount = 0;
-                for ( ChatMessage msg : mFisgoBinder.getMessages() )
+                for (ChatMessage msg : mFisgoBinder.getMessages())
                 {
                     ++messageCount;
                     if ( messageCount > 10 && msg.getWhen().getTime() < timeThreshold )
@@ -395,12 +406,13 @@ public class ChatActivity extends Activity
                         break;
                     }
                 }
-                
-                // If we didn't find anything in the last messages, search in the
+
+                // If we didn't find anything in the last messages, search in
+                // the
                 // friend names.
                 if ( nameReplacement == null )
                 {
-                    for ( String friendName : mFisgoBinder.getFriendNames() )
+                    for (String friendName : mFisgoBinder.getFriendNames())
                     {
                         if ( friendName.toLowerCase().startsWith(partialName) )
                         {
@@ -409,13 +421,13 @@ public class ChatActivity extends Activity
                         }
                     }
                 }
-                
+
                 // Replace it!
                 if ( nameReplacement != null )
                 {
                     str = str.substring(0, wordBegin) + nameReplacement + str.substring(wordEnd);
                     cursorPos = wordBegin + nameReplacement.length();
-                    
+
                     // If we were at the end of the string, add an extra space.
                     if ( cursorPos == str.length() )
                     {
@@ -425,8 +437,7 @@ public class ChatActivity extends Activity
                 }
             }
         }
-        
-        
+
         mMessagebox.setText(str);
         mMessagebox.setSelection(cursorPos);
     }

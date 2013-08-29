@@ -39,7 +39,7 @@ public class FisgoService extends Service
     private IHttpService mHttp = new HttpService();
     private List<ChatMessage> mMessages = new ArrayList<ChatMessage>();
     private List<String> mFriendNames = new ArrayList<String>();
-    private String mLastMessageTime;
+    private String mLastMessageTime = "";
     private String mUsername;
     private String mMyKey;
     private List<String> mOutgoingMessages = new LinkedList<String>();
@@ -126,6 +126,7 @@ public class FisgoService extends Service
                             else
                             {
                                 JSONObject root = new JSONObject(result);
+                                final boolean isFirstRequest = mLastMessageTime.equals("");
                                 mLastMessageTime = root.getString("ts");
 
                                 JSONArray events = root.getJSONArray("events");
@@ -154,6 +155,10 @@ public class FisgoService extends Service
                                         ChatType type = (status.equals("amigo") ? ChatType.FRIENDS : ChatType.PUBLIC);
                                         ChatMessage msg = new ChatMessage(when, who, title, type, icon);
                                         newList.add(msg);
+                                        
+                                        // Send a notification if they mentioned us
+                                        if ( !isFirstRequest && msg.getMessage().toLowerCase().contains(mUsername.toLowerCase()) )
+                                            Notifications.theyMentionedMe(getApplicationContext(), who, title);
                                     }
 
                                     // Append all the previous messages
