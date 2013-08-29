@@ -16,15 +16,17 @@ import android.support.v4.app.NotificationCompat;
 
 public class Notifications
 {
+    private static boolean msOnForeground = false;
     private static int msTheyMentionedMeId = 1;
     
     private static boolean isRunningInForeground ( Context context )
     {
-        ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<RunningTaskInfo> services = activityManager.getRunningTasks(Integer.MAX_VALUE);
-        String appName = context.getPackageName().toString();
-        
-        return services.get(0).topActivity.getPackageName().toString().equalsIgnoreCase(appName);
+        return msOnForeground;
+    }
+    
+    public static void setOnForeground ( boolean onForeground )
+    {
+        msOnForeground = onForeground;
     }
     
     private static void sendNotification ( Context context, int notificationId, Notification notification )

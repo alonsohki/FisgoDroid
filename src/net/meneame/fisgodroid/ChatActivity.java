@@ -217,6 +217,20 @@ public class ChatActivity extends Activity
         mFisgoBinder.removeHandler(mHandler);
         unbindService(mServiceConn);
     }
+    
+    @Override
+    protected void onPause ()
+    {
+        super.onPause();
+        Notifications.setOnForeground(false);
+    }
+    
+    @Override
+    protected void onResume ()
+    {
+        super.onResume();
+        Notifications.setOnForeground(true);
+    }
 
     /**
      * Backward-compatible version of {@link ActionBar#getThemedContext()} that
