@@ -30,15 +30,18 @@
 	            android:button="@android:color/transparent"
 	            android:checked="false"
 	            android:textSize="0sp" />
+
 	        <EditText
 	            android:id="@+id/chat_messagebox"
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content"
-	            android:layout_weight="1"
 	            android:layout_marginRight="2dp"
+	            android:layout_weight="1"
 	            android:ems="10"
 	            android:imeOptions="actionSend"
-	            android:inputType="text" >
+	            android:inputType="text"
+	            android:maxLength="230" >
+
 	        </EditText>
 	
 	        <ImageButton
