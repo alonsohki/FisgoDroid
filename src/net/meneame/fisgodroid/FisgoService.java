@@ -1,6 +1,6 @@
 package net.meneame.fisgodroid;
 
-import java.text.DecimalFormat;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -201,9 +201,10 @@ public class FisgoService extends Service
 
     private void notifyHandlers()
     {
+        Message msg = new Message();
         for (Handler handler : mBinder.getHandlers())
         {
-            handler.sendMessage(new Message());
+            handler.sendMessage(msg);
         }
     }
 
@@ -360,6 +361,11 @@ public class FisgoService extends Service
                     mThread.interrupt();
                 }
             }
+        }
+        
+        public String sendPicture(InputStream data)
+        {
+            return null;
         }
     }
 }

@@ -2,8 +2,6 @@ package net.meneame.fisgodroid;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;

@@ -10,11 +10,41 @@
 	    android:layout_height="wrap_content"
 	    android:orientation="vertical" >
 
-        <Spinner
-            android:id="@+id/chat_spinner"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal" />
+            android:orientation="horizontal" >
+
+            <Spinner
+                android:id="@+id/chat_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical" >
+
+                <ImageButton
+                    android:id="@+id/camera_button"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@android:drawable/ic_menu_camera" />
+
+                <ProgressBar
+                    android:id="@+id/camera_progress"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:indeterminate="true"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </LinearLayout>
           
 	   <LinearLayout
 	        android:layout_width="match_parent"

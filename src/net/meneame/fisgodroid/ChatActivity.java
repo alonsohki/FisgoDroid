@@ -1,5 +1,9 @@
 package net.meneame.fisgodroid;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,15 +16,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,14 +43,33 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ChatActivity extends Activity
 {
+    private static final int PICTURE_SIZE_LIMIT = 1280;
+    
+    // Request codes for activities
+    private static final int REQUEST_PICTURE = 1;
+    
     // Shared preferences settings.
     private static final String PREFS_NAME = "ChatActivity";
     private static final String PREF_SENDAS = "send as";
+    
+    
+    private CheckBox mCheckboxFriends;
+    private ListView mMessages;
+    private EditText mMessagebox;
+    private ImageButton mSendButton;
+    private ImageButton mCameraButton;
+    private ProgressBar mCameraProgress;
+    private Spinner mChatSpinner;
+    private ChatType mType = ChatType.PUBLIC;
+    private ChatType mSendAs = ChatType.PUBLIC;
+    private ChatMessageAdapter mAdapter;
+    private Date mLastMessage = null;
     
     
     // Create a handler to update the view from the UI thread
@@ -84,17 +112,7 @@ public class ChatActivity extends Activity
         {
         }
     };
-
-    private CheckBox mCheckboxFriends;
-    private ListView mMessages;
-    private EditText mMessagebox;
-    private ImageButton mSendButton;
-    private Spinner mChatSpinner;
-    private ChatType mType = ChatType.PUBLIC;
-    private ChatType mSendAs = ChatType.PUBLIC;
-    private ChatMessageAdapter mAdapter;
-    private Date mLastMessage = null;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -106,6 +124,8 @@ public class ChatActivity extends Activity
         mMessages = (ListView) findViewById(R.id.chat_messages);
         mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
         mSendButton = (ImageButton) findViewById(R.id.button_send);
+        mCameraButton = (ImageButton) findViewById(R.id.camera_button);
+        mCameraProgress = (ProgressBar) findViewById(R.id.camera_progress);
         mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
         
         // Restore stuff from shared prefs
@@ -220,6 +240,17 @@ public class ChatActivity extends Activity
                 sendChat();
             }
         });
+        
+        
+        // Send an intent to pick an image when they tap the camera button
+        mCameraButton.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                takePicture ();
+            }
+        });
     }
 
     @Override
@@ -248,6 +279,38 @@ public class ChatActivity extends Activity
     {
         super.onResume();
         Notifications.setOnForeground(getApplicationContext(), true);
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if ( resultCode != Activity.RESULT_OK )
+            return;
+        
+        if ( requestCode == REQUEST_PICTURE )
+        {
+            if ( data != null )
+            {
+                final String action = data.getAction();
+                if ( action != null && action.equals("inline-data") )
+                {
+                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                    processTakenPicture(bitmap);
+                }
+                else
+                {
+                    try
+                    {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
+                        processTakenPicture(bitmap);
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -473,5 +536,86 @@ public class ChatActivity extends Activity
 
         mMessagebox.setText(str);
         mMessagebox.setSelection(cursorPos);
+    }
+    
+    private void takePicture ()
+    {
+        // http://stackoverflow.com/questions/4455558/allow-user-to-select-camera-or-gallery-for-image
+        // Camera.
+        final List<Intent> cameraIntents = new ArrayList<Intent>();
+        final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        final PackageManager packageManager = getPackageManager();
+        final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
+        for(ResolveInfo res : listCam)
+        {
+            final String packageName = res.activityInfo.packageName;
+            final Intent intent = new Intent(captureIntent);
+            intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+            intent.setPackage(packageName);
+            cameraIntents.add(intent);
+        }
+
+        // Filesystem.
+        final Intent galleryIntent = new Intent();
+        galleryIntent.setType("image/*");
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+
+        // Chooser of filesystem options.
+        final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+
+        // Add the camera options.
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[]{}));
+        
+        startActivityForResult(chooserIntent, REQUEST_PICTURE);
+    }
+    
+    private void processTakenPicture ( final Bitmap bitmap )
+    {
+        // Hide the camera button and display a progress bar
+        mCameraButton.setVisibility(View.GONE);
+        mCameraProgress.setVisibility(View.VISIBLE);
+        
+        // Create a handler for when the thread finishes
+        final Handler handler = new Handler ()
+        {
+            @Override
+            public void handleMessage(Message msg)
+            {
+                // Restore the camera button
+                mCameraButton.setVisibility(View.VISIBLE);
+                mCameraProgress.setVisibility(View.GONE);
+                
+                // Did everything go ok?
+                String pictureUrl = (String)msg.obj;
+                if ( pictureUrl != null )
+                {
+                    mMessagebox.getText().append(" " + pictureUrl + " ");
+                }
+            }
+        };
+        
+        Thread thread = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Bitmap bmp = bitmap;
+                int biggestDimension = Math.max(bmp.getWidth(), bmp.getHeight());
+                if ( biggestDimension > PICTURE_SIZE_LIMIT )
+                {
+                    float scale = PICTURE_SIZE_LIMIT / (float)biggestDimension;
+                    bmp = Bitmap.createScaledBitmap(bmp, (int)(bmp.getWidth()*scale), (int)(bmp.getHeight()*scale), true);
+                }
+                
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bmp.compress(CompressFormat.JPEG, 90, stream);
+                
+                // Send a message to the handler with the picture url
+                Message msg = new Message();
+                msg.obj = mFisgoBinder.sendPicture(new ByteArrayInputStream(stream.toByteArray()));
+                handler.sendMessage(msg);
+            }
+        });
+        thread.start();
     }
 }
