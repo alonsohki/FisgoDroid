@@ -1,0 +1,6 @@
+The smiley icons bundled with this application belong to Meneame.NET and are licensed
+under the Creative Commons by-sa 3.0 license. For more information, please visit
+http://creativecommons.org/licenses/by-sa/3.0/
+
+This software is licensed under the WTFPL license. For more information, please viist
+http://www.wtfpl.net/
