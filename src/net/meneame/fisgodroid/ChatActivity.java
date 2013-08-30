@@ -2,6 +2,9 @@ package net.meneame.fisgodroid;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +24,8 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -70,6 +75,7 @@ public class ChatActivity extends Activity
     private ChatType mSendAs = ChatType.PUBLIC;
     private ChatMessageAdapter mAdapter;
     private Date mLastMessage = null;
+    private File mCameraTempFile = null;
     
     
     // Create a handler to update the view from the UI thread
@@ -310,6 +316,20 @@ public class ChatActivity extends Activity
                     }
                 }
             }
+            else if ( mCameraTempFile != null )
+            {
+                try
+                {
+                    Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(mCameraTempFile));
+                    mCameraTempFile.delete();
+                    mCameraTempFile = null;
+                    processTakenPicture(bitmap);
+                }
+                catch (FileNotFoundException e)
+                {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -540,10 +560,25 @@ public class ChatActivity extends Activity
     
     private void takePicture ()
     {
+        // Create a temporary file for in case they decide to use the camera
+        File cacheDir = getExternalCacheDir();
+        mCameraTempFile = null;
+        try
+        {
+            mCameraTempFile = File.createTempFile("fisgodroid", "capture.jpg", cacheDir);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        
         // http://stackoverflow.com/questions/4455558/allow-user-to-select-camera-or-gallery-for-image
         // Camera.
         final List<Intent> cameraIntents = new ArrayList<Intent>();
         final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        if ( mCameraTempFile != null )
+            captureIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(mCameraTempFile));
+
         final PackageManager packageManager = getPackageManager();
         final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
         for(ResolveInfo res : listCam)
