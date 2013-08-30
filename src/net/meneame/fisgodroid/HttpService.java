@@ -18,6 +18,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.ClientPNames;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
@@ -117,5 +118,42 @@ public class HttpService implements IHttpService
         }
         
         return false;
+    }
+
+    private HttpUriRequest buildPostDataRequest(String uri, InputStream data)
+    {
+        HttpPost req = new HttpPost(uri);
+        
+        // Dump the input data
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] temp = new byte[512];
+        int length;
+        try
+        {
+            while ( (length = data.read(temp)) > 0 )
+                bos.write(temp, 0, length);
+            
+            byte[] byteArray = bos.toByteArray();
+            req.setEntity(new ByteArrayEntity(byteArray));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return req;
+    }
+    
+    @Override
+    public String postData(String uri, InputStream data)
+    {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        performRequest(buildPostDataRequest(uri, data), os);
+        return new String(os.toByteArray());
+    }
+
+    @Override
+    public boolean postData(String uri, InputStream data, OutputStream stream)
+    {
+        return performRequest(buildPostDataRequest(uri, data), stream);
     }
 }

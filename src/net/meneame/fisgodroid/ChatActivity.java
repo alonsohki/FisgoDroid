@@ -600,12 +600,6 @@ public class ChatActivity extends Activity
             public void run()
             {
                 Bitmap bmp = bitmap;
-                int biggestDimension = Math.max(bmp.getWidth(), bmp.getHeight());
-                if ( biggestDimension > PICTURE_SIZE_LIMIT )
-                {
-                    float scale = PICTURE_SIZE_LIMIT / (float)biggestDimension;
-                    bmp = Bitmap.createScaledBitmap(bmp, (int)(bmp.getWidth()*scale), (int)(bmp.getHeight()*scale), true);
-                }
                 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bmp.compress(CompressFormat.JPEG, 90, stream);

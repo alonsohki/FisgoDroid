@@ -32,6 +32,7 @@ public class FisgoService extends Service
     private static final String SNEAK_URL = "http://www.meneame.net/sneak.php";
     private static final String SNEAK_BACKEND_URL = "http://www.meneame.net/backend/sneaker2.php";
     private static final String FRIEND_LIST_URL = "http://www.meneame.net/user/?username/friends";
+    private static final String UPLOAD_URL = "http://www.meneame.net/backend/tmp_upload.php";
 
     private FisgoBinder mBinder = new FisgoBinder();
     private Thread mThread = null;
@@ -57,7 +58,7 @@ public class FisgoService extends Service
             @Override
             public void run()
             {
-                synchronized (this)
+                synchronized (mHttp)
                 {
                     while (true)
                     {
@@ -66,7 +67,7 @@ public class FisgoService extends Service
                             if ( !mIsLoggedIn )
                             {
                                 clearSession();
-                                wait();
+                                mHttp.wait();
                             }
 
                             String result;
@@ -173,7 +174,7 @@ public class FisgoService extends Service
                             }
 
                             if ( !failed && mOutgoingMessages.size() == 0 )
-                                wait(5000);
+                                mHttp.wait(5000);
                         }
                         catch (InterruptedException e)
                         {
@@ -354,7 +355,7 @@ public class FisgoService extends Service
             if ( type != mType )
             {
                 // Set the new chat type, and reset all the message lists
-                synchronized (FisgoService.this)
+                synchronized (mHttp)
                 {
                     mType = type;
                     clearSession();
@@ -365,7 +366,30 @@ public class FisgoService extends Service
         
         public String sendPicture(InputStream data)
         {
-            return null;
+            String url = null;
+            
+            synchronized (mHttp)
+            {
+                String result = mHttp.postData(UPLOAD_URL, data);
+                if ( result.equals("") == false )
+                {
+                    JSONObject root;
+                    try
+                    {
+                        root = new JSONObject(result);
+                        if ( root.has("url") )
+                        {
+                            url = root.getString("url").replace("\\/", "/");
+                        }
+                    }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            
+            return url;
         }
     }
 }
