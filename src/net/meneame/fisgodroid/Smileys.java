@@ -92,18 +92,18 @@ public class Smileys
         float size;
         
         // We are not supporting animated gifs before Android 3
-        if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB )
-        {
+        //if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB )
+       // {
             drawable = context.getResources().getDrawable(resource);
             size = 1.2f;
-        }
-        else
-        {
-            AnimatedGIFDrawable temp = new AnimatedGIFDrawable(context, resource);
-            temp.start();
-            drawable = temp;
-            size = 1.5f;
-        }
+        //}
+        //else
+        //{
+        //    AnimatedGIFDrawable temp = new AnimatedGIFDrawable(context, resource);
+        //    temp.start();
+        //    drawable = temp;
+        //    size = 1.5f;
+        //}
         
         drawable.setBounds(0, 0, (int)(drawable.getIntrinsicWidth()*size), (int)(drawable.getIntrinsicHeight()*size));
         return drawable;

@@ -2,4 +2,7 @@
 <resources>
     <item name="time_between_messages" format="integer" type="integer">5</item>
 	<item name="min_message_length" format="integer" type="integer">4</item>
+	<item name="time_to_wait" format="integer" type="integer">6000</item>
+	<item name="time_to_wait_when_failed" format="integer" type="integer">10000</item>
+	<item name="time_to_wait_when_on_background" format="integer" type="integer">16000</item>
 </resources>

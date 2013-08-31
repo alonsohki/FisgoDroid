@@ -108,6 +108,7 @@ public class ChatActivity extends Activity
                 mAdapter = new ChatMessageAdapter(ChatActivity.this, mFisgoBinder.getAvatarStorage());
                 mMessages.setAdapter(mAdapter);
                 mFisgoBinder.addHandler(mHandler);
+                mFisgoBinder.setOnForeground(true);
             }
         }
 
@@ -276,6 +277,8 @@ public class ChatActivity extends Activity
     {
         super.onPause();
         Notifications.setOnForeground(getApplicationContext(), false);
+        if ( mFisgoBinder != null )
+            mFisgoBinder.setOnForeground(false);
     }
     
     @Override
@@ -283,6 +286,8 @@ public class ChatActivity extends Activity
     {
         super.onResume();
         Notifications.setOnForeground(getApplicationContext(), true);
+        if ( mFisgoBinder != null )
+            mFisgoBinder.setOnForeground(true);
     }
     
     @Override

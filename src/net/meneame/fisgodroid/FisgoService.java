@@ -1,6 +1,8 @@
 package net.meneame.fisgodroid;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,7 +19,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -47,17 +54,42 @@ public class FisgoService extends Service
     private AvatarStorage mAvatars;
     private ChatType mType = ChatType.PUBLIC;
     private int mNumRequests = 0;
+    private int mTimeToWait = 5000;
+    private int mTimeToWaitWhenFailed = 10000;
+    private int mTimeToWaitWhenOnBackground = 15000;
+    private boolean mIsOnForeground = false;
+    private BroadcastReceiver mConnectivityReceiver;
 
     @Override
     public void onCreate()
     {
         mAvatars = new AvatarStorage(getApplicationContext());
-
+        mTimeToWait = getResources().getInteger(R.integer.time_to_wait);
+        mTimeToWaitWhenFailed = getResources().getInteger(R.integer.time_to_wait_when_failed);
+        mTimeToWaitWhenOnBackground = getResources().getInteger(R.integer.time_to_wait_when_on_background);
+        
+        // Register a BroadcastReceiver to detect connectivity changes
+        final IntentFilter connectivityIntentFilter = new IntentFilter();
+        connectivityIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        mConnectivityReceiver = new BroadcastReceiver ()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                wakeUp();
+            }
+        };
+        registerReceiver(mConnectivityReceiver, connectivityIntentFilter);
+        
+        
+        // Create the main thread that will keep polling the server
         mThread = new Thread(new Runnable()
         {
             @Override
             public void run()
             {
+                final ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+                
                 synchronized (mHttp)
                 {
                     while (true)
@@ -69,9 +101,16 @@ public class FisgoService extends Service
                                 clearSession();
                                 mHttp.wait();
                             }
+                            
+                            final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                            boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
+                            if ( !isConnected )
+                            {
+                                mHttp.wait();
+                            }
 
-                            String result;
                             boolean failed = false;
+                            ByteArrayOutputStream result = new ByteArrayOutputStream();
                             boolean containsChat = mOutgoingMessages.size() > 0;
 
                             if ( containsChat )
@@ -93,12 +132,12 @@ public class FisgoService extends Service
                                     params.put("friends", 1);
                                 if ( mLastMessageTime.equals("") == false )
                                     params.put("time", mLastMessageTime);
-                                result = mHttp.post(SNEAK_BACKEND_URL, params);
+                                
+                                
+                                failed = !mHttp.post(SNEAK_BACKEND_URL, params, result);
 
-                                if ( "".equals(result) == false )
+                                if ( !failed && result.size() > 0 )
                                     mOutgoingMessages.remove(0);
-                                else
-                                    failed = true;
                             }
                             else
                             {
@@ -115,18 +154,14 @@ public class FisgoService extends Service
                                 if ( mType == ChatType.FRIENDS )
                                     uri += "&friends=1";
 
-                                result = mHttp.get(uri);
+                                failed = !mHttp.get(uri, result);
                             }
 
                             // Get the response JSON value and construct the
                             // chat messages from it
-                            if ( result.equals("") )
+                            if ( result.size() > 0 )
                             {
-                                failed = true;
-                            }
-                            else
-                            {
-                                JSONObject root = new JSONObject(result);
+                                JSONObject root = new JSONObject(result.toString("UTF-8"));
                                 final boolean isFirstRequest = mLastMessageTime.equals("");
                                 mLastMessageTime = root.getString("ts");
 
@@ -173,8 +208,15 @@ public class FisgoService extends Service
                                 }
                             }
 
-                            if ( !failed && mOutgoingMessages.size() == 0 )
-                                mHttp.wait(5000);
+                            // Make a small delay to poll again
+                            if ( failed )
+                            {
+                                mHttp.wait(mTimeToWaitWhenFailed);
+                            }
+                            else if ( mOutgoingMessages.size() == 0 )
+                            {
+                                mHttp.wait(mIsOnForeground ? mTimeToWait : mTimeToWaitWhenOnBackground);
+                            }
                         }
                         catch (InterruptedException e)
                         {
@@ -183,11 +225,22 @@ public class FisgoService extends Service
                         {
                             e.printStackTrace();
                         }
+                        catch (UnsupportedEncodingException e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
         });
         mThread.start();
+    }
+    
+    @Override
+    public void onDestroy ()
+    {
+        super.onDestroy();
+        unregisterReceiver(mConnectivityReceiver);
     }
 
     private void clearSession()
@@ -206,6 +259,15 @@ public class FisgoService extends Service
         for (Handler handler : mBinder.getHandlers())
         {
             handler.sendMessage(msg);
+        }
+    }
+    
+    public void wakeUp ()
+    {
+        Log.i(TAG, "Waking up FisgoService");
+        synchronized ( mHttp )
+        {
+            mHttp.notify();            
         }
     }
 
@@ -390,6 +452,12 @@ public class FisgoService extends Service
             }
             
             return url;
+        }
+        
+        public void setOnForeground ( boolean isOnForeground )
+        {
+            Log.i(TAG, "Setting FisgoService on " + (isOnForeground ? "foreground" : "background"));
+            mIsOnForeground = isOnForeground;
         }
     }
 }
