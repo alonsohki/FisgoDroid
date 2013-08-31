@@ -299,11 +299,11 @@ public class FisgoService extends Service
             mThread.interrupt();
         }
 
-        public boolean logIn(String username, String password)
+        public LoginStatus logIn(String username, String password)
         {
             String step1 = mHttp.get(LOGIN_GET_URL);
             if ( "".equals(step1) )
-                return false;
+                return LoginStatus.NETWORK_FAILED;
 
             // Get the userip field
             Matcher m = mUseripPattern.matcher(step1);
@@ -328,7 +328,7 @@ public class FisgoService extends Service
             params.put("return", "");
             String step2 = mHttp.post(LOGIN_URL, params);
             if ( "".equals(step2) )
-                return false;
+                return LoginStatus.NETWORK_FAILED;
 
             // Did we log in correctly?
             m = mLogoutPattern.matcher(step2);
@@ -364,7 +364,7 @@ public class FisgoService extends Service
 
             mThread.interrupt();
 
-            return mIsLoggedIn;
+            return mIsLoggedIn ? LoginStatus.OK : LoginStatus.INVALID_PASSWORD;
         }
 
         public String getUsername()

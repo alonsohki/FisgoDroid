@@ -217,7 +217,8 @@ public class LoginActivity extends Activity
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else
+        }
+        else
         {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
@@ -273,24 +274,24 @@ public class LoginActivity extends Activity
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean>
+    public class UserLoginTask extends AsyncTask<Void, Void, LoginStatus>
     {
         @Override
-        protected Boolean doInBackground(Void... params)
+        protected LoginStatus doInBackground(Void... params)
         {
             if (mFisgoBinder == null)
-                return false;
+                return LoginStatus.NETWORK_FAILED;
 
             return mFisgoBinder.logIn(mUsername, mPassword);
         }
 
         @Override
-        protected void onPostExecute(final Boolean success)
+        protected void onPostExecute(final LoginStatus status)
         {
             mAuthTask = null;
             showProgress(false);
 
-            if (success)
+            if ( status == LoginStatus.OK )
             {
                 if ( mRememberMe )
                 {
@@ -298,10 +299,24 @@ public class LoginActivity extends Activity
                 }
                 startActivity(new Intent(LoginActivity.this, ChatActivity.class));
                 finish();
-            } else
+            }
+            else
             {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                if ( status == LoginStatus.INVALID_USERNAME )
+                {
+                    mUsernameView.setError(getString(R.string.error_incorrect_username));
+                    mUsernameView.requestFocus();
+                }
+                else if ( status == LoginStatus.INVALID_PASSWORD )
+                {
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
+                else if ( status == LoginStatus.NETWORK_FAILED )
+                {
+                    mUsernameView.setError(getString(R.string.error_network_failed));
+                    mUsernameView.requestFocus();
+                }
             }
         }
 
