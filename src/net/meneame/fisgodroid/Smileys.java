@@ -1,52 +1,64 @@
 package net.meneame.fisgodroid;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.Html;
 
 public class Smileys
 {
     public static final String URI_SCHEME = "smiley://";
     
-    private static final Map<String, Integer> msResources = new HashMap<String, Integer>();
+    private static final Map<String, Smiley> msSmileys = new HashMap<String, Smiley>();
+    
+    private static void addSmiley(Smiley smiley)
+    {
+        msSmileys.put(smiley.getChatText(), smiley);
+    }
     
     private static void initializeResources ()
     {
         // Initialize the resource map
-        if ( msResources.size() == 0 )
+        if ( msSmileys.size() == 0 )
         {
-            msResources.put("angry", R.drawable.angry);
-            msResources.put("blank", R.drawable.blank);
-            msResources.put("cheesy", R.drawable.cheesy);
-            msResources.put("confused", R.drawable.confused);
-            msResources.put("cool", R.drawable.cool);
-            msResources.put("cry", R.drawable.cry);
-            msResources.put("oops", R.drawable.embarassed);
-            msResources.put("ffu", R.drawable.fu);
-            msResources.put("goatse", R.drawable.goat);
-            msResources.put("grin", R.drawable.grin);
-            msResources.put("hug", R.drawable.hug);
-            msResources.put("huh", R.drawable.huh);
-            msResources.put("kiss", R.drawable.kiss);
-            msResources.put("lol", R.drawable.laugh);
-            msResources.put("lipssealed", R.drawable.lipsrsealed);
-            msResources.put("palm", R.drawable.palm);
-            msResources.put("roll", R.drawable.rolleyes);
-            msResources.put("sad", R.drawable.sad);
-            msResources.put("shame", R.drawable.shame);
-            msResources.put("shit", R.drawable.shit);
-            msResources.put("shocked", R.drawable.shocked);
-            msResources.put("smiley", R.drawable.smiley);
-            msResources.put("tongue", R.drawable.tongue);
-            msResources.put("troll", R.drawable.trollface2);
-            msResources.put("undecided", R.drawable.undecided);
-            msResources.put("wall", R.drawable.wall);
-            msResources.put("wink", R.drawable.wink);
-            msResources.put("wow", R.drawable.wow);
+            addSmiley(new Smiley(">:(",      "angry",       R.drawable.angry));
+            addSmiley(new Smiley(":|",       "blank",       R.drawable.blank));
+            addSmiley(new Smiley(":>",       "cheesy",      R.drawable.cheesy));
+            addSmiley(new Smiley(":S",       "confused",    R.drawable.confused));
+            addSmiley(new Smiley("8-)",      "cool",        R.drawable.cool));
+            addSmiley(new Smiley(":'(",      "cry",         R.drawable.cry));
+            addSmiley(new Smiley(":$",       "oops",        R.drawable.embarassed));
+            addSmiley(new Smiley(":ffu:",    "ffu",         R.drawable.fu));
+            addSmiley(new Smiley(":goatse:", "goatse",      R.drawable.goat));
+            addSmiley(new Smiley(":D",       "grin",        R.drawable.grin));
+            addSmiley(new Smiley(":hug:",    "hug",         R.drawable.hug));
+            addSmiley(new Smiley("?(",       "huh",         R.drawable.huh));
+            addSmiley(new Smiley(":*",       "kiss",        R.drawable.kiss));
+            addSmiley(new Smiley("xD",       "lol",         R.drawable.laugh));
+            addSmiley(new Smiley(":X",       "lipssealed",  R.drawable.lipsrsealed));
+            addSmiley(new Smiley(":palm:",   "palm",        R.drawable.palm));
+            addSmiley(new Smiley(":roll:",   "roll",        R.drawable.rolleyes));
+            addSmiley(new Smiley(":(",       "sad",         R.drawable.sad));
+            addSmiley(new Smiley("¬¬",       "shame",       R.drawable.shame));
+            addSmiley(new Smiley(":shit:",   "shit",        R.drawable.shit));
+            addSmiley(new Smiley(":O",       "shocked",     R.drawable.shocked));
+            addSmiley(new Smiley(":)",       "smiley",      R.drawable.smiley));
+            addSmiley(new Smiley(":P",       "tongue",      R.drawable.tongue));
+            addSmiley(new Smiley(":troll:",  "troll",       R.drawable.trollface2));
+            addSmiley(new Smiley(":/",       "undecided",   R.drawable.undecided));
+            addSmiley(new Smiley(":wall:",   "wall",        R.drawable.wall));
+            addSmiley(new Smiley(";)",       "wink",        R.drawable.wink));
+            addSmiley(new Smiley(":wow:",    "wow",         R.drawable.wow));
         }
+    }
+    
+    public static Collection<Smiley> getSmileys ()
+    {
+        initializeResources();
+        return msSmileys.values();
     }
     
     public static String parseMessage ( String message )
@@ -69,7 +81,7 @@ public class Smileys
             else
             {
                 String smileyName = message.substring(cur+1, end);
-                if ( msResources.containsKey(smileyName) == false )
+                if ( msSmileys.containsKey(smileyName) == false )
                 {
                     builder.append(message.substring(pos, end+1));
                     pos = end + 1;
@@ -95,7 +107,7 @@ public class Smileys
         //if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB )
        // {
             drawable = context.getResources().getDrawable(resource);
-            size = 1.2f;
+            size = 1.5f;
         //}
         //else
         //{
@@ -122,9 +134,9 @@ public class Smileys
                 if ( source.startsWith(URI_SCHEME) )
                 {
                     String smileyName = source.substring(URI_SCHEME.length());
-                    if ( msResources.containsKey(smileyName) )
+                    if ( msSmileys.containsKey(smileyName) )
                     {
-                        int resource = msResources.get(smileyName);
+                        int resource = msSmileys.get(smileyName).getResource();
                         drawable = getAppropiateDrawable(context, resource);
                     }
                 }

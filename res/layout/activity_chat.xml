@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
@@ -6,12 +6,13 @@
     tools:context=".ChatActivity"
     tools:ignore="MergeRootFrame" >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
         <LinearLayout
+            android:id="@+id/chat_type_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
@@ -46,16 +47,20 @@
         </LinearLayout>
 
         <View
+            android:id="@+id/separator1"
             android:layout_width="fill_parent"
             android:layout_height="1dp"
+            android:layout_below="@id/chat_type_bar"
             android:background="@android:color/darker_gray" />
 
         <LinearLayout
+            android:id="@+id/input_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/separator1"
+            android:background="#FFFFFFFF"
             android:orientation="horizontal"
-            android:padding="2dp"
-            android:background="#FFFFFFFF" >
+            android:padding="2dp" >
 
             <CheckBox
                 android:id="@+id/checkbox_friends"
@@ -86,6 +91,15 @@
             </EditText>
 
             <ImageButton
+                android:id="@+id/smileys_button"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="6dp"
+                android:background="@drawable/smiley" />
+
+            <ImageButton
                 android:id="@+id/button_send"
                 android:layout_width="32dp"
                 android:layout_height="26dp"
@@ -95,20 +109,34 @@
         </LinearLayout>
 
         <View
+            android:id="@+id/separator2"
             android:layout_width="fill_parent"
             android:layout_height="1dp"
+            android:layout_below="@id/input_bar"
             android:background="#FFDDDDDD" />
 
         <ListView
             android:id="@+id/chat_messages"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
+            android:layout_below="@id/separator2"
             android:layout_weight="1"
             android:background="#FFFEFA"
             android:padding="2dp"
             android:stackFromBottom="false" >
 
         </ListView>
-    </LinearLayout>
 
-</FrameLayout>
+        <net.meneame.fisgodroid.SmileyPickerView
+            android:id="@+id/smiley_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@id/separator2"
+            android:layout_below="@id/separator2"
+            android:background="#CF000000" >
+
+        </net.meneame.fisgodroid.SmileyPickerView>
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.meneame.fisgodroid.SmileyPickerView.OnSmileySelectedListener;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -25,6 +26,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,11 +37,15 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -69,6 +75,8 @@ public class ChatActivity extends Activity
     private ImageButton mCameraButton;
     private ProgressBar mCameraProgress;
     private Spinner mChatSpinner;
+    private ImageButton mSmileyButton;
+    private SmileyPickerView mSmileyPicker;
     private ChatType mType = ChatType.PUBLIC;
     private ChatType mSendAs = ChatType.PUBLIC;
     private ChatMessageAdapter mAdapter;
@@ -132,6 +140,8 @@ public class ChatActivity extends Activity
         mCameraButton = (ImageButton) findViewById(R.id.camera_button);
         mCameraProgress = (ProgressBar) findViewById(R.id.camera_progress);
         mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
+        mSmileyButton = (ImageButton) findViewById(R.id.smileys_button);
+        mSmileyPicker = (SmileyPickerView) findViewById(R.id.smiley_picker);
         
         // Restore stuff from shared prefs
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -143,6 +153,37 @@ public class ChatActivity extends Activity
         setType(mType);
         setSendAs(mSendAs);
 
+        
+        // Setup the smiley picker
+        mSmileyButton.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if ( mSmileyPicker.getVisibility() == View.VISIBLE )
+                    mSmileyPicker.setVisibility(View.GONE);
+                else
+                    mSmileyPicker.setVisibility(View.VISIBLE);
+            }
+        });
+        mSmileyPicker.setVisibility(View.GONE);
+        mSmileyPicker.setOnSmileySelectedListener(new OnSmileySelectedListener()
+        {
+            @Override
+            public void onSmileySelected(Smiley smiley)
+            {
+                mSmileyPicker.setVisibility(View.GONE);
+                String smileyText = smiley.getInputText() + " ";
+                int start = Math.max(mMessagebox.getSelectionStart(), 0);
+                int end = Math.max(mMessagebox.getSelectionEnd(), 0);
+                mMessagebox.getText().replace(Math.min(start, end),
+                                              Math.max(start, end),
+                                              smileyText, 0, smileyText.length());
+                mMessagebox.requestFocus();
+            }
+        });
+        
+        
         // Handle key presses for the nick completion feature
         mMessagebox.addTextChangedListener(new TextWatcher()
         {
