@@ -53,9 +53,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ChatActivity extends Activity
-{
-    private static final int PICTURE_SIZE_LIMIT = 1280;
-    
+{   
     // Request codes for activities
     private static final int REQUEST_PICTURE = 1;
     

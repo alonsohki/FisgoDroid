@@ -4,11 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ChatActivity"
-    tools:ignore="MergeRootFrame">
+    tools:ignore="MergeRootFrame" >
+
     <LinearLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="vertical" >
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -41,55 +42,73 @@
                     android:layout_height="48dp"
                     android:indeterminate="true"
                     android:visibility="gone" />
-
             </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="2dp"
+            android:background="#FFFFFFFF" >
+
+            <CheckBox
+                android:id="@+id/checkbox_friends"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="2dp"
+                android:background="@drawable/chat_friend_selector"
+                android:button="@android:color/transparent"
+                android:checked="false"
+                android:textSize="0sp" />
+
+            <EditText
+                android:id="@+id/chat_messagebox"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:hint="@string/messagebox_hint"
+                android:imeOptions="actionSend"
+                android:inputType="text"
+                android:maxLength="230" >
+
+                <requestFocus />
+            </EditText>
+
+            <ImageButton
+                android:id="@+id/button_send"
+                android:layout_width="44dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:background="@drawable/send_button_selector" />
 
         </LinearLayout>
-          
-	   <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:orientation="horizontal" >
-		    <CheckBox
-	            android:id="@+id/checkbox_friends"
-	            android:layout_width="32dp"
-	            android:layout_height="32dp"
-	            android:layout_marginRight="2dp"
-	            android:layout_gravity="center_vertical"
-	            android:background="@drawable/chat_friend_selector"
-	            android:button="@android:color/transparent"
-	            android:checked="false"
-	            android:textSize="0sp" />
 
-	        <EditText
-	            android:id="@+id/chat_messagebox"
-	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginRight="2dp"
-	            android:layout_weight="1"
-	            android:ems="10"
-	            android:imeOptions="actionSend"
-	            android:inputType="text"
-	            android:maxLength="230" >
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="#FFDDDDDD" />
 
-	        </EditText>
-	
-	        <ImageButton
-	            android:id="@+id/button_send"
-	            android:layout_width="44dp"
-	            android:layout_height="36dp"
-	            android:layout_marginRight="2dp"
-	            android:background="@android:drawable/btn_default_small"
-	            android:src="@drawable/ic_send" />
+        <ListView
+            android:id="@+id/chat_messages"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="#FFFEFA"
+            android:padding="2dp"
+            android:stackFromBottom="false" >
 
-	    </LinearLayout>
-	
-	    <ListView
-	        android:id="@+id/chat_messages"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content" >
-	    </ListView>
-	
-	</LinearLayout>
+        </ListView>
+    </LinearLayout>
+
 </FrameLayout>
-
