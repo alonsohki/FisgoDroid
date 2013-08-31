@@ -367,6 +367,16 @@ public class ChatActivity extends Activity
             mType = (ChatType) savedInstanceState.getSerializable("type");
             setType(mType);
         }
+        if ( savedInstanceState.containsKey("messagebox") )
+        {
+            mMessagebox.setText(savedInstanceState.getString("messagebox"));
+            if ( savedInstanceState.containsKey("selectionStart") &&
+                 savedInstanceState.containsKey("selectionEnd") )
+            {
+                mMessagebox.setSelection(savedInstanceState.getInt("selectionStart"),
+                                         savedInstanceState.getInt("selectionEnd"));
+            }
+        }
     }
 
     @Override
@@ -375,6 +385,9 @@ public class ChatActivity extends Activity
         // Serialize the current dropdown position.
         outState.putSerializable("type", mType);
         outState.putSerializable("send as", getSendAs());
+        outState.putString("messagebox", mMessagebox.getText().toString());
+        outState.putInt("selectionStart", mMessagebox.getSelectionStart());
+        outState.putInt("selectionEnd", mMessagebox.getSelectionEnd());
     }
 
     @Override
