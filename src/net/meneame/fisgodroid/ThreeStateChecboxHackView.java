@@ -86,5 +86,27 @@ public class ThreeStateChecboxHackView extends CheckBox
     public void setState ( State state )
     {
         mState = state;
+        
+        // Set the visual state
+        Drawable drawable = null;
+        boolean checked = false;
+        switch ( mState )
+        {
+            case UNCHECKED:
+                drawable = mOriginalBackground;
+                checked = false;
+                break;
+            case CHECKED:
+                drawable = mOriginalBackground;
+                checked = true;
+                break;
+            case THIRD_STATE:
+                drawable = mThirdStateDrawable;
+                checked = true;
+                break;
+        }
+        
+        setBackgroundDrawable ( drawable != null ? drawable : mOriginalBackground );
+        setChecked(checked);
     }
 }
