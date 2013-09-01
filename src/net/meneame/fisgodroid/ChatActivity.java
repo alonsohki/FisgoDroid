@@ -26,7 +26,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,20 +37,15 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -120,6 +115,11 @@ public class ChatActivity extends Activity
                 mFisgoBinder.setOnForeground(true);
                 if ( mChatSpinnerAdapter != null )
                     mChatSpinnerAdapter.notifyDataSetChanged();
+                if ( mCheckboxFriends != null )
+                {
+                    Drawable whipDrawable = getResources().getDrawable(R.drawable.ic_whip);
+                    mCheckboxFriends.setThirdStateDrawable(mFisgoBinder.isAdmin() ? whipDrawable : null);
+                }
             }
         }
 
@@ -153,7 +153,8 @@ public class ChatActivity extends Activity
             mSendAs = ChatType.values()[optionOrdinal];
 
         // Setup
-        mCheckboxFriends.setThirdStateDrawable(getResources().getDrawable(R.drawable.ic_whip));
+        Drawable whipDrawable = getResources().getDrawable(R.drawable.ic_whip);
+        mCheckboxFriends.setThirdStateDrawable((mFisgoBinder != null && mFisgoBinder.isAdmin()) ? whipDrawable : null);
         setType(mType);
         setSendAs(mSendAs);
 
