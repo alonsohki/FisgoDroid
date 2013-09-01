@@ -100,7 +100,7 @@ public class ChatLineView extends LinearLayout
         }
     }
     
-    public void setChatMessage(String username, ChatMessage chatMsg)
+    public void setChatMessage(ChatMessage chatMsg, boolean highlight )
     {
         mChatMsg = chatMsg;
         if ( mChatMsg != null )
@@ -108,7 +108,7 @@ public class ChatLineView extends LinearLayout
             String parsedMessage = Smileys.parseMessage(mChatMsg.getMessage());
 
             // Highlight when they mention our name
-            if ( parsedMessage.toLowerCase().contains(username.toLowerCase()) )
+            if ( highlight )
             {
                 parsedMessage = "<b>" + parsedMessage + "</b>";
             }

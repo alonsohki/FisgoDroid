@@ -15,6 +15,7 @@ public class ChatMessageAdapter extends BaseAdapter
     private Context mContext;
     private AvatarStorage mAvatarStorage;
     private String mUsername;
+    private boolean mIsAdmin = false;
     
     public ChatMessageAdapter ( Context context, AvatarStorage avatarStorage )
     {
@@ -25,6 +26,11 @@ public class ChatMessageAdapter extends BaseAdapter
     public void setUsername ( String username )
     {
         mUsername = username;
+    }
+    
+    public void setIsAdmin ( boolean isAdmin )
+    {
+        mIsAdmin = isAdmin;
     }
     
     public void setMessages ( List<ChatMessage> messages )
@@ -62,7 +68,11 @@ public class ChatMessageAdapter extends BaseAdapter
             line = new ChatLineView(mContext, mAvatarStorage);
         }
         ChatMessage chatmsg = (ChatMessage)getItem(position);
-        line.setChatMessage(mUsername, chatmsg);
+        String lowercaseMsg = chatmsg.getMessage().toLowerCase();
+        
+        boolean highlight = lowercaseMsg.contains(mUsername.toLowerCase()) ||
+                            ( mIsAdmin && lowercaseMsg.contains("admin") );
+        line.setChatMessage(chatmsg, highlight);
                 
         return line;
     }

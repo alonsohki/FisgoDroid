@@ -592,6 +592,7 @@ public class ChatActivity extends Activity
         if ( mAdapter != null )
         {
             mAdapter.setUsername(mFisgoBinder.getUsername());
+            mAdapter.setIsAdmin(mFisgoBinder.isAdmin());
             mAdapter.setMessages(messages);
         }
     }

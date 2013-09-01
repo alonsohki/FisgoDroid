@@ -205,7 +205,10 @@ public class FisgoService extends Service
                                         newList.add(msg);
                                         
                                         // Send a notification if they mentioned us
-                                        if ( !isFirstRequest && msg.getMessage().toLowerCase().contains(mUsername.toLowerCase()) )
+                                        String lowercaseMsg = msg.getMessage().toLowerCase();
+                                        boolean notify = lowercaseMsg.contains(mUsername.toLowerCase()) ||
+                                                         ( mIsAdmin && lowercaseMsg.contains("admin") );
+                                        if ( !isFirstRequest && notify )
                                         {
                                             Notifications.theyMentionedMe(FisgoService.this, msg);
                                         }
