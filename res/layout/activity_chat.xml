@@ -62,7 +62,7 @@
             android:orientation="horizontal"
             android:padding="2dp" >
 
-            <CheckBox
+            <net.meneame.fisgodroid.ThreeStateChecboxHackView
                 android:id="@+id/checkbox_friends"
                 android:layout_width="32dp"
                 android:layout_height="32dp"

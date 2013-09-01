@@ -68,7 +68,7 @@ public class ChatActivity extends Activity
     private static final String PREF_SENDAS = "send as";
     
     
-    private CheckBox mCheckboxFriends;
+    private ThreeStateChecboxHackView mCheckboxFriends;
     private ListView mMessages;
     private EditText mMessagebox;
     private ImageButton mSendButton;
@@ -136,7 +136,7 @@ public class ChatActivity extends Activity
         setContentView(R.layout.activity_chat);
 
         // Get views
-        mCheckboxFriends = (CheckBox) findViewById(R.id.checkbox_friends);
+        mCheckboxFriends = (ThreeStateChecboxHackView) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
         mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
         mSendButton = (ImageButton) findViewById(R.id.button_send);
@@ -153,6 +153,7 @@ public class ChatActivity extends Activity
             mSendAs = ChatType.values()[optionOrdinal];
 
         // Setup
+        mCheckboxFriends.setThirdStateDrawable(getResources().getDrawable(R.drawable.ic_whip));
         setType(mType);
         setSendAs(mSendAs);
 
@@ -530,7 +531,18 @@ public class ChatActivity extends Activity
 
     public ChatType getSendAs()
     {
-        mSendAs = mCheckboxFriends.isChecked() ? ChatType.FRIENDS : ChatType.PUBLIC;
+        switch ( mCheckboxFriends.getState() )
+        {
+            case UNCHECKED:
+                mSendAs = ChatType.PUBLIC;
+                break;
+            case CHECKED:
+                mSendAs = ChatType.FRIENDS;
+                break;
+            case THIRD_STATE:
+                mSendAs = ChatType.ADMIN;
+                break;
+        }
         return mSendAs;
     }
 
@@ -538,7 +550,20 @@ public class ChatActivity extends Activity
     {
         mSendAs = type;
         if ( mCheckboxFriends != null )
-            mCheckboxFriends.setChecked(type == ChatType.FRIENDS);
+        {
+            switch ( type )
+            {
+                case PUBLIC:
+                    mCheckboxFriends.setState(ThreeStateChecboxHackView.State.UNCHECKED);
+                    break;
+                case FRIENDS:
+                    mCheckboxFriends.setState(ThreeStateChecboxHackView.State.CHECKED);
+                    break;
+                case ADMIN:
+                    mCheckboxFriends.setState(ThreeStateChecboxHackView.State.THIRD_STATE);
+                    break;
+            }
+        }
     }
 
     public void setType(ChatType type)
