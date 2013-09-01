@@ -78,14 +78,14 @@
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="2dp"
-                android:layout_marginRight="2dp"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:ems="10"
                 android:hint="@string/messagebox_hint"
                 android:imeOptions="actionSend"
                 android:inputType="text"
-                android:maxLength="230" >
+                android:maxLength="230"
+                android:paddingRight="10dp" >
 
                 <requestFocus />
             </EditText>
@@ -95,8 +95,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_gravity="center_vertical|center_horizontal"
-                android:layout_marginLeft="2dp"
-                android:layout_marginRight="6dp"
+                android:layout_marginRight="8dp"
                 android:background="@drawable/smiley" />
 
             <ImageButton
