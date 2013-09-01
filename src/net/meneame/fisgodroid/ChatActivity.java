@@ -332,6 +332,26 @@ public class ChatActivity extends Activity
     }
     
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if ( keyCode == KeyEvent.KEYCODE_BACK )
+        {
+            // If they want to go back while having the smileys window open,
+            // simply close this window.
+            if ( mSmileyPicker.getVisibility() != View.GONE )
+            {
+                mSmileyPicker.setVisibility(View.GONE);
+            }
+            else
+            {
+                moveTaskToBack(true);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         if ( resultCode != Activity.RESULT_OK )
