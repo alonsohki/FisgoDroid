@@ -42,6 +42,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -132,6 +133,8 @@ public class ChatActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
