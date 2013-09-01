@@ -2,4 +2,5 @@
 <resources>
 	<color name="text_chat_general">#9b0000</color>
 	<color name="text_chat_friends">#255c25</color>
+	<color name="text_chat_admin">#f00000</color>
 </resources>

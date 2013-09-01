@@ -122,6 +122,8 @@ public class ChatLineView extends LinearLayout
                 mMessage.setTextColor(getResources().getColor(R.color.text_chat_general));
             else if ( mChatMsg.getType() == ChatType.FRIENDS )
                 mMessage.setTextColor(getResources().getColor(R.color.text_chat_friends));
+            else if ( mChatMsg.getType() == ChatType.ADMIN )
+                mMessage.setTextColor(getResources().getColor(R.color.text_chat_admin));
         }
     }
 }

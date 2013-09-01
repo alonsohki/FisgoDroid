@@ -82,6 +82,7 @@ public class ChatActivity extends Activity
     private ChatMessageAdapter mAdapter;
     private Date mLastMessage = null;
     private File mCameraTempFile = null;
+    private ArrayAdapter mChatSpinnerAdapter = null;
     
     
     // Create a handler to update the view from the UI thread
@@ -117,6 +118,8 @@ public class ChatActivity extends Activity
                 mMessages.setAdapter(mAdapter);
                 mFisgoBinder.addHandler(mHandler);
                 mFisgoBinder.setOnForeground(true);
+                if ( mChatSpinnerAdapter != null )
+                    mChatSpinnerAdapter.notifyDataSetChanged();
             }
         }
 
@@ -212,12 +215,13 @@ public class ChatActivity extends Activity
         });
 
         // Set the different types of chat options
-        mChatSpinner.setAdapter(new ArrayAdapter<String>(this, R.layout.chat_spinner_item)
+        mChatSpinnerAdapter = new ArrayAdapter<String>(this, R.layout.chat_spinner_item)
         {
             @Override
             public int getCount()
             {
-                return ChatType.values().length;
+                return ChatType.values().length -
+                        ((mFisgoBinder != null && mFisgoBinder.isAdmin()) ? 0 : 1);
             }
 
             @Override
@@ -232,13 +236,17 @@ public class ChatActivity extends Activity
                 case FRIENDS:
                     stringId = R.string.friends;
                     break;
+                case ADMIN:
+                    stringId = R.string.admin;
+                    break;
                 }
 
                 if ( stringId != -1 )
                     return getResources().getString(stringId);
                 return "";
             }
-        });
+        };
+        mChatSpinner.setAdapter(mChatSpinnerAdapter);
         mChatSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
         {
 
@@ -501,9 +509,17 @@ public class ChatActivity extends Activity
             }
             else
             {
-                // If it's a friends chat, prefix the message with '@'
-                if ( mType == ChatType.FRIENDS || getSendAs() == ChatType.FRIENDS )
+                // Send with the appropiate chat type prefix
+                ChatType target;
+                if ( mType == ChatType.PUBLIC )
+                    target = getSendAs();
+                else
+                    target = mType;
+                
+                if ( target == ChatType.FRIENDS )
                     text = "@" + text;
+                else if ( target == ChatType.ADMIN )
+                    text = "#" + text;
 
                 mFisgoBinder.sendChat(text);
                 mMessagebox.setText("");

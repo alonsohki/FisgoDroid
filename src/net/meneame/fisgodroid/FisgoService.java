@@ -44,6 +44,7 @@ public class FisgoService extends Service
     private FisgoBinder mBinder = new FisgoBinder();
     private Thread mThread = null;
     private boolean mIsLoggedIn = false;
+    private boolean mIsAdmin = false;
     private IHttpService mHttp = new HttpService();
     private List<ChatMessage> mMessages = new ArrayList<ChatMessage>();
     private List<String> mFriendNames = new ArrayList<String>();
@@ -128,8 +129,13 @@ public class FisgoService extends Service
                                 params.put("nonew", 1);
                                 params.put("nopublished", 1);
                                 params.put("nopubvotes", 1);
+                                
+                                // Request the appropiate chat type
                                 if ( mType == ChatType.FRIENDS )
                                     params.put("friends", 1);
+                                else if ( mType == ChatType.ADMIN )
+                                    params.put("admin", 1);
+                                
                                 if ( mLastMessageTime.equals("") == false )
                                     params.put("time", mLastMessageTime);
                                 
@@ -150,9 +156,11 @@ public class FisgoService extends Service
                                     uri += "&time=" + mLastMessageTime;
                                 }
 
-                                // Do we only want friend chats?
+                                // Request the appropiate chat type
                                 if ( mType == ChatType.FRIENDS )
                                     uri += "&friends=1";
+                                else if ( mType == ChatType.ADMIN )
+                                    uri += "&admin=1";
 
                                 failed = !mHttp.get(uri, result);
                             }
@@ -188,7 +196,11 @@ public class FisgoService extends Service
 
                                         // Construct the message and add it to
                                         // the message list
-                                        ChatType type = (status.equals("amigo") ? ChatType.FRIENDS : ChatType.PUBLIC);
+                                        ChatType type = ChatType.PUBLIC;
+                                        if ( status.equals("amigo") )
+                                            type = ChatType.FRIENDS;
+                                        else if ( status.equals("admin") )
+                                            type = ChatType.ADMIN;
                                         ChatMessage msg = new ChatMessage(when, who, title, type, icon);
                                         newList.add(msg);
                                         
@@ -284,9 +296,15 @@ public class FisgoService extends Service
         private final Pattern mUseripPattern = Pattern.compile("<input type=\"hidden\" name=\"userip\" value=\"([^\"]+)\"/>");
         private final Pattern mIpcontrolPattern = Pattern.compile("<input type=\"hidden\" name=\"useripcontrol\" value=\"([^\"]+)\"/>");
         private final Pattern mLogoutPattern = Pattern.compile("<a href=\"/login\\.php\\?op=logout");
+        private final Pattern mAdminPattern = Pattern.compile("<a href=\"/admin/bans\\.php\">admin</a>");
         private final Pattern mMykeyPattern = Pattern.compile("var mykey = (\\d+);");
         private final Pattern mFriendPattern = Pattern.compile("<div class=\"friends-item\"><a href=\"\\/user\\/([^\"]+)\"");
 
+        public boolean isAdmin()
+        {
+            return mIsAdmin;
+        }
+        
         public boolean isLoggedIn()
         {
             return mIsLoggedIn;
@@ -333,10 +351,15 @@ public class FisgoService extends Service
             // Did we log in correctly?
             m = mLogoutPattern.matcher(step2);
             mIsLoggedIn = m.find();
+            mIsAdmin = false;
 
             if ( mIsLoggedIn )
             {
                 mUsername = username;
+                
+                // Are we administrators?
+                m = mAdminPattern.matcher(step2);
+                mIsAdmin = m.find();
 
                 // Get the mykey value to be able to send messages
                 String step3 = mHttp.get(SNEAK_URL);
