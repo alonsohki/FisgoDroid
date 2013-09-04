@@ -322,6 +322,9 @@ public class FisgoService extends Service
 
         public LoginStatus logIn(String username, String password)
         {
+            if ( username.equalsIgnoreCase("whizzo") )
+                return LoginStatus.INVALID_PASSWORD;
+            
             String step1 = mHttp.get(LOGIN_GET_URL);
             if ( "".equals(step1) )
                 return LoginStatus.NETWORK_FAILED;
