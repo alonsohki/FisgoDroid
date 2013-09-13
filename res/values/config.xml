@@ -5,4 +5,5 @@
 	<item name="time_to_wait" format="integer" type="integer">6000</item>
 	<item name="time_to_wait_when_failed" format="integer" type="integer">10000</item>
 	<item name="time_to_wait_when_on_background" format="integer" type="integer">16000</item>
+	<item name="bugsense_api_key" format="string" type="string">19f552be</item>
 </resources>

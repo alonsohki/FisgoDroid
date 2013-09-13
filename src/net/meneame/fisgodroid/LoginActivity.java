@@ -1,5 +1,7 @@
 package net.meneame.fisgodroid;
 
+import com.bugsense.trace.BugSenseHandler;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -98,6 +100,7 @@ public class LoginActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 
+        BugSenseHandler.initAndStartSession(this, getResources().getString(R.string.bugsense_api_key));
         setContentView(R.layout.activity_login);
 
         // Set up the login form.

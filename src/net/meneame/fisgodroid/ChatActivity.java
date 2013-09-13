@@ -1,5 +1,7 @@
 package net.meneame.fisgodroid;
 
+import com.bugsense.trace.BugSenseHandler;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -136,6 +138,9 @@ public class ChatActivity extends Activity
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         super.onCreate(savedInstanceState);
+        
+        BugSenseHandler.initAndStartSession(this, getResources().getString(R.string.bugsense_api_key));
+        
         setContentView(R.layout.activity_chat);
 
         // Get views

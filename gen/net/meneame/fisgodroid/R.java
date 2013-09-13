@@ -28,8 +28,8 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f080000;
-        public static final int activity_vertical_margin=0x7f080001;
+        public static final int activity_horizontal_margin=0x7f090000;
+        public static final int activity_vertical_margin=0x7f090001;
     }
     public static final class drawable {
         public static final int angry=0x7f020000;
@@ -120,61 +120,62 @@ public final class R {
         public static final int ding=0x7f050000;
     }
     public static final class string {
-        public static final int action_forgot_password=0x7f090017;
-        public static final int action_settings=0x7f090002;
-        public static final int action_sign_in_short=0x7f090016;
-        public static final int admin=0x7f09000a;
-        public static final int app_name=0x7f090000;
-        public static final int click_to_open=0x7f090010;
-        public static final int error=0x7f09000c;
-        public static final int error_field_required=0x7f09001d;
-        public static final int error_incorrect_password=0x7f09001c;
-        public static final int error_incorrect_username=0x7f09001b;
-        public static final int error_invalid_password=0x7f09001a;
-        public static final int error_invalid_username=0x7f090019;
-        public static final int error_network_failed=0x7f09001e;
-        public static final int friends=0x7f090009;
-        public static final int general=0x7f090008;
-        public static final int login_progress_signing_in=0x7f090018;
-        public static final int logout=0x7f09000f;
-        public static final int message_too_short=0x7f09000d;
-        public static final int message_too_soon=0x7f09000e;
-        public static final int messagebox_hint=0x7f090012;
-        public static final int pref_default_display_name=0x7f090024;
-        public static final int pref_description_social_recommendations=0x7f090022;
+        public static final int action_forgot_password=0x7f080018;
+        public static final int action_settings=0x7f080003;
+        public static final int action_sign_in_short=0x7f080017;
+        public static final int admin=0x7f08000b;
+        public static final int app_name=0x7f080001;
+        public static final int bugsense_api_key=0x7f080000;
+        public static final int click_to_open=0x7f080011;
+        public static final int error=0x7f08000d;
+        public static final int error_field_required=0x7f08001e;
+        public static final int error_incorrect_password=0x7f08001d;
+        public static final int error_incorrect_username=0x7f08001c;
+        public static final int error_invalid_password=0x7f08001b;
+        public static final int error_invalid_username=0x7f08001a;
+        public static final int error_network_failed=0x7f08001f;
+        public static final int friends=0x7f08000a;
+        public static final int general=0x7f080009;
+        public static final int login_progress_signing_in=0x7f080019;
+        public static final int logout=0x7f080010;
+        public static final int message_too_short=0x7f08000e;
+        public static final int message_too_soon=0x7f08000f;
+        public static final int messagebox_hint=0x7f080013;
+        public static final int pref_default_display_name=0x7f080025;
+        public static final int pref_description_social_recommendations=0x7f080023;
         /**  Example settings for Data & Sync 
          */
-        public static final int pref_header_data_sync=0x7f090026;
+        public static final int pref_header_data_sync=0x7f080027;
         /**  Strings related to Settings 
  Example General settings 
          */
-        public static final int pref_header_general=0x7f090020;
+        public static final int pref_header_general=0x7f080021;
         /**  Example settings for Notifications 
          */
-        public static final int pref_header_notifications=0x7f090029;
-        public static final int pref_ringtone_silent=0x7f09002c;
-        public static final int pref_title_add_friends_to_messages=0x7f090025;
-        public static final int pref_title_display_name=0x7f090023;
-        public static final int pref_title_new_message_notifications=0x7f09002a;
-        public static final int pref_title_ringtone=0x7f09002b;
-        public static final int pref_title_social_recommendations=0x7f090021;
-        public static final int pref_title_sync_frequency=0x7f090027;
-        public static final int pref_title_system_sync_settings=0x7f090028;
-        public static final int pref_title_vibrate=0x7f09002d;
-        public static final int prompt_password=0x7f090015;
+        public static final int pref_header_notifications=0x7f08002a;
+        public static final int pref_ringtone_silent=0x7f08002d;
+        public static final int pref_title_add_friends_to_messages=0x7f080026;
+        public static final int pref_title_display_name=0x7f080024;
+        public static final int pref_title_new_message_notifications=0x7f08002b;
+        public static final int pref_title_ringtone=0x7f08002c;
+        public static final int pref_title_social_recommendations=0x7f080022;
+        public static final int pref_title_sync_frequency=0x7f080028;
+        public static final int pref_title_system_sync_settings=0x7f080029;
+        public static final int pref_title_vibrate=0x7f08002e;
+        public static final int prompt_password=0x7f080016;
         /**  Strings related to login 
          */
-        public static final int prompt_username=0x7f090014;
-        public static final int remember_me=0x7f090006;
-        public static final int send_as=0x7f09000b;
-        public static final int send_chat=0x7f090007;
-        public static final int title_activity_chat=0x7f090001;
-        public static final int title_activity_login=0x7f090013;
-        public static final int title_activity_settings=0x7f09001f;
-        public static final int title_admin=0x7f090005;
-        public static final int title_friends=0x7f090004;
-        public static final int title_general=0x7f090003;
-        public static final int you_have_pending_notifications=0x7f090011;
+        public static final int prompt_username=0x7f080015;
+        public static final int remember_me=0x7f080007;
+        public static final int send_as=0x7f08000c;
+        public static final int send_chat=0x7f080008;
+        public static final int title_activity_chat=0x7f080002;
+        public static final int title_activity_login=0x7f080014;
+        public static final int title_activity_settings=0x7f080020;
+        public static final int title_admin=0x7f080006;
+        public static final int title_friends=0x7f080005;
+        public static final int title_general=0x7f080004;
+        public static final int you_have_pending_notifications=0x7f080012;
     }
     public static final class style {
         /** 
