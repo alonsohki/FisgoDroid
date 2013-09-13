@@ -192,8 +192,8 @@ public class LoginActivity extends Activity
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        mUsername = mUsernameView.getText().toString();
-        mPassword = mPasswordView.getText().toString();
+        mUsername = mUsernameView.getText().toString().trim();
+        mPassword = mPasswordView.getText().toString().trim();
         mRememberMe = mRememberMeCheckbox.isChecked();
         
         boolean cancel = false;
@@ -285,7 +285,14 @@ public class LoginActivity extends Activity
             if (mFisgoBinder == null)
                 return LoginStatus.NETWORK_FAILED;
 
-            return mFisgoBinder.logIn(mUsername, mPassword);
+            try
+            {
+                return mFisgoBinder.logIn(mUsername, mPassword);
+            }
+            catch ( IllegalArgumentException e )
+            {
+                return LoginStatus.INVALID_USERNAME;
+            }
         }
 
         @Override
