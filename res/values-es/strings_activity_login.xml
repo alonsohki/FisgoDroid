@@ -1,0 +1,18 @@
+<resources>
+
+    <string name="title_activity_login">FisgoDroid</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_username">Nombre de usuario</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="action_sign_in_short">Entrar</string>
+    <string name="action_forgot_password">Recuperar contraseña</string>
+    <string name="login_progress_signing_in">Entrando&#8230;</string>
+    <string name="error_invalid_username">Nombre de usuario inválido</string>
+    <string name="error_invalid_password">Contraseña demasiado corta</string>
+    <string name="error_incorrect_username">Nombre de usuario incorrecto</string>
+    <string name="error_incorrect_password">Contraseña incorrecta</string>
+    <string name="error_field_required">Campo necesario</string>
+    <string name="error_network_failed">Problema de conexión</string>
+
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Fisgodroid</string>
+    <string name="title_activity_chat">FisgoDroid</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="title_general">General</string>
+    <string name="title_friends">Amigos</string>
+    <string name="title_admin">Administrador</string>
+    <string name="remember_me">Recuérdame</string>
+    <string name="send_chat">Enviar</string>
+	<string name="general">General</string>
+	<string name="friends">Amigos</string>
+	<string name="admin">Administrador</string>
+	<string name="send_as">Enviar como:</string>
+	<string name="error">Error</string>
+	<string name="message_too_short">Mensaje demasiado corto</string>
+	<string name="message_too_soon">Tienes que esperar %1$d segundos entre mensajes</string>
+	<string name="logout">Salir</string>
+	<string name="click_to_open">Toque para abrir</string>
+	<string name="you_have_pending_notifications">Tienes %1$d notificaciones pendientes:</string>
+	<string name="messagebox_hint"><small><i>Escribe aquí tu mensaje</i></small></string>
+</resources>
