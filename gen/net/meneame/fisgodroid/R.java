@@ -8,18 +8,12 @@
 package net.meneame.fisgodroid;
 
 public final class R {
-    public static final class array {
-        public static final int pref_example_list_titles=0x7f0a0000;
-        public static final int pref_example_list_values=0x7f0a0001;
-        public static final int pref_sync_frequency_titles=0x7f0a0002;
-        public static final int pref_sync_frequency_values=0x7f0a0003;
-    }
     public static final class attr {
     }
     public static final class color {
-        public static final int text_chat_admin=0x7f060002;
-        public static final int text_chat_friends=0x7f060001;
-        public static final int text_chat_general=0x7f060000;
+        public static final int text_chat_admin=0x7f050002;
+        public static final int text_chat_friends=0x7f050001;
+        public static final int text_chat_general=0x7f050000;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -28,8 +22,8 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f090000;
-        public static final int activity_vertical_margin=0x7f090001;
+        public static final int activity_horizontal_margin=0x7f080000;
+        public static final int activity_vertical_margin=0x7f080001;
     }
     public static final class drawable {
         public static final int angry=0x7f020000;
@@ -71,39 +65,39 @@ public final class R {
         public static final int wow=0x7f020024;
     }
     public static final class id {
-        public static final int action_logout=0x7f0d0019;
-        public static final int button_send=0x7f0d000a;
-        public static final int camera_button=0x7f0d0003;
-        public static final int camera_progress=0x7f0d0004;
-        public static final int chat_avatar=0x7f0d0017;
-        public static final int chat_message=0x7f0d0016;
-        public static final int chat_messagebox=0x7f0d0008;
-        public static final int chat_messages=0x7f0d000c;
-        public static final int chat_spinner=0x7f0d0002;
-        public static final int chat_type_bar=0x7f0d0001;
-        public static final int chat_username=0x7f0d0011;
-        public static final int checkbox_friends=0x7f0d0007;
-        public static final int checkbox_remember_me=0x7f0d0014;
-        public static final int container=0x7f0d0000;
-        public static final int input_bar=0x7f0d0006;
-        public static final int login=0x7f0d0013;
-        public static final int login_form=0x7f0d0010;
-        public static final int login_status=0x7f0d000e;
-        public static final int login_status_message=0x7f0d000f;
-        public static final int password=0x7f0d0012;
-        public static final int separator1=0x7f0d0005;
-        public static final int separator2=0x7f0d000b;
-        public static final int sign_in_button=0x7f0d0015;
-        public static final int smiley_picker=0x7f0d000d;
-        public static final int smileys_button=0x7f0d0009;
-        public static final int smileys_grid=0x7f0d0018;
+        public static final int action_logout=0x7f0b0019;
+        public static final int button_send=0x7f0b000a;
+        public static final int camera_button=0x7f0b0003;
+        public static final int camera_progress=0x7f0b0004;
+        public static final int chat_avatar=0x7f0b0017;
+        public static final int chat_message=0x7f0b0016;
+        public static final int chat_messagebox=0x7f0b0008;
+        public static final int chat_messages=0x7f0b000c;
+        public static final int chat_spinner=0x7f0b0002;
+        public static final int chat_type_bar=0x7f0b0001;
+        public static final int chat_username=0x7f0b0011;
+        public static final int checkbox_friends=0x7f0b0007;
+        public static final int checkbox_remember_me=0x7f0b0014;
+        public static final int container=0x7f0b0000;
+        public static final int input_bar=0x7f0b0006;
+        public static final int login=0x7f0b0013;
+        public static final int login_form=0x7f0b0010;
+        public static final int login_status=0x7f0b000e;
+        public static final int login_status_message=0x7f0b000f;
+        public static final int password=0x7f0b0012;
+        public static final int separator1=0x7f0b0005;
+        public static final int separator2=0x7f0b000b;
+        public static final int sign_in_button=0x7f0b0015;
+        public static final int smiley_picker=0x7f0b000d;
+        public static final int smileys_button=0x7f0b0009;
+        public static final int smileys_grid=0x7f0b0018;
     }
     public static final class integer {
-        public static final int min_message_length=0x7f070001;
-        public static final int time_between_messages=0x7f070000;
-        public static final int time_to_wait=0x7f070002;
-        public static final int time_to_wait_when_failed=0x7f070003;
-        public static final int time_to_wait_when_on_background=0x7f070004;
+        public static final int min_message_length=0x7f060001;
+        public static final int time_between_messages=0x7f060000;
+        public static final int time_to_wait=0x7f060002;
+        public static final int time_to_wait_when_failed=0x7f060003;
+        public static final int time_to_wait_when_on_background=0x7f060004;
     }
     public static final class layout {
         public static final int activity_chat=0x7f030000;
@@ -113,69 +107,48 @@ public final class R {
         public static final int smiley_selector=0x7f030004;
     }
     public static final class menu {
-        public static final int chat=0x7f0c0000;
-        public static final int login=0x7f0c0001;
+        public static final int chat=0x7f0a0000;
+        public static final int login=0x7f0a0001;
     }
     public static final class raw {
-        public static final int ding=0x7f050000;
+        public static final int ding=0x7f040000;
     }
     public static final class string {
-        public static final int action_forgot_password=0x7f080018;
-        public static final int action_settings=0x7f080003;
-        public static final int action_sign_in_short=0x7f080017;
-        public static final int admin=0x7f08000b;
-        public static final int app_name=0x7f080001;
-        public static final int bugsense_api_key=0x7f080000;
-        public static final int click_to_open=0x7f080011;
-        public static final int error=0x7f08000d;
-        public static final int error_field_required=0x7f08001e;
-        public static final int error_incorrect_password=0x7f08001d;
-        public static final int error_incorrect_username=0x7f08001c;
-        public static final int error_invalid_password=0x7f08001b;
-        public static final int error_invalid_username=0x7f08001a;
-        public static final int error_network_failed=0x7f08001f;
-        public static final int friends=0x7f08000a;
-        public static final int general=0x7f080009;
-        public static final int login_progress_signing_in=0x7f080019;
-        public static final int logout=0x7f080010;
-        public static final int message_too_short=0x7f08000e;
-        public static final int message_too_soon=0x7f08000f;
-        public static final int messagebox_hint=0x7f080013;
-        public static final int pref_default_display_name=0x7f080025;
-        public static final int pref_description_social_recommendations=0x7f080023;
-        /**  Example settings for Data & Sync 
-         */
-        public static final int pref_header_data_sync=0x7f080027;
-        /**  Strings related to Settings 
- Example General settings 
-         */
-        public static final int pref_header_general=0x7f080021;
-        /**  Example settings for Notifications 
-         */
-        public static final int pref_header_notifications=0x7f08002a;
-        public static final int pref_ringtone_silent=0x7f08002d;
-        public static final int pref_title_add_friends_to_messages=0x7f080026;
-        public static final int pref_title_display_name=0x7f080024;
-        public static final int pref_title_new_message_notifications=0x7f08002b;
-        public static final int pref_title_ringtone=0x7f08002c;
-        public static final int pref_title_social_recommendations=0x7f080022;
-        public static final int pref_title_sync_frequency=0x7f080028;
-        public static final int pref_title_system_sync_settings=0x7f080029;
-        public static final int pref_title_vibrate=0x7f08002e;
-        public static final int prompt_password=0x7f080016;
+        public static final int action_forgot_password=0x7f070018;
+        public static final int action_settings=0x7f070003;
+        public static final int action_sign_in_short=0x7f070017;
+        public static final int admin=0x7f07000b;
+        public static final int app_name=0x7f070001;
+        public static final int bugsense_api_key=0x7f070000;
+        public static final int click_to_open=0x7f070011;
+        public static final int error=0x7f07000d;
+        public static final int error_field_required=0x7f07001e;
+        public static final int error_incorrect_password=0x7f07001d;
+        public static final int error_incorrect_username=0x7f07001c;
+        public static final int error_invalid_password=0x7f07001b;
+        public static final int error_invalid_username=0x7f07001a;
+        public static final int error_network_failed=0x7f07001f;
+        public static final int friends=0x7f07000a;
+        public static final int general=0x7f070009;
+        public static final int login_progress_signing_in=0x7f070019;
+        public static final int logout=0x7f070010;
+        public static final int message_too_short=0x7f07000e;
+        public static final int message_too_soon=0x7f07000f;
+        public static final int messagebox_hint=0x7f070013;
+        public static final int prompt_password=0x7f070016;
         /**  Strings related to login 
+ Strings related to login 
          */
-        public static final int prompt_username=0x7f080015;
-        public static final int remember_me=0x7f080007;
-        public static final int send_as=0x7f08000c;
-        public static final int send_chat=0x7f080008;
-        public static final int title_activity_chat=0x7f080002;
-        public static final int title_activity_login=0x7f080014;
-        public static final int title_activity_settings=0x7f080020;
-        public static final int title_admin=0x7f080006;
-        public static final int title_friends=0x7f080005;
-        public static final int title_general=0x7f080004;
-        public static final int you_have_pending_notifications=0x7f080012;
+        public static final int prompt_username=0x7f070015;
+        public static final int remember_me=0x7f070007;
+        public static final int send_as=0x7f07000c;
+        public static final int send_chat=0x7f070008;
+        public static final int title_activity_chat=0x7f070002;
+        public static final int title_activity_login=0x7f070014;
+        public static final int title_admin=0x7f070006;
+        public static final int title_friends=0x7f070005;
+        public static final int title_general=0x7f070004;
+        public static final int you_have_pending_notifications=0x7f070012;
     }
     public static final class style {
         /** 
@@ -201,17 +174,11 @@ public final class R {
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f0b0000;
+        public static final int AppBaseTheme=0x7f090000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f0b0001;
-        public static final int LoginFormContainer=0x7f0b0002;
-    }
-    public static final class xml {
-        public static final int pref_data_sync=0x7f040000;
-        public static final int pref_general=0x7f040001;
-        public static final int pref_headers=0x7f040002;
-        public static final int pref_notification=0x7f040003;
+        public static final int AppTheme=0x7f090001;
+        public static final int LoginFormContainer=0x7f090002;
     }
 }
