@@ -1,5 +1,7 @@
 package net.meneame.fisgodroid;
 
+import java.text.SimpleDateFormat;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -24,6 +26,7 @@ public class ChatLineView extends LinearLayout
     private TextView mUsername;
     private TextView mMessage;
     private ImageView mAvatar;
+    private TextView mTimestamp;
 
     // From
     // http://stackoverflow.com/questions/15836306/can-a-textview-be-selectable-and-contain-links
@@ -85,6 +88,7 @@ public class ChatLineView extends LinearLayout
         mMessage = (TextView) findViewById(R.id.chat_message);
         mUsername = (TextView) findViewById(R.id.chat_username);
         mAvatar = (ImageView) findViewById(R.id.chat_avatar);
+        mTimestamp = (TextView) findViewById(R.id.chat_timestamp);
 
         setSelectableText();
         mMessage.setMovementMethod(new CustomMovementMethod());
@@ -114,9 +118,14 @@ public class ChatLineView extends LinearLayout
             }
             
             Spanned message = Html.fromHtml(parsedMessage, Smileys.getImageGetter(getContext()), null);
+            
+            // Timestamp formatting
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            
             mMessage.setText(message);
             mUsername.setText(mChatMsg.getUser());
             mAvatarStorage.request(mChatMsg.getIcon(), mSetAvatarRunnable);
+            mTimestamp.setText(dateFormat.format(mChatMsg.getWhen()));
 
             if ( mChatMsg.getType() == ChatType.PUBLIC )
                 mMessage.setTextColor(getResources().getColor(R.color.text_chat_general));
