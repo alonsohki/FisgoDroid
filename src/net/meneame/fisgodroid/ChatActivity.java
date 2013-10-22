@@ -488,6 +488,11 @@ public class ChatActivity extends Activity
             finish();
             startActivity(new Intent(this, LoginActivity.class));
             return true;
+        case R.id.action_savelog:
+        	LogSaver saver = new LogSaver(getApplicationContext(),
+        			mFisgoBinder.getMessages());
+        	saver.save();
+        	return true;
         }
 
         return false;

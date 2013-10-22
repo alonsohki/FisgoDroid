@@ -66,6 +66,7 @@ public final class R {
     }
     public static final class id {
         public static final int action_logout=0x7f0b001a;
+        public static final int action_savelog=0x7f0b001b;
         public static final int button_send=0x7f0b000a;
         public static final int camera_button=0x7f0b0003;
         public static final int camera_progress=0x7f0b0004;
@@ -115,37 +116,38 @@ public final class R {
         public static final int ding=0x7f040000;
     }
     public static final class string {
-        public static final int action_forgot_password=0x7f070018;
+        public static final int action_forgot_password=0x7f070019;
         public static final int action_settings=0x7f070003;
-        public static final int action_sign_in_short=0x7f070017;
+        public static final int action_sign_in_short=0x7f070018;
         public static final int admin=0x7f07000b;
         public static final int app_name=0x7f070001;
         public static final int bugsense_api_key=0x7f070000;
         public static final int click_to_open=0x7f070011;
         public static final int error=0x7f07000d;
-        public static final int error_field_required=0x7f07001e;
-        public static final int error_incorrect_password=0x7f07001d;
-        public static final int error_incorrect_username=0x7f07001c;
-        public static final int error_invalid_password=0x7f07001b;
-        public static final int error_invalid_username=0x7f07001a;
-        public static final int error_network_failed=0x7f07001f;
+        public static final int error_field_required=0x7f07001f;
+        public static final int error_incorrect_password=0x7f07001e;
+        public static final int error_incorrect_username=0x7f07001d;
+        public static final int error_invalid_password=0x7f07001c;
+        public static final int error_invalid_username=0x7f07001b;
+        public static final int error_network_failed=0x7f070020;
         public static final int friends=0x7f07000a;
         public static final int general=0x7f070009;
-        public static final int login_progress_signing_in=0x7f070019;
+        public static final int login_progress_signing_in=0x7f07001a;
         public static final int logout=0x7f070010;
         public static final int message_too_short=0x7f07000e;
         public static final int message_too_soon=0x7f07000f;
         public static final int messagebox_hint=0x7f070013;
-        public static final int prompt_password=0x7f070016;
+        public static final int prompt_password=0x7f070017;
         /**  Strings related to login 
  Strings related to login 
          */
-        public static final int prompt_username=0x7f070015;
+        public static final int prompt_username=0x7f070016;
         public static final int remember_me=0x7f070007;
+        public static final int savelog=0x7f070014;
         public static final int send_as=0x7f07000c;
         public static final int send_chat=0x7f070008;
         public static final int title_activity_chat=0x7f070002;
-        public static final int title_activity_login=0x7f070014;
+        public static final int title_activity_login=0x7f070015;
         public static final int title_admin=0x7f070006;
         public static final int title_friends=0x7f070005;
         public static final int title_general=0x7f070004;

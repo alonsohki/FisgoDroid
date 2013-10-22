@@ -20,4 +20,5 @@
 	<string name="click_to_open">Tap to open</string>
 	<string name="you_have_pending_notifications">You have %1$d pending notifications:</string>
 	<string name="messagebox_hint"><small><i>Write your message here</i></small></string>
+	<string name="savelog">Save log</string>
 </resources>

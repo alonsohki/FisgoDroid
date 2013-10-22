@@ -1,6 +1,7 @@
 package net.meneame.fisgodroid;
 
 import java.util.Date;
+import android.text.format.DateFormat;
 
 public class ChatMessage
 {
@@ -67,5 +68,17 @@ public class ChatMessage
     public void setIcon(String icon)
     {
         this.icon = icon;
+    }
+    
+    public String logify() {
+    	StringBuilder logString = new StringBuilder();
+   	
+    	logString.append(DateFormat.format("kk:mm:ss ", this.when));
+    	
+    	logString.append(this.user);
+    	
+    	logString.append(": " + this.message);
+    	
+    	return logString.toString();
     }
 }
