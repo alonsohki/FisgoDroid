@@ -38,12 +38,11 @@ public class LogSaver {
 				logStream.println(message.logify());
 			}
 
-			resultToast = Toast.makeText(ctx, "Saved successfully",
-					Toast.LENGTH_SHORT);
+			resultToast = Toast.makeText(ctx,
+					ctx.getText(R.string.save_successful), Toast.LENGTH_SHORT);
 		} catch (IOException e) {
 			resultToast = Toast.makeText(ctx,
-					"Could not save: " + e.getLocalizedMessage() + "\nPath: "
-							+ logpath, Toast.LENGTH_SHORT);
+					ctx.getText(R.string.save_failed), Toast.LENGTH_SHORT);
 			e.printStackTrace();
 		} finally {
 			resultToast.show();

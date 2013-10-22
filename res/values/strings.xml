@@ -21,4 +21,6 @@
 	<string name="you_have_pending_notifications">You have %1$d pending notifications:</string>
 	<string name="messagebox_hint"><small><i>Write your message here</i></small></string>
 	<string name="savelog">Save log</string>
+	<string name="save_successful">Saved successfully</string>
+	<string name="save_failed">Could not save</string>
 </resources>
