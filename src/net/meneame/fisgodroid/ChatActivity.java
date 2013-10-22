@@ -80,7 +80,7 @@ public class ChatActivity extends Activity
     private ChatMessageAdapter mAdapter;
     private Date mLastMessage = null;
     private File mCameraTempFile = null;
-    private ArrayAdapter mChatSpinnerAdapter = null;
+    private ArrayAdapter<String> mChatSpinnerAdapter = null;
     
     
     // Create a handler to update the view from the UI thread
