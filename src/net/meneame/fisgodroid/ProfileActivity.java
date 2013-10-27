@@ -11,8 +11,9 @@ public class ProfileActivity extends Activity {
 		
 		setContentView(R.layout.activity_profile);
 		
-		TextView profile = (TextView) findViewById(R.id.userprofile);
+		/*TextView profile = (TextView) findViewById(R.id.userprofile);
+		String username = savedInstanceState.getString("username");
 		
-		profile.setText(savedInstanceState.getString("username"));
+		//profile.setText(username);*/
 	}
 }

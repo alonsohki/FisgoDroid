@@ -784,11 +784,6 @@ public class ChatActivity extends Activity
     
     
     public void showProfile(View v) {
-    	Toast toast;
-    	
-    	toast = Toast.makeText(getApplicationContext(), "It works" + (String)v.getTag(), Toast.LENGTH_SHORT);
-    	toast.show();
-    	
     	Intent profileIntent = new Intent(this, ProfileActivity.class);
     	profileIntent.putExtra("username", (String)v.getTag());
     	startActivity(profileIntent);
