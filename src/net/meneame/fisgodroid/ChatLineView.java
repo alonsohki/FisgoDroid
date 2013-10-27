@@ -125,6 +125,10 @@ public class ChatLineView extends LinearLayout
             mMessage.setText(message);
             mUsername.setText(mChatMsg.getUser());
             mAvatarStorage.request(mChatMsg.getIcon(), mSetAvatarRunnable);
+            
+            // Used for showing the user's profile
+            mAvatar.setTag(mChatMsg.getUser());
+            
             mTimestamp.setText(dateFormat.format(mChatMsg.getWhen()));
 
             if ( mChatMsg.getType() == ChatType.PUBLIC )

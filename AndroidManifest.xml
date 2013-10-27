@@ -45,6 +45,7 @@
 
         <receiver android:name="net.meneame.fisgodroid.NetworkChangeReceiver" >
         </receiver>
+        <activity android:name="net.meneame.fisgodroid.ProfileActivity" android:theme="@android:style/Theme.Dialog"></activity>
     </application>
 
 </manifest>

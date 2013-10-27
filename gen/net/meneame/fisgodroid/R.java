@@ -65,17 +65,17 @@ public final class R {
         public static final int wow=0x7f020024;
     }
     public static final class id {
-        public static final int action_logout=0x7f0b001a;
-        public static final int action_savelog=0x7f0b001b;
+        public static final int action_logout=0x7f0b001b;
+        public static final int action_savelog=0x7f0b001c;
         public static final int button_send=0x7f0b000a;
         public static final int camera_button=0x7f0b0003;
         public static final int camera_progress=0x7f0b0004;
-        public static final int chat_avatar=0x7f0b0018;
-        public static final int chat_message=0x7f0b0016;
+        public static final int chat_avatar=0x7f0b0019;
+        public static final int chat_message=0x7f0b0017;
         public static final int chat_messagebox=0x7f0b0008;
         public static final int chat_messages=0x7f0b000c;
         public static final int chat_spinner=0x7f0b0002;
-        public static final int chat_timestamp=0x7f0b0017;
+        public static final int chat_timestamp=0x7f0b0018;
         public static final int chat_type_bar=0x7f0b0001;
         public static final int chat_username=0x7f0b0011;
         public static final int checkbox_friends=0x7f0b0007;
@@ -92,7 +92,8 @@ public final class R {
         public static final int sign_in_button=0x7f0b0015;
         public static final int smiley_picker=0x7f0b000d;
         public static final int smileys_button=0x7f0b0009;
-        public static final int smileys_grid=0x7f0b0019;
+        public static final int smileys_grid=0x7f0b001a;
+        public static final int userprofile=0x7f0b0016;
     }
     public static final class integer {
         public static final int min_message_length=0x7f060001;
@@ -104,9 +105,10 @@ public final class R {
     public static final class layout {
         public static final int activity_chat=0x7f030000;
         public static final int activity_login=0x7f030001;
-        public static final int chat_line=0x7f030002;
-        public static final int chat_spinner_item=0x7f030003;
-        public static final int smiley_selector=0x7f030004;
+        public static final int activity_profile=0x7f030002;
+        public static final int chat_line=0x7f030003;
+        public static final int chat_spinner_item=0x7f030004;
+        public static final int smiley_selector=0x7f030005;
     }
     public static final class menu {
         public static final int chat=0x7f0a0000;

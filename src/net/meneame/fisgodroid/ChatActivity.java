@@ -55,6 +55,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ChatActivity extends Activity
 {   
@@ -779,5 +780,17 @@ public class ChatActivity extends Activity
             }
         });
         thread.start();
+    }
+    
+    
+    public void showProfile(View v) {
+    	Toast toast;
+    	
+    	toast = Toast.makeText(getApplicationContext(), "It works" + (String)v.getTag(), Toast.LENGTH_SHORT);
+    	toast.show();
+    	
+    	Intent profileIntent = new Intent(this, ProfileActivity.class);
+    	profileIntent.putExtra("username", (String)v.getTag());
+    	startActivity(profileIntent);
     }
 }
