@@ -298,7 +298,6 @@ public class FisgoService extends Service
 
         private final Pattern mUseripPattern = Pattern.compile("<input type=\"hidden\" name=\"userip\" value=\"([^\"]+)\"/>");
         private final Pattern mIpcontrolPattern = Pattern.compile("<input type=\"hidden\" name=\"useripcontrol\" value=\"([^\"]+)\"/>");
-        private final Pattern mLogoutPattern = Pattern.compile("<a href=\"/login\\.php\\?op=logout");
         private final Pattern mAdminPattern = Pattern.compile("<a href=\"/admin/bans\\.php\">admin</a>");
         private final Pattern mMykeyPattern = Pattern.compile("var mykey = (\\d+);");
         private final Pattern mFriendPattern = Pattern.compile("<div class=\"friends-item\"><a href=\"\\/user\\/([^\"]+)\"");
@@ -355,8 +354,7 @@ public class FisgoService extends Service
                 return LoginStatus.NETWORK_FAILED;
 
             // Did we log in correctly?
-            m = mLogoutPattern.matcher(step2);
-            mIsLoggedIn = m.find();
+            mIsLoggedIn = true;
             mIsAdmin = false;
 
             if ( mIsLoggedIn )
