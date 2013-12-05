@@ -1,7 +1,5 @@
 package net.meneame.fisgodroid;
 
-import com.bugsense.trace.BugSenseHandler;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -55,18 +53,16 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ChatActivity extends Activity
-{   
+{
     // Request codes for activities
     private static final int REQUEST_PICTURE = 1;
-    
+
     // Shared preferences settings.
     private static final String PREFS_NAME = "ChatActivity";
     private static final String PREF_SENDAS = "send as";
-    
-    
+
     private ThreeStateChecboxHackView mCheckboxFriends;
     private ListView mMessages;
     private EditText mMessagebox;
@@ -82,8 +78,7 @@ public class ChatActivity extends Activity
     private Date mLastMessage = null;
     private File mCameraTempFile = null;
     private ArrayAdapter<String> mChatSpinnerAdapter = null;
-    
-    
+
     // Create a handler to update the view from the UI thread
     // when the message list changes.
     private Handler mHandler = new Handler()
@@ -132,16 +127,14 @@ public class ChatActivity extends Activity
         {
         }
     };
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
+
         super.onCreate(savedInstanceState);
-        
-        BugSenseHandler.initAndStartSession(this, getResources().getString(R.string.bugsense_api_key));
-        
+
         setContentView(R.layout.activity_chat);
 
         // Get views
@@ -154,7 +147,7 @@ public class ChatActivity extends Activity
         mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
         mSmileyButton = (ImageButton) findViewById(R.id.smileys_button);
         mSmileyPicker = (SmileyPickerView) findViewById(R.id.smiley_picker);
-        
+
         // Restore stuff from shared prefs
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         int optionOrdinal = prefs.getInt(PREF_SENDAS, ChatType.PUBLIC.ordinal());
@@ -167,7 +160,6 @@ public class ChatActivity extends Activity
         setType(mType);
         setSendAs(mSendAs);
 
-        
         // Setup the smiley picker
         mSmileyButton.setOnClickListener(new OnClickListener()
         {
@@ -190,14 +182,11 @@ public class ChatActivity extends Activity
                 String smileyText = smiley.getInputText() + " ";
                 int start = Math.max(mMessagebox.getSelectionStart(), 0);
                 int end = Math.max(mMessagebox.getSelectionEnd(), 0);
-                mMessagebox.getText().replace(Math.min(start, end),
-                                              Math.max(start, end),
-                                              smileyText, 0, smileyText.length());
+                mMessagebox.getText().replace(Math.min(start, end), Math.max(start, end), smileyText, 0, smileyText.length());
                 mMessagebox.requestFocus();
             }
         });
-        
-        
+
         // Handle key presses for the nick completion feature
         mMessagebox.addTextChangedListener(new TextWatcher()
         {
@@ -231,8 +220,7 @@ public class ChatActivity extends Activity
             @Override
             public int getCount()
             {
-                return ChatType.values().length -
-                        ((mFisgoBinder != null && mFisgoBinder.isAdmin()) ? 0 : 1);
+                return ChatType.values().length - ((mFisgoBinder != null && mFisgoBinder.isAdmin()) ? 0 : 1);
             }
 
             @Override
@@ -305,15 +293,14 @@ public class ChatActivity extends Activity
                 sendChat();
             }
         });
-        
-        
+
         // Send an intent to pick an image when they tap the camera button
         mCameraButton.setOnClickListener(new OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                takePicture ();
+                takePicture();
             }
         });
     }
@@ -322,34 +309,31 @@ public class ChatActivity extends Activity
     protected void onDestroy()
     {
         // Save the shared prefs
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        .edit()
-        .putInt(PREF_SENDAS, getSendAs().ordinal())
-        .commit();
-        
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_SENDAS, getSendAs().ordinal()).commit();
+
         super.onDestroy();
         mFisgoBinder.removeHandler(mHandler);
         unbindService(mServiceConn);
     }
-    
+
     @Override
-    protected void onPause ()
+    protected void onPause()
     {
         super.onPause();
         Notifications.setOnForeground(getApplicationContext(), false);
         if ( mFisgoBinder != null )
             mFisgoBinder.setOnForeground(false);
     }
-    
+
     @Override
-    protected void onResume ()
+    protected void onResume()
     {
         super.onResume();
         Notifications.setOnForeground(getApplicationContext(), true);
         if ( mFisgoBinder != null )
             mFisgoBinder.setOnForeground(true);
     }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
@@ -369,13 +353,13 @@ public class ChatActivity extends Activity
         }
         return super.onKeyDown(keyCode, event);
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         if ( resultCode != Activity.RESULT_OK )
             return;
-        
+
         if ( requestCode == REQUEST_PICTURE )
         {
             if ( data != null )
@@ -450,11 +434,9 @@ public class ChatActivity extends Activity
         if ( savedInstanceState.containsKey("messagebox") )
         {
             mMessagebox.setText(savedInstanceState.getString("messagebox"));
-            if ( savedInstanceState.containsKey("selectionStart") &&
-                 savedInstanceState.containsKey("selectionEnd") )
+            if ( savedInstanceState.containsKey("selectionStart") && savedInstanceState.containsKey("selectionEnd") )
             {
-                mMessagebox.setSelection(savedInstanceState.getInt("selectionStart"),
-                                         savedInstanceState.getInt("selectionEnd"));
+                mMessagebox.setSelection(savedInstanceState.getInt("selectionStart"), savedInstanceState.getInt("selectionEnd"));
             }
         }
     }
@@ -483,6 +465,10 @@ public class ChatActivity extends Activity
     {
         switch (item.getItemId())
         {
+        case R.id.action_settings:
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+
         case R.id.action_logout:
             mFisgoBinder.logOut();
             stopService(new Intent(this, FisgoService.class));
@@ -490,10 +476,9 @@ public class ChatActivity extends Activity
             startActivity(new Intent(this, LoginActivity.class));
             return true;
         case R.id.action_savelog:
-        	LogSaver saver = new LogSaver(getApplicationContext(),
-        			mFisgoBinder.getMessages());
-        	saver.save();
-        	return true;
+            LogSaver saver = new LogSaver(getApplicationContext(), mFisgoBinder.getMessages());
+            saver.save();
+            return true;
         }
 
         return false;
@@ -518,10 +503,7 @@ public class ChatActivity extends Activity
             {
                 String errMsg = String.format(res.getString(R.string.message_too_soon), delayBetweenMessages);
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.error)
-                       .setMessage(errMsg)
-                       .setIcon(android.R.drawable.ic_dialog_alert)
-                       .setNeutralButton(android.R.string.ok, null).create().show();
+                builder.setTitle(R.string.error).setMessage(errMsg).setIcon(android.R.drawable.ic_dialog_alert).setNeutralButton(android.R.string.ok, null).create().show();
             }
             else
             {
@@ -531,7 +513,7 @@ public class ChatActivity extends Activity
                     target = getSendAs();
                 else
                     target = mType;
-                
+
                 if ( target == ChatType.FRIENDS )
                     text = "@" + text;
                 else if ( target == ChatType.ADMIN )
@@ -546,17 +528,17 @@ public class ChatActivity extends Activity
 
     public ChatType getSendAs()
     {
-        switch ( mCheckboxFriends.getState() )
+        switch (mCheckboxFriends.getState())
         {
-            case UNCHECKED:
-                mSendAs = ChatType.PUBLIC;
-                break;
-            case CHECKED:
-                mSendAs = ChatType.FRIENDS;
-                break;
-            case THIRD_STATE:
-                mSendAs = ChatType.ADMIN;
-                break;
+        case UNCHECKED:
+            mSendAs = ChatType.PUBLIC;
+            break;
+        case CHECKED:
+            mSendAs = ChatType.FRIENDS;
+            break;
+        case THIRD_STATE:
+            mSendAs = ChatType.ADMIN;
+            break;
         }
         return mSendAs;
     }
@@ -566,17 +548,17 @@ public class ChatActivity extends Activity
         mSendAs = type;
         if ( mCheckboxFriends != null )
         {
-            switch ( type )
+            switch (type)
             {
-                case PUBLIC:
-                    mCheckboxFriends.setState(ThreeStateChecboxHackView.State.UNCHECKED);
-                    break;
-                case FRIENDS:
-                    mCheckboxFriends.setState(ThreeStateChecboxHackView.State.CHECKED);
-                    break;
-                case ADMIN:
-                    mCheckboxFriends.setState(ThreeStateChecboxHackView.State.THIRD_STATE);
-                    break;
+            case PUBLIC:
+                mCheckboxFriends.setState(ThreeStateChecboxHackView.State.UNCHECKED);
+                break;
+            case FRIENDS:
+                mCheckboxFriends.setState(ThreeStateChecboxHackView.State.CHECKED);
+                break;
+            case ADMIN:
+                mCheckboxFriends.setState(ThreeStateChecboxHackView.State.THIRD_STATE);
+                break;
             }
         }
     }
@@ -691,8 +673,8 @@ public class ChatActivity extends Activity
         mMessagebox.setText(str);
         mMessagebox.setSelection(cursorPos);
     }
-    
-    private void takePicture ()
+
+    private void takePicture()
     {
         // Create a temporary file for in case they decide to use the camera
         File cacheDir = getExternalCacheDir();
@@ -705,7 +687,7 @@ public class ChatActivity extends Activity
         {
             e.printStackTrace();
         }
-        
+
         // http://stackoverflow.com/questions/4455558/allow-user-to-select-camera-or-gallery-for-image
         // Camera.
         final List<Intent> cameraIntents = new ArrayList<Intent>();
@@ -715,7 +697,7 @@ public class ChatActivity extends Activity
 
         final PackageManager packageManager = getPackageManager();
         final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
-        for(ResolveInfo res : listCam)
+        for (ResolveInfo res : listCam)
         {
             final String packageName = res.activityInfo.packageName;
             final Intent intent = new Intent(captureIntent);
@@ -733,19 +715,19 @@ public class ChatActivity extends Activity
         final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
 
         // Add the camera options.
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[]{}));
-        
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[] {}));
+
         startActivityForResult(chooserIntent, REQUEST_PICTURE);
     }
-    
-    private void processTakenPicture ( final Bitmap bitmap )
+
+    private void processTakenPicture(final Bitmap bitmap)
     {
         // Hide the camera button and display a progress bar
         mCameraButton.setVisibility(View.GONE);
         mCameraProgress.setVisibility(View.VISIBLE);
-        
+
         // Create a handler for when the thread finishes
-        final Handler handler = new Handler ()
+        final Handler handler = new Handler()
         {
             @Override
             public void handleMessage(Message msg)
@@ -753,26 +735,26 @@ public class ChatActivity extends Activity
                 // Restore the camera button
                 mCameraButton.setVisibility(View.VISIBLE);
                 mCameraProgress.setVisibility(View.GONE);
-                
+
                 // Did everything go ok?
-                String pictureUrl = (String)msg.obj;
+                String pictureUrl = (String) msg.obj;
                 if ( pictureUrl != null )
                 {
                     mMessagebox.getText().append(" " + pictureUrl + " ");
                 }
             }
         };
-        
+
         Thread thread = new Thread(new Runnable()
         {
             @Override
             public void run()
             {
                 Bitmap bmp = bitmap;
-                
+
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bmp.compress(CompressFormat.JPEG, 90, stream);
-                
+
                 // Send a message to the handler with the picture url
                 Message msg = new Message();
                 msg.obj = mFisgoBinder.sendPicture(new ByteArrayInputStream(stream.toByteArray()));
@@ -781,11 +763,11 @@ public class ChatActivity extends Activity
         });
         thread.start();
     }
-    
-    
-    public void showProfile(View v) {
-    	Intent profileIntent = new Intent(this, ProfileActivity.class);
-    	profileIntent.putExtra("username", (String)v.getTag());
-    	startActivity(profileIntent);
+
+    public void showProfile(View v)
+    {
+        Intent profileIntent = new Intent(this, ProfileActivity.class);
+        profileIntent.putExtra("username", (String) v.getTag());
+        startActivity(profileIntent);
     }
 }

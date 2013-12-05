@@ -1,7 +1,5 @@
 package net.meneame.fisgodroid;
 
-import com.bugsense.trace.BugSenseHandler;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -18,6 +16,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -100,7 +99,6 @@ public class LoginActivity extends Activity
     {
         super.onCreate(savedInstanceState);
 
-        BugSenseHandler.initAndStartSession(this, getResources().getString(R.string.bugsense_api_key));
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
@@ -168,6 +166,19 @@ public class LoginActivity extends Activity
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.login, menu);
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+        case R.id.action_settings:
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        
+        return false;
     }
 
     /**

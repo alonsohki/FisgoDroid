@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.meneame.fisgodroid"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="2"
+    android:versionName="2.0" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -15,11 +15,11 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name="net.meneame.fisgodroid.FisgodroidApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-            
         <activity
             android:name="net.meneame.fisgodroid.LoginActivity"
             android:label="@string/title_activity_login"
@@ -43,9 +43,14 @@
                 android:value=".LoginActivity" />
         </activity>
 
-        <receiver android:name="net.meneame.fisgodroid.NetworkChangeReceiver" >
-        </receiver>
-        <activity android:name="net.meneame.fisgodroid.ProfileActivity" android:theme="@android:style/Theme.Dialog"></activity>
+        <receiver android:name="net.meneame.fisgodroid.NetworkChangeReceiver" />
+
+        <activity
+            android:name="net.meneame.fisgodroid.ProfileActivity"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
+        <activity android:name="net.meneame.fisgodroid.SettingsActivity" >
+        </activity>
     </application>
 
 </manifest>
