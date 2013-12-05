@@ -8,7 +8,9 @@ import java.util.Map;
 import org.xml.sax.XMLReader;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -83,12 +85,12 @@ public class Smileys
         if ( drawable == null )
         {
             int desiredSize = context.getResources().getInteger(R.integer.smiley_size);
-            
+
             DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
             int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, desiredSize, metrics);
-            
+
             InputStream is = context.getResources().openRawResource(smiley.getResource());
-            drawable = new AnimatedGifDrawable(context, is, height/(float)desiredSize);
+            drawable = new AnimatedGifDrawable(context, is, height / (float) desiredSize);
             msDrawables.put(smiley, drawable);
         }
         return drawable;
@@ -142,17 +144,20 @@ public class Smileys
             {
                 if ( tag.equals("smiley") )
                 {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                    boolean animated = prefs.getBoolean("enable_animated_smileys", false);
+
                     int len = output.length();
 
                     if ( opening )
                     {
-                        SmileySpan span = new SmileySpan(new SmileySpan.Listener()
+                        SmileySpan span = new SmileySpan(animated == false ? null : new SmileySpan.Listener()
                         {
                             @Override
                             public void update()
                             {
-                                // ownerView.setText(ownerView.getText());
-                                // ownerView.postInvalidate();
+                                ownerView.setText(ownerView.getText());
+                                ownerView.postInvalidate();
                             }
                         });
                         output.setSpan(span, len, len, Spannable.SPAN_MARK_MARK);
@@ -170,7 +175,12 @@ public class Smileys
 
                             if ( pos != len && smiley != null )
                             {
-                                span.setDrawable(getAnimatedDrawable(context.getApplicationContext(), smiley));
+                                AnimatedGifDrawable drawable = getAnimatedDrawable(context.getApplicationContext(), smiley);
+                                if ( !animated )
+                                {
+                                    drawable.rewind();
+                                }
+                                span.setDrawable(drawable);
                                 output.setSpan(span, pos, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             }
                         }

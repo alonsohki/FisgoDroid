@@ -9,10 +9,12 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.SystemClock;
 
 public class AnimatedGifDrawable extends AnimationDrawable
 {
     private int mCurrentIndex = 0;
+    private long mLastUpdate = 0;
 
     public AnimatedGifDrawable(Context context, InputStream source, float scale)
     {
@@ -25,14 +27,16 @@ public class AnimatedGifDrawable extends AnimationDrawable
             Bitmap bitmap = decoder.getFrame(i);
             BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
             // Explicitly set the bounds in order for the frames to display
-            drawable.setBounds(0, 0, (int)(bitmap.getWidth()*scale), (int)(bitmap.getHeight() * scale));
+            drawable.setBounds(0, 0, (int) (bitmap.getWidth() * scale), (int) (bitmap.getHeight() * scale));
             addFrame(drawable, decoder.getDelay(i));
             if ( i == 0 )
             {
                 // Also set the bounds for this container drawable
-                setBounds(0, 0, (int)(bitmap.getWidth()*scale), (int)(bitmap.getHeight() * scale));
+                setBounds(0, 0, (int) (bitmap.getWidth() * scale), (int) (bitmap.getHeight() * scale));
             }
         }
+        
+        mLastUpdate = SystemClock.elapsedRealtime();
     }
 
     /**
@@ -40,7 +44,16 @@ public class AnimatedGifDrawable extends AnimationDrawable
      */
     public void nextFrame()
     {
-        mCurrentIndex = (mCurrentIndex + 1) % getNumberOfFrames();
+        long currentUpdate = SystemClock.elapsedRealtime();
+        if ((currentUpdate - mLastUpdate) > getFrameDuration()) {
+            mCurrentIndex = (mCurrentIndex + 1) % getNumberOfFrames();
+            mLastUpdate = currentUpdate;
+        }
+    }
+
+    public void rewind()
+    {
+        mCurrentIndex = 0;
     }
 
     /**
