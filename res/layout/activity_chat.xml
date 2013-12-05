@@ -96,7 +96,7 @@
                 android:layout_height="20dp"
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:layout_marginRight="8dp"
-                android:background="@drawable/smiley" />
+                android:background="@drawable/smiley_selector" />
 
             <ImageButton
                 android:id="@+id/button_send"

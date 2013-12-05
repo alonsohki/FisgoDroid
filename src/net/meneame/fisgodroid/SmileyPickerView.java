@@ -110,7 +110,8 @@ public class SmileyPickerView extends LinearLayout
                     button.setOnClickListener(mButtonListener);
                 }
                 Smiley smiley = (Smiley)getItem(position);
-                Drawable drawable = getResources().getDrawable(smiley.getResource());
+                Drawable drawable = Smileys.getAnimatedDrawable(getContext().getApplicationContext(), smiley);
+                drawable = drawable.getConstantState().newDrawable();
                 button.setBackgroundDrawable(drawable);
                 button.setLayoutParams(new AbsListView.LayoutParams((int)(drawable.getIntrinsicWidth()*2.2),
                                                                     (int)(drawable.getIntrinsicHeight()*2.2)));

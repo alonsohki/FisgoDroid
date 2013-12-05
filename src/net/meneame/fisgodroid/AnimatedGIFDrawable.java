@@ -1,120 +1,62 @@
 package net.meneame.fisgodroid;
 
+import java.io.InputStream;
+
+import jp.tomorrowkey.android.GifDecoder;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Movie;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.SystemClock;
-import android.util.Log;
 
-public class AnimatedGIFDrawable extends Drawable
+public class AnimatedGifDrawable extends AnimationDrawable
 {
-    private Movie mMovie = null;
-    private Context mContext;
-    private boolean mRunning = false;
-    private int mElapsedTime = 0;
-    private long mLastUpdate = 0L;
-    private Bitmap mBitmap = null;
-    private Canvas mCanvas;
-    private Rect mRect;
+    private int mCurrentIndex = 0;
 
-    public AnimatedGIFDrawable(Context context, int resourceId)
+    public AnimatedGifDrawable(Context context, InputStream source, float scale)
     {
-        mContext = context;
-        Resources res = mContext.getResources();
-        mMovie = Movie.decodeStream(res.openRawResource(resourceId));
-        if ( mMovie != null )
+        GifDecoder decoder = new GifDecoder();
+        decoder.read(source);
+
+        // Iterate through the gif frames, add each as animation frame
+        for (int i = 0; i < decoder.getFrameCount(); i++)
         {
-            mRect = new Rect(0, 0, mMovie.width(), mMovie.height());
-            mBitmap = Bitmap.createBitmap(getIntrinsicWidth(), getIntrinsicHeight(), Config.ARGB_8888);
-            mCanvas = new Canvas(mBitmap);
-        }
-        else
-        {
-            mRect = new Rect(0, 0, 0, 0);
-        }
-    }
-
-    public void start()
-    {
-        if ( mMovie != null && mMovie.duration() > 0 )
-        {
-            mRunning = true;
-            mLastUpdate = SystemClock.uptimeMillis();
-        }
-    }
-
-    public void pause()
-    {
-        mRunning = false;
-    }
-
-    public void stop()
-    {
-        mRunning = false;
-        mElapsedTime = 0;
-    }
-
-    @Override
-    public int getIntrinsicWidth()
-    {
-        return mRect.width();
-    }
-
-    @Override
-    public int getIntrinsicHeight()
-    {
-        return mRect.height();
-    }
-
-    @Override
-    public void draw(Canvas canvas)
-    {
-        if ( mRunning )
-        {
-            long now = SystemClock.uptimeMillis();
-            mElapsedTime += now - mLastUpdate;
-            mLastUpdate = now;
-
-            // Loop
-            int movieDuration = mMovie.duration();
-            if ( movieDuration > 0 && mElapsedTime >= movieDuration )
+            Bitmap bitmap = decoder.getFrame(i);
+            BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
+            // Explicitly set the bounds in order for the frames to display
+            drawable.setBounds(0, 0, (int)(bitmap.getWidth()*scale), (int)(bitmap.getHeight() * scale));
+            addFrame(drawable, decoder.getDelay(i));
+            if ( i == 0 )
             {
-                mElapsedTime = mElapsedTime % movieDuration;
+                // Also set the bounds for this container drawable
+                setBounds(0, 0, (int)(bitmap.getWidth()*scale), (int)(bitmap.getHeight() * scale));
             }
-
-            mMovie.setTime(mElapsedTime);
-            invalidateSelf();
-        }
-
-        if ( mBitmap != null )
-        {
-            mMovie.draw(mCanvas, 0, 0);
-            canvas.drawBitmap(mBitmap, mRect, getBounds(), null);
         }
     }
 
-    @Override
-    public int getOpacity()
+    /**
+     * Naive method to proceed to next frame. Also notifies listener.
+     */
+    public void nextFrame()
     {
-        if ( mMovie == null )
-            return PixelFormat.UNKNOWN;
-        return mMovie.isOpaque() ? PixelFormat.OPAQUE : PixelFormat.TRANSPARENT;
+        mCurrentIndex = (mCurrentIndex + 1) % getNumberOfFrames();
     }
 
-    @Override
-    public void setAlpha(int alpha)
+    /**
+     * Return display duration for current frame
+     */
+    public int getFrameDuration()
     {
+        return getDuration(mCurrentIndex);
     }
 
-    @Override
-    public void setColorFilter(ColorFilter cf)
+    /**
+     * Return drawable for current frame
+     */
+    public Drawable getDrawable()
     {
+        return getFrame(mCurrentIndex);
     }
+
 }

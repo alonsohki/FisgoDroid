@@ -105,11 +105,10 @@ public class ChatLineView extends LinearLayout
                 parsedMessage = "<b>" + parsedMessage + "</b>";
             }
             
-            Spanned message = Html.fromHtml(parsedMessage, Smileys.getImageGetter(getContext()), null);
-            
             // Timestamp formatting
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
             
+            Spanned message = Html.fromHtml(parsedMessage, null, Smileys.getTagHandler(getContext(), mMessage));
             mMessage.setText(message);
             mUsername.setText(mChatMsg.getUser());
             Picasso.with(getContext()).load(mChatMsg.getIcon()).placeholder(R.drawable.ic_launcher).into(mAvatar);
