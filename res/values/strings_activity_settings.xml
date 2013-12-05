@@ -16,7 +16,7 @@
     <string name="pref_title_ringtone">Ringtone</string>
     <string name="pref_ringtone_silent">Silent</string>
     <string name="pref_title_vibrate">Vibrate</string>
-    <string name="pref_title_split_notifications">Split notifications</string>
-    <string name="pref_description_split_notifications">Use a different notification for each received message</string>
+    <string name="pref_title_group_notifications">Group notifications</string>
+    <string name="pref_description_group_notifications">Use a single notification for all the received messages.</string>
 
 </resources>
