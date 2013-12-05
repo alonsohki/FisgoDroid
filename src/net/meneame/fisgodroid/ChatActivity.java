@@ -113,7 +113,7 @@ public class ChatActivity extends Activity
             else
             {
                 mFisgoBinder.setType(mType);
-                mAdapter = new ChatMessageAdapter(ChatActivity.this, mFisgoBinder.getAvatarStorage());
+                mAdapter = new ChatMessageAdapter(ChatActivity.this);
                 mMessages.setAdapter(mAdapter);
                 mFisgoBinder.addHandler(mHandler);
                 mFisgoBinder.setOnForeground(true);

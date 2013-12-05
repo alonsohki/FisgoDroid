@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Html;
 import android.text.Selection;
@@ -18,11 +17,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 @SuppressLint("ViewConstructor")
 public class ChatLineView extends LinearLayout
 {
     private ChatMessage mChatMsg = null;
-    private AvatarStorage mAvatarStorage;
     private TextView mUsername;
     private TextView mMessage;
     private ImageView mAvatar;
@@ -63,26 +63,11 @@ public class ChatLineView extends LinearLayout
             }
         }
     }
-
-    // Runable to asynchronously set the avatar image
-    private Runnable mSetAvatarRunnable = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            if ( mChatMsg != null )
-            {
-                Drawable drawable = mAvatarStorage.getAvatar(mChatMsg.getIcon());
-                if ( drawable != null )
-                    mAvatar.setImageDrawable(drawable);
-            }
-        }
-    };
     
-    public ChatLineView(Context context, AvatarStorage avatarStorage)
+    public ChatLineView(Context context)
     {
         super(context);
-        mAvatarStorage = avatarStorage;
+
         // Create the view
         LayoutInflater.from(getContext()).inflate(R.layout.chat_line, this, true);
         mMessage = (TextView) findViewById(R.id.chat_message);
@@ -107,6 +92,9 @@ public class ChatLineView extends LinearLayout
     public void setChatMessage(ChatMessage chatMsg, boolean highlight )
     {
         mChatMsg = chatMsg;
+
+        Picasso.with(getContext()).cancelRequest(mAvatar);
+        
         if ( mChatMsg != null )
         {
             String parsedMessage = Smileys.parseMessage(mChatMsg.getMessage());
@@ -124,7 +112,7 @@ public class ChatLineView extends LinearLayout
             
             mMessage.setText(message);
             mUsername.setText(mChatMsg.getUser());
-            mAvatarStorage.request(mChatMsg.getIcon(), mSetAvatarRunnable);
+            Picasso.with(getContext()).load(mChatMsg.getIcon()).placeholder(R.drawable.ic_launcher).into(mAvatar);
             
             // Used for showing the user's profile
             mAvatar.setTag(mChatMsg.getUser());

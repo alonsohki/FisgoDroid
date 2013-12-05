@@ -11,14 +11,12 @@ public class ChatMessageAdapter extends BaseAdapter
 {
     private List<ChatMessage> mMessages = null;
     private Context mContext;
-    private AvatarStorage mAvatarStorage;
     private String mUsername;
     private boolean mIsAdmin = false;
     
-    public ChatMessageAdapter ( Context context, AvatarStorage avatarStorage )
+    public ChatMessageAdapter ( Context context )
     {
         mContext = context;
-        mAvatarStorage = avatarStorage;
     }
     
     public void setUsername ( String username )
@@ -63,7 +61,7 @@ public class ChatMessageAdapter extends BaseAdapter
         ChatLineView line = (ChatLineView)convertView;
         if ( line == null )
         {
-            line = new ChatLineView(mContext, mAvatarStorage);
+            line = new ChatLineView(mContext);
         }
         ChatMessage chatmsg = (ChatMessage)getItem(position);
         String lowercaseMsg = chatmsg.getMessage().toLowerCase();

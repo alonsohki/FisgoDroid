@@ -52,7 +52,6 @@ public class FisgoService extends Service
     private String mUsername;
     private String mMyKey;
     private List<String> mOutgoingMessages = new LinkedList<String>();
-    private AvatarStorage mAvatars;
     private ChatType mType = ChatType.PUBLIC;
     private int mNumRequests = 0;
     private int mTimeToWait = 5000;
@@ -64,7 +63,6 @@ public class FisgoService extends Service
     @Override
     public void onCreate()
     {
-        mAvatars = new AvatarStorage(getApplicationContext());
         mTimeToWait = getResources().getInteger(R.integer.time_to_wait);
         mTimeToWaitWhenFailed = getResources().getInteger(R.integer.time_to_wait_when_failed);
         mTimeToWaitWhenOnBackground = getResources().getInteger(R.integer.time_to_wait_when_on_background);
@@ -432,11 +430,6 @@ public class FisgoService extends Service
                 mOutgoingMessages.add(msg);
                 mThread.interrupt();
             }
-        }
-
-        public AvatarStorage getAvatarStorage()
-        {
-            return mAvatars;
         }
 
         public void setType(ChatType type)
