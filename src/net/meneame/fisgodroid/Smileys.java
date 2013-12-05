@@ -130,7 +130,7 @@ public class Smileys
             }
         }
         builder.append(message.substring(pos));
-        return builder.toString();
+        return "<body>" + builder.toString() + "</body>";
     }
 
     public static Html.TagHandler getTagHandler(final Context context, final TextView ownerView)
