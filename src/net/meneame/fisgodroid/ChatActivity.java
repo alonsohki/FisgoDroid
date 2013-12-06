@@ -331,6 +331,8 @@ public class ChatActivity extends Activity
                 takePicture();
             }
         });
+
+        ImageUpload.updateListener(mImageUploadListener);
     }
 
     @Override
@@ -342,27 +344,32 @@ public class ChatActivity extends Activity
         super.onDestroy();
         mFisgoBinder.removeHandler(mHandler);
         unbindService(mServiceConn);
+
+        ImageUpload.updateListener(null);
     }
 
     @Override
-    protected void onPause()
+    protected void onStart()
     {
-        super.onPause();
-        Notifications.setOnForeground(getApplicationContext(), false);
-        if ( mFisgoBinder != null )
-            mFisgoBinder.setOnForeground(false);
-    }
+        super.onStart();
 
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
         Notifications.setOnForeground(getApplicationContext(), true);
         if ( mFisgoBinder != null )
         {
             mFisgoBinder.setOnForeground(true);
         }
-        ImageUpload.updateListener(mImageUploadListener);
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        Notifications.setOnForeground(getApplicationContext(), false);
+        if ( mFisgoBinder != null )
+        {
+            mFisgoBinder.setOnForeground(false);
+        }
     }
 
     @Override
