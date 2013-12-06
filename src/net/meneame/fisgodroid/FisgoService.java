@@ -446,13 +446,13 @@ public class FisgoService extends Service
             }
         }
         
-        public String sendPicture(InputStream data)
+        public String sendPicture(InputStream data, IHttpService.ProgressUpdater progressUpdater)
         {
             String url = null;
             
             synchronized (mHttp)
             {
-                String result = mHttp.postData(UPLOAD_URL, data);
+                String result = mHttp.postData(UPLOAD_URL, data, progressUpdater);
                 if ( result.equals("") == false )
                 {
                     JSONObject root;

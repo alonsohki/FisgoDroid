@@ -1,6 +1,7 @@
 package net.meneame.fisgodroid;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,7 +44,7 @@ public class HttpService implements IHttpService
         return performRequest(new HttpGet(uri), os);
     }
 
-    private HttpPost buildPostRequest(String uri, Map<String, Object> params)
+    private HttpPost buildPostRequest(String uri, Map<String, Object> params, final ProgressUpdater updater)
     {
         HttpPost req = new HttpPost(uri);
 
@@ -61,7 +62,12 @@ public class HttpService implements IHttpService
 
             try
             {
-                req.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+                req.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8") {
+                    @Override
+                    public void writeTo(final OutputStream outstream) throws IOException {
+                        super.writeTo(getProgressUpdatingStream(outstream, updater));
+                    }
+                });
             }
             catch (UnsupportedEncodingException e)
             {
@@ -76,14 +82,27 @@ public class HttpService implements IHttpService
     public String post(String uri, Map<String, Object> params)
     {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        performRequest(buildPostRequest(uri, params), os);
+        performRequest(buildPostRequest(uri, params, null), os);
+        return new String(os.toByteArray());
+    }
+    
+    @Override
+    public String post(String uri, Map<String, Object> params, ProgressUpdater updater)
+    {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        performRequest(buildPostRequest(uri, params, updater), os);
         return new String(os.toByteArray());
     }
     
     @Override
     public boolean post(String uri, Map<String, Object> params, OutputStream os)
     {
-        return performRequest(buildPostRequest(uri, params), os);
+        return performRequest(buildPostRequest(uri, params, null), os);
+    }
+    
+    @Override
+    public boolean post(String uri, Map<String, Object> params, OutputStream os, ProgressUpdater updater) {
+        return performRequest(buildPostRequest(uri, params, updater), os);
     }
 
     public boolean performRequest(HttpUriRequest req, OutputStream out)
@@ -120,7 +139,7 @@ public class HttpService implements IHttpService
         return false;
     }
 
-    private HttpUriRequest buildPostDataRequest(String uri, InputStream data)
+    private HttpUriRequest buildPostDataRequest(String uri, InputStream data, final ProgressUpdater updater)
     {
         HttpPost req = new HttpPost(uri);
         
@@ -134,7 +153,12 @@ public class HttpService implements IHttpService
                 bos.write(temp, 0, length);
             
             byte[] byteArray = bos.toByteArray();
-            req.setEntity(new ByteArrayEntity(byteArray));
+            req.setEntity(new ByteArrayEntity(byteArray) {
+                @Override
+                public void writeTo(final OutputStream outstream) throws IOException {
+                    super.writeTo(getProgressUpdatingStream(outstream, updater));
+                }
+            });
         }
         catch (IOException e)
         {
@@ -147,13 +171,62 @@ public class HttpService implements IHttpService
     public String postData(String uri, InputStream data)
     {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        performRequest(buildPostDataRequest(uri, data), os);
+        performRequest(buildPostDataRequest(uri, data, null), os);
         return new String(os.toByteArray());
     }
 
     @Override
     public boolean postData(String uri, InputStream data, OutputStream stream)
     {
-        return performRequest(buildPostDataRequest(uri, data), stream);
+        return performRequest(buildPostDataRequest(uri, data, null), stream);
+    }
+
+    @Override
+    public String postData(String uri, InputStream data, ProgressUpdater updater)
+    {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        performRequest(buildPostDataRequest(uri, data, updater), os);
+        return new String(os.toByteArray());
+    }
+
+    @Override
+    public boolean postData(String uri, InputStream data, OutputStream stream, ProgressUpdater updater)
+    {
+        return performRequest(buildPostDataRequest(uri, data, updater), stream);
+    }
+    
+    private FilterOutputStream getProgressUpdatingStream(OutputStream outstream, final ProgressUpdater updater) {
+        return new FilterOutputStream(outstream) {
+            private int mBytes = 0;
+            
+            private void report(int bytes) {
+                mBytes += bytes;
+                if (updater != null) {
+                    updater.progress(mBytes);
+                }
+            }
+            
+            @Override
+            public void write(int b) throws IOException {
+                out.write(b);
+                report(1);
+            }
+
+            @Override
+            public void write(byte[] b) throws IOException {
+                write(b, 0, b.length);
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                // Write in chunks
+                int CHUNK_SIZE = 64 * 1024;
+                for (int n = 0; n < len; n += CHUNK_SIZE) {
+                    int curLen = Math.min(CHUNK_SIZE, len-n);
+                    out.write(b, n+off, curLen);
+                    report(curLen);
+                }
+            }
+        };
     }
 }

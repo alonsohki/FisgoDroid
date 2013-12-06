@@ -28,6 +28,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,6 +43,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -66,9 +68,11 @@ public class ChatActivity extends Activity
     private ThreeStateChecboxHackView mCheckboxFriends;
     private ListView mMessages;
     private EditText mMessagebox;
+    private ImageButton mButtonSettings;
     private ImageButton mSendButton;
     private ImageButton mCameraButton;
     private ProgressBar mCameraProgress;
+    private ProgressBar mCameraSpinner;
     private Spinner mChatSpinner;
     private ImageButton mSmileyButton;
     private SmileyPickerView mSmileyPicker;
@@ -128,6 +132,15 @@ public class ChatActivity extends Activity
         }
     };
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    private void showSettingsButtonIfRequired() {
+        // Hide the settings button if we have a HW button.
+        boolean hasMenuKey = ViewConfiguration.get(this).hasPermanentMenuKey();
+        if (!hasMenuKey) {
+            mButtonSettings.setVisibility(View.VISIBLE);
+        }
+    }
+    
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -141,12 +154,26 @@ public class ChatActivity extends Activity
         mCheckboxFriends = (ThreeStateChecboxHackView) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
         mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
+        mButtonSettings = (ImageButton) findViewById(R.id.button_settings);
         mSendButton = (ImageButton) findViewById(R.id.button_send);
         mCameraButton = (ImageButton) findViewById(R.id.camera_button);
         mCameraProgress = (ProgressBar) findViewById(R.id.camera_progress);
+        mCameraSpinner = (ProgressBar) findViewById(R.id.camera_spinner);
         mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
         mSmileyButton = (ImageButton) findViewById(R.id.smileys_button);
         mSmileyPicker = (SmileyPickerView) findViewById(R.id.smiley_picker);
+        
+        mButtonSettings.setOnClickListener(new OnClickListener()
+        {   
+            @Override
+            public void onClick(View v)
+            {
+                openOptionsMenu();
+            }
+        });
+        mButtonSettings.setVisibility(View.GONE);
+        showSettingsButtonIfRequired();
+        
 
         // Restore stuff from shared prefs
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -720,48 +747,56 @@ public class ChatActivity extends Activity
         startActivityForResult(chooserIntent, REQUEST_PICTURE);
     }
 
-    private void processTakenPicture(final Bitmap bitmap)
+    private void processTakenPicture(Bitmap bitmap)
     {
         // Hide the camera button and display a progress bar
         mCameraButton.setVisibility(View.GONE);
-        mCameraProgress.setVisibility(View.VISIBLE);
+        mCameraSpinner.setVisibility(View.VISIBLE);
+        mCameraProgress.setProgress(0);
 
-        // Create a handler for when the thread finishes
-        final Handler handler = new Handler()
-        {
+        new AsyncTask<Bitmap, Integer, String>() {
+            private int mTotalBytes = 0;
+            
             @Override
-            public void handleMessage(Message msg)
+            protected String doInBackground(Bitmap... arg0)
             {
+                Bitmap bmp = arg0[0];
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bmp.compress(CompressFormat.JPEG, 90, stream);
+                
+                byte[] array = stream.toByteArray();
+                mTotalBytes = array.length;
+                ByteArrayInputStream is = new ByteArrayInputStream(array);
+                return mFisgoBinder.sendPicture(is, new IHttpService.ProgressUpdater() {
+                    @Override
+                    public void progress(int byteCount) {
+                        publishProgress(byteCount);
+                    }
+                });
+            }
+            
+            @Override
+            protected void onProgressUpdate(Integer... progress) {
+                int bytes = progress[0];
+                mCameraProgress.setMax(mTotalBytes);
+                mCameraProgress.setProgress(bytes);
+            }
+            
+            @Override
+            protected void onPostExecute(String pictureUrl) {
                 // Restore the camera button
                 mCameraButton.setVisibility(View.VISIBLE);
-                mCameraProgress.setVisibility(View.GONE);
+                mCameraSpinner.setVisibility(View.GONE);
+                mCameraProgress.setProgress(0);
 
                 // Did everything go ok?
-                String pictureUrl = (String) msg.obj;
                 if ( pictureUrl != null )
                 {
                     mMessagebox.getText().append(" " + pictureUrl + " ");
                 }
             }
-        };
-
-        Thread thread = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                Bitmap bmp = bitmap;
-
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bmp.compress(CompressFormat.JPEG, 90, stream);
-
-                // Send a message to the handler with the picture url
-                Message msg = new Message();
-                msg.obj = mFisgoBinder.sendPicture(new ByteArrayInputStream(stream.toByteArray()));
-                handler.sendMessage(msg);
-            }
-        });
-        thread.start();
+        }.execute(bitmap);
     }
 
     public void showProfile(View v)
