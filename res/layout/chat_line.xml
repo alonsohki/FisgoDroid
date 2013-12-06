@@ -41,8 +41,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="right"
-            android:src="@drawable/ic_launcher"
-            android:onClick="showProfile" />
+            android:src="@drawable/ic_launcher" />
 
         <TextView
             android:id="@+id/chat_username"

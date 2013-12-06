@@ -10,11 +10,13 @@ public class ChatMessage
     private String message;
     private ChatType type;
     private String icon;
+    private String userid;
 
-    public ChatMessage(Date when, String user, String message, ChatType type, String icon)
+    public ChatMessage(Date when, String user, String userid, String message, ChatType type, String icon)
     {
         setWhen(when);
         setUser(user);
+        setUserid(userid);
         setMessage(message);
         setType(type);
         setIcon(icon);
@@ -38,6 +40,16 @@ public class ChatMessage
     public void setUser(String user)
     {
         this.user = user;
+    }
+
+    public String getUserid()
+    {
+        return userid;
+    }
+
+    public void setUserid(String userid)
+    {
+        this.userid = userid;
     }
 
     public String getMessage()
@@ -69,16 +81,17 @@ public class ChatMessage
     {
         this.icon = icon;
     }
-    
-    public String logify() {
-    	StringBuilder logString = new StringBuilder();
-   	
-    	logString.append(DateFormat.format("kk:mm:ss ", this.when));
-    	
-    	logString.append(this.user);
-    	
-    	logString.append(": " + this.message);
-    	
-    	return logString.toString();
+
+    public String logify()
+    {
+        StringBuilder logString = new StringBuilder();
+
+        logString.append(DateFormat.format("kk:mm:ss ", this.when));
+
+        logString.append(this.user);
+
+        logString.append(": " + this.message);
+
+        return logString.toString();
     }
 }

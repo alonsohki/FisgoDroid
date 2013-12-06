@@ -184,6 +184,7 @@ public class FisgoService extends Service
                                         int ts = event.getInt("ts");
                                         String status = event.getString("status");
                                         String who = event.getString("who");
+                                        String userid = event.getString("uid");
 
                                         // Remove the escaped slashes from the
                                         // icon path
@@ -199,7 +200,7 @@ public class FisgoService extends Service
                                             type = ChatType.FRIENDS;
                                         else if ( status.equals("admin") )
                                             type = ChatType.ADMIN;
-                                        ChatMessage msg = new ChatMessage(when, who, title, type, icon);
+                                        ChatMessage msg = new ChatMessage(when, who, userid, title, type, icon);
                                         newList.add(msg);
                                         
                                         // Send a notification if they mentioned us

@@ -798,11 +798,4 @@ public class ChatActivity extends Activity
             }
         }.execute(bitmap);
     }
-
-    public void showProfile(View v)
-    {
-        Intent profileIntent = new Intent(this, ProfileActivity.class);
-        profileIntent.putExtra("username", (String) v.getTag());
-        startActivity(profileIntent);
-    }
 }

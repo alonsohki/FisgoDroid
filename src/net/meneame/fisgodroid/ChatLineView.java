@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.text.Html;
 import android.text.Selection;
@@ -77,6 +78,18 @@ public class ChatLineView extends LinearLayout
 
         setSelectableText();
         mMessage.setMovementMethod(new CustomMovementMethod());
+        
+        // Used for showing the user's profile
+        mAvatar.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent intent = new Intent(getContext(), ProfileActivity.class);
+                intent.putExtra("userid", mChatMsg.getUserid());
+                getContext().startActivity(intent);
+            }
+        });
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -112,9 +125,6 @@ public class ChatLineView extends LinearLayout
             mMessage.setText(message);
             mUsername.setText(mChatMsg.getUser());
             Picasso.with(getContext()).load(mChatMsg.getIcon()).placeholder(R.drawable.ic_launcher).into(mAvatar);
-            
-            // Used for showing the user's profile
-            mAvatar.setTag(mChatMsg.getUser());
             
             mTimestamp.setText(dateFormat.format(mChatMsg.getWhen()));
 
