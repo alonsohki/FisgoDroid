@@ -38,12 +38,12 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -133,14 +133,16 @@ public class ChatActivity extends Activity
     };
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    private void showSettingsButtonIfRequired() {
+    private void showSettingsButtonIfRequired()
+    {
         // Hide the settings button if we have a HW button.
-        boolean hasMenuKey = ViewConfiguration.get(this).hasPermanentMenuKey();
-        if (!hasMenuKey) {
-            mButtonSettings.setVisibility(View.VISIBLE);
-        }
+        // boolean hasMenuKey =
+        // ViewConfiguration.get(this).hasPermanentMenuKey();
+        // if (!hasMenuKey) {
+        // mButtonSettings.setVisibility(View.VISIBLE);
+        // }
     }
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -162,18 +164,17 @@ public class ChatActivity extends Activity
         mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
         mSmileyButton = (ImageButton) findViewById(R.id.smileys_button);
         mSmileyPicker = (SmileyPickerView) findViewById(R.id.smiley_picker);
-        
+
         mButtonSettings.setOnClickListener(new OnClickListener()
-        {   
+        {
             @Override
             public void onClick(View v)
             {
                 openOptionsMenu();
             }
         });
-        mButtonSettings.setVisibility(View.GONE);
+        // mButtonSettings.setVisibility(View.GONE);
         showSettingsButtonIfRequired();
-        
 
         // Restore stuff from shared prefs
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -358,7 +359,10 @@ public class ChatActivity extends Activity
         super.onResume();
         Notifications.setOnForeground(getApplicationContext(), true);
         if ( mFisgoBinder != null )
+        {
             mFisgoBinder.setOnForeground(true);
+        }
+        ImageUpload.updateListener(mImageUploadListener);
     }
 
     @Override
@@ -389,20 +393,19 @@ public class ChatActivity extends Activity
 
         if ( requestCode == REQUEST_PICTURE )
         {
+            Bitmap bitmap = null;
             if ( data != null )
             {
                 final String action = data.getAction();
                 if ( action != null && action.equals("inline-data") )
                 {
-                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                    processTakenPicture(bitmap);
+                    bitmap = (Bitmap) data.getExtras().get("data");
                 }
                 else
                 {
                     try
                     {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
-                        processTakenPicture(bitmap);
+                        bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
                     }
                     catch (IOException e)
                     {
@@ -414,15 +417,19 @@ public class ChatActivity extends Activity
             {
                 try
                 {
-                    Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(mCameraTempFile));
+                    bitmap = BitmapFactory.decodeStream(new FileInputStream(mCameraTempFile));
                     mCameraTempFile.delete();
                     mCameraTempFile = null;
-                    processTakenPicture(bitmap);
                 }
                 catch (FileNotFoundException e)
                 {
                     e.printStackTrace();
                 }
+            }
+
+            if ( bitmap != null )
+            {
+                ImageUpload.upload(mFisgoBinder, bitmap, mImageUploadListener);
             }
         }
     }
@@ -747,55 +754,37 @@ public class ChatActivity extends Activity
         startActivityForResult(chooserIntent, REQUEST_PICTURE);
     }
 
-    private void processTakenPicture(Bitmap bitmap)
+    private ImageUpload.Listener mImageUploadListener = new ImageUpload.Listener()
     {
-        // Hide the camera button and display a progress bar
-        mCameraButton.setVisibility(View.GONE);
-        mCameraSpinner.setVisibility(View.VISIBLE);
-        mCameraProgress.setProgress(0);
+        @Override
+        public void onProgressUpdate(float progress)
+        {
+            mCameraProgress.setMax(100);
+            mCameraProgress.setProgress((int) (100 * progress));
+        }
 
-        new AsyncTask<Bitmap, Integer, String>() {
-            private int mTotalBytes = 0;
-            
-            @Override
-            protected String doInBackground(Bitmap... arg0)
+        @Override
+        public void onFinished(String url)
+        {
+            // Restore the camera button
+            mCameraButton.setVisibility(View.VISIBLE);
+            mCameraSpinner.setVisibility(View.GONE);
+            mCameraProgress.setProgress(0);
+
+            // Did everything go ok?
+            if ( url != null )
             {
-                Bitmap bmp = arg0[0];
+                mMessagebox.getText().append(" " + url + " ");
+            }
+        }
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bmp.compress(CompressFormat.JPEG, 90, stream);
-                
-                byte[] array = stream.toByteArray();
-                mTotalBytes = array.length;
-                ByteArrayInputStream is = new ByteArrayInputStream(array);
-                return mFisgoBinder.sendPicture(is, new IHttpService.ProgressUpdater() {
-                    @Override
-                    public void progress(int byteCount) {
-                        publishProgress(byteCount);
-                    }
-                });
-            }
-            
-            @Override
-            protected void onProgressUpdate(Integer... progress) {
-                int bytes = progress[0];
-                mCameraProgress.setMax(mTotalBytes);
-                mCameraProgress.setProgress(bytes);
-            }
-            
-            @Override
-            protected void onPostExecute(String pictureUrl) {
-                // Restore the camera button
-                mCameraButton.setVisibility(View.VISIBLE);
-                mCameraSpinner.setVisibility(View.GONE);
-                mCameraProgress.setProgress(0);
-
-                // Did everything go ok?
-                if ( pictureUrl != null )
-                {
-                    mMessagebox.getText().append(" " + pictureUrl + " ");
-                }
-            }
-        }.execute(bitmap);
-    }
+        @Override
+        public void onStart()
+        {
+            // Hide the camera button and display a progress bar
+            mCameraButton.setVisibility(View.GONE);
+            mCameraSpinner.setVisibility(View.VISIBLE);
+            mCameraProgress.setProgress(0);
+        }
+    };
 }
