@@ -78,7 +78,7 @@ public class Notifications
 
         // Build the compatible notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context).setContentTitle(title).setAutoCancel(true);
-        if ( hasNewMessages )
+        if ( hasNewMessages || chatMsg != null )
             builder.setLights(0xffff6000, 500, 1000);
         
         // Choose the most appropiate icon
