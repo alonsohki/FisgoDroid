@@ -77,11 +77,23 @@ public class Notifications
         int defaults = 0;
 
         // Build the compatible notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context).setSmallIcon(hasNewMessages ? R.drawable.ic_new_messages : R.drawable.ic_launcher).setContentTitle(title)
-                .setAutoCancel(true);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context).setContentTitle(title).setAutoCancel(true);
         if ( hasNewMessages )
             builder.setLights(0xffff6000, 500, 1000);
+        
+        // Choose the most appropiate icon
+        int icon = -1;
+        if ( hasNewMessages || chatMsg != null )
+        {
+            icon = R.drawable.ic_new_messages;
+        }
+        else
+        {
+            icon = R.drawable.ic_launcher;
+        }
+        builder.setSmallIcon(icon);
 
+        
         if ( playSound )
         {
             String ringtone = prefs.getString("notifications_new_message_ringtone", null);
