@@ -6,43 +6,64 @@ public class UserProfile
     private String mName;
     private String mAvatarUrl;
     private String mBio;
-    
-    public UserProfile() {
+    private FriendshipStatus mFriendship = FriendshipStatus.UNKNOWN;
+
+    public UserProfile()
+    {
     }
-    
-    public UserProfile setUsername(String username) {
+
+    public UserProfile setUsername(String username)
+    {
         mUsername = username;
         return this;
     }
-    
-    public UserProfile setName(String name) {
+
+    public UserProfile setName(String name)
+    {
         mName = name;
         return this;
     }
-    
-    public UserProfile setAvatarUrl(String url) {
+
+    public UserProfile setAvatarUrl(String url)
+    {
         mAvatarUrl = url;
         return this;
     }
-    
-    public UserProfile setBio(String bio) {
+
+    public UserProfile setBio(String bio)
+    {
         mBio = bio;
         return this;
     }
-    
-    public String getUsername() {
+
+    public UserProfile setFriendship(FriendshipStatus status)
+    {
+        mFriendship = status;
+        return this;
+    }
+
+    public String getUsername()
+    {
         return mUsername;
     }
-    
-    public String getName() {
+
+    public String getName()
+    {
         return mName;
     }
-    
-    public String getAvatarUrl() {
+
+    public String getAvatarUrl()
+    {
         return mAvatarUrl;
     }
-    
-    public String getBio() {
+
+    public String getBio()
+    {
         return mBio;
+    }
+    
+    public FriendshipStatus getFriendship()
+    {
+        return mFriendship;
     }
 }

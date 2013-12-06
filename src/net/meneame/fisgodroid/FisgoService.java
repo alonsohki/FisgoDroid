@@ -40,6 +40,8 @@ public class FisgoService extends Service
     private static final String SNEAK_BACKEND_URL = "http://www.meneame.net/backend/sneaker2.php";
     private static final String FRIEND_LIST_URL = "http://www.meneame.net/user/?username/friends";
     private static final String UPLOAD_URL = "http://www.meneame.net/backend/tmp_upload.php";
+    private static final String GET_FRIEND_URL = "http://www.meneame.net/backend/get_friend.php";
+    private static final String GET_USER_INFO_URL = "http://www.meneame.net/backend/get_user_info.php";
 
     private FisgoBinder mBinder = new FisgoBinder();
     private Thread mThread = null;
@@ -51,6 +53,7 @@ public class FisgoService extends Service
     private String mLastMessageTime = "";
     private String mUsername;
     private String mMyKey;
+    private String mBaseKey;
     private List<String> mOutgoingMessages = new LinkedList<String>();
     private ChatType mType = ChatType.PUBLIC;
     private int mNumRequests = 0;
@@ -66,11 +69,11 @@ public class FisgoService extends Service
         mTimeToWait = getResources().getInteger(R.integer.time_to_wait);
         mTimeToWaitWhenFailed = getResources().getInteger(R.integer.time_to_wait_when_failed);
         mTimeToWaitWhenOnBackground = getResources().getInteger(R.integer.time_to_wait_when_on_background);
-        
+
         // Register a BroadcastReceiver to detect connectivity changes
         final IntentFilter connectivityIntentFilter = new IntentFilter();
         connectivityIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        mConnectivityReceiver = new BroadcastReceiver ()
+        mConnectivityReceiver = new BroadcastReceiver()
         {
             @Override
             public void onReceive(Context context, Intent intent)
@@ -79,16 +82,15 @@ public class FisgoService extends Service
             }
         };
         registerReceiver(mConnectivityReceiver, connectivityIntentFilter);
-        
-        
+
         // Create the main thread that will keep polling the server
         mThread = new Thread(new Runnable()
         {
             @Override
             public void run()
             {
-                final ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-                
+                final ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
                 synchronized (mHttp)
                 {
                     while (true)
@@ -100,7 +102,7 @@ public class FisgoService extends Service
                                 clearSession();
                                 mHttp.wait();
                             }
-                            
+
                             final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                             boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
                             if ( !isConnected )
@@ -127,17 +129,16 @@ public class FisgoService extends Service
                                 params.put("nonew", 1);
                                 params.put("nopublished", 1);
                                 params.put("nopubvotes", 1);
-                                
+
                                 // Request the appropiate chat type
                                 if ( mType == ChatType.FRIENDS )
                                     params.put("friends", 1);
                                 else if ( mType == ChatType.ADMIN )
                                     params.put("admin", 1);
-                                
+
                                 if ( mLastMessageTime.equals("") == false )
                                     params.put("time", mLastMessageTime);
-                                
-                                
+
                                 failed = !mHttp.post(SNEAK_BACKEND_URL, params, result);
 
                                 if ( !failed && result.size() > 0 )
@@ -202,11 +203,11 @@ public class FisgoService extends Service
                                             type = ChatType.ADMIN;
                                         ChatMessage msg = new ChatMessage(when, who, userid, title, type, icon);
                                         newList.add(msg);
-                                        
-                                        // Send a notification if they mentioned us
+
+                                        // Send a notification if they mentioned
+                                        // us
                                         String lowercaseMsg = msg.getMessage().toLowerCase();
-                                        boolean notify = lowercaseMsg.contains(mUsername.toLowerCase()) ||
-                                                         ( mIsAdmin && lowercaseMsg.contains("admin") );
+                                        boolean notify = lowercaseMsg.contains(mUsername.toLowerCase()) || (mIsAdmin && lowercaseMsg.contains("admin"));
                                         if ( !isFirstRequest && notify )
                                         {
                                             Notifications.theyMentionedMe(FisgoService.this, msg);
@@ -249,9 +250,9 @@ public class FisgoService extends Service
         });
         mThread.start();
     }
-    
+
     @Override
-    public void onDestroy ()
+    public void onDestroy()
     {
         super.onDestroy();
         unregisterReceiver(mConnectivityReceiver);
@@ -275,13 +276,13 @@ public class FisgoService extends Service
             handler.sendMessage(msg);
         }
     }
-    
-    public void wakeUp ()
+
+    public void wakeUp()
     {
         Log.i(TAG, "Waking up FisgoService");
-        synchronized ( mHttp )
+        synchronized (mHttp)
         {
-            mHttp.notify();            
+            mHttp.notify();
         }
     }
 
@@ -299,13 +300,14 @@ public class FisgoService extends Service
         private final Pattern mIpcontrolPattern = Pattern.compile("<input type=\"hidden\" name=\"useripcontrol\" value=\"([^\"]+)\"/>");
         private final Pattern mAdminPattern = Pattern.compile("<a href=\"/admin/bans\\.php\">admin</a>");
         private final Pattern mMykeyPattern = Pattern.compile("var mykey = (\\d+);");
+        private final Pattern mBasekeyPattern = Pattern.compile("base_key=\"([^\"]+)\"");
         private final Pattern mFriendPattern = Pattern.compile("<div class=\"friends-item\"><a href=\"\\/user\\/([^\"]+)\"");
 
         public boolean isAdmin()
         {
             return mIsAdmin;
         }
-        
+
         public boolean isLoggedIn()
         {
             return mIsLoggedIn;
@@ -322,7 +324,7 @@ public class FisgoService extends Service
         {
             if ( username.equalsIgnoreCase("whizzo") )
                 return LoginStatus.INVALID_PASSWORD;
-            
+
             String step1 = mHttp.get(LOGIN_GET_URL);
             if ( "".equals(step1) )
                 return LoginStatus.NETWORK_FAILED;
@@ -359,10 +361,18 @@ public class FisgoService extends Service
             if ( mIsLoggedIn )
             {
                 mUsername = username;
-                
+
                 // Are we administrators?
                 m = mAdminPattern.matcher(step2);
                 mIsAdmin = m.find();
+
+                // Get the base key value to be able to interact with the
+                // backend
+                m = mBasekeyPattern.matcher(step2);
+                if ( m.find() )
+                {
+                    mBaseKey = m.group(1);
+                }
 
                 // Get the mykey value to be able to send messages
                 String step3 = mHttp.get(SNEAK_URL);
@@ -383,7 +393,7 @@ public class FisgoService extends Service
                         mFriendNames.add(m.group(1));
                     }
                 }
-                
+
                 // Start this service on foreground
                 Notifications.startOnForeground(FisgoService.this);
             }
@@ -446,11 +456,11 @@ public class FisgoService extends Service
                 }
             }
         }
-        
+
         public String sendPicture(InputStream data, IHttpService.ProgressUpdater progressUpdater)
         {
             String url = null;
-            
+
             synchronized (mHttp)
             {
                 String result = mHttp.postData(UPLOAD_URL, data, progressUpdater);
@@ -471,14 +481,37 @@ public class FisgoService extends Service
                     }
                 }
             }
-            
+
             return url;
         }
-        
-        public void setOnForeground ( boolean isOnForeground )
+
+        public void setOnForeground(boolean isOnForeground)
         {
             Log.i(TAG, "Setting FisgoService on " + (isOnForeground ? "foreground" : "background"));
             mIsOnForeground = isOnForeground;
+        }
+
+        public FriendshipStatus swapFriendship(String userid)
+        {
+            FriendshipStatus status = FriendshipStatus.NONE;
+            Pattern pattern = Pattern.compile("title=\"([^\"]+)\"");
+
+            String url = GET_FRIEND_URL + "?id=" + userid + "&key=" + mBaseKey + "&type=99674";
+            String response = mHttp.get(url);
+
+            Matcher m = pattern.matcher(response);
+            if ( m.find() )
+            {
+                String statusName = m.group(1);
+                status = FriendshipStatus.fromName(statusName);
+            }
+
+            return status;
+        }
+        
+        public String getUserInfo(String userid) {
+            String url = GET_USER_INFO_URL + "?id=" + userid;
+            return mHttp.get(url);
         }
     }
 }
