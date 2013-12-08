@@ -16,6 +16,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -124,11 +125,19 @@ public class ProfileActivity extends Activity
         if ( profile.getName() != null )
         {
             mName.setText(profile.getName());
+        } else
+        {
+        	TableRow namerow = (TableRow) mName.getParent();
+        	namerow.setVisibility(View.GONE);
         }
 
         if ( profile.getBio() != null )
         {
             mBio.setText(profile.getBio());
+        } else
+        {
+        	TableRow biorow = (TableRow) mBio.getParent();
+        	biorow.setVisibility(View.GONE);
         }
 
         setFriendshipIcon(profile.getFriendship());
