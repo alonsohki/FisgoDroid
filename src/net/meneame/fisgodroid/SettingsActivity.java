@@ -19,6 +19,8 @@ import android.text.TextUtils;
 
 import java.util.List;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -32,6 +34,19 @@ import java.util.List;
  */
 public class SettingsActivity extends PreferenceActivity
 {
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EasyTracker.getInstance(this).activityStart(this);
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EasyTracker.getInstance(this).activityStop(this);
+    }
+    
+    
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -89,6 +104,7 @@ public class SettingsActivity extends PreferenceActivity
      * Helper method to determine if the device has an extra-large screen. For
      * example, 10" tablets are extra-large.
      */
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     private static boolean isXLargeTablet(Context context)
     {
         return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;

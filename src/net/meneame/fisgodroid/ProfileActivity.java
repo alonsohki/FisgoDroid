@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.squareup.picasso.Picasso;
 
 public class ProfileActivity extends Activity
@@ -72,11 +73,19 @@ public class ProfileActivity extends Activity
 
         bindService(new Intent(this, FisgoService.class), mServiceConn, 0);
     }
+    
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        EasyTracker.getInstance(this).activityStart(this);
+    }
 
     @Override
     protected void onStop()
     {
         super.onStop();
+        EasyTracker.getInstance(this).activityStop(this);
 
         if ( mTask != null )
         {

@@ -1,7 +1,5 @@
 package net.meneame.fisgodroid;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,11 +22,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,7 +34,6 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,6 +50,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.google.analytics.tracking.android.EasyTracker;
 
 public class ChatActivity extends Activity
 {
@@ -352,6 +349,8 @@ public class ChatActivity extends Activity
     protected void onStart()
     {
         super.onStart();
+        
+        EasyTracker.getInstance(this).activityStart(this);
 
         Notifications.setOnForeground(getApplicationContext(), true);
         if ( mFisgoBinder != null )
@@ -364,6 +363,8 @@ public class ChatActivity extends Activity
     protected void onStop()
     {
         super.onStop();
+        
+        EasyTracker.getInstance(this).activityStop(this);
 
         Notifications.setOnForeground(getApplicationContext(), false);
         if ( mFisgoBinder != null )

@@ -26,6 +26,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 /**
  * Activity which displays a login screen to the user, offering registration as
  * well.
@@ -86,11 +88,19 @@ public class LoginActivity extends Activity
         startService(intent);
         bindService(intent, mServiceConn, BIND_AUTO_CREATE);
     }
+    
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        EasyTracker.getInstance(this).activityStart(this);
+    }
 
     @Override
     protected void onStop()
     {
         super.onStop();
+        EasyTracker.getInstance(this).activityStop(this);
         unbindService(mServiceConn);
     }
 
