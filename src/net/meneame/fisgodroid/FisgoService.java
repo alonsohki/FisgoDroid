@@ -9,8 +9,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +21,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -44,7 +49,6 @@ public class FisgoService extends Service
     private static final String GET_USER_INFO_URL = "http://www.meneame.net/backend/get_user_info.php";
 
     private FisgoBinder mBinder = new FisgoBinder();
-    private Thread mThread = null;
     private boolean mIsLoggedIn = false;
     private boolean mIsAdmin = false;
     private IHttpService mHttp = new HttpService();
@@ -60,8 +64,12 @@ public class FisgoService extends Service
     private int mTimeToWait = 5000;
     private int mTimeToWaitWhenFailed = 10000;
     private int mTimeToWaitWhenOnBackground = 15000;
+    private int mDelayBetweenMessages = 5000;
     private boolean mIsOnForeground = false;
     private BroadcastReceiver mConnectivityReceiver;
+    private AlarmManager mAlarmManager;
+    private PendingIntent mPendingIntent;
+    private Executor mExecutor;
 
     @Override
     public void onCreate()
@@ -69,6 +77,9 @@ public class FisgoService extends Service
         mTimeToWait = getResources().getInteger(R.integer.time_to_wait);
         mTimeToWaitWhenFailed = getResources().getInteger(R.integer.time_to_wait_when_failed);
         mTimeToWaitWhenOnBackground = getResources().getInteger(R.integer.time_to_wait_when_on_background);
+        mDelayBetweenMessages = getResources().getInteger(R.integer.time_between_messages) * 1000 + 500;
+
+        mExecutor = Executors.newSingleThreadExecutor();
 
         // Register a BroadcastReceiver to detect connectivity changes
         final IntentFilter connectivityIntentFilter = new IntentFilter();
@@ -83,172 +94,200 @@ public class FisgoService extends Service
         };
         registerReceiver(mConnectivityReceiver, connectivityIntentFilter);
 
-        // Create the main thread that will keep polling the server
-        mThread = new Thread(new Runnable()
+        // Setup the alarm stuff
+        Intent intent = new Intent(this, FisgoScheduler.class);
+        mPendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        reschedule(0);
+    }
+    
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        final boolean doReschedule = intent.getBooleanExtra("reschedule", false);
+        if (doReschedule) {
+            final int delay = intent.getIntExtra("rescheduleDelay", 0);
+            reschedule(delay);
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    public void reschedule(final int delay)
+    {
+        mExecutor.execute(new Runnable()
         {
             @Override
             public void run()
             {
-                final ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-                synchronized (mHttp)
+                mAlarmManager.cancel(mPendingIntent);
+                if ( delay == 0 )
                 {
-                    while (true)
-                    {
-                        try
-                        {
-                            if ( !mIsLoggedIn )
-                            {
-                                clearSession();
-                                mHttp.wait();
-                            }
-
-                            final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-                            boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
-                            if ( !isConnected )
-                            {
-                                mHttp.wait();
-                            }
-
-                            boolean failed = false;
-                            ByteArrayOutputStream result = new ByteArrayOutputStream();
-                            boolean containsChat = mOutgoingMessages.size() > 0;
-
-                            if ( containsChat )
-                            {
-                                Map<String, Object> params = new HashMap<String, Object>();
-
-                                params.put("k", mMyKey);
-                                params.put("v", 5);
-                                params.put("r", ++mNumRequests);
-                                params.put("chat", mOutgoingMessages.get(0));
-                                params.put("nopost", 1);
-                                params.put("novote", 1);
-                                params.put("noproblem", 1);
-                                params.put("nocomment", 1);
-                                params.put("nonew", 1);
-                                params.put("nopublished", 1);
-                                params.put("nopubvotes", 1);
-
-                                // Request the appropiate chat type
-                                if ( mType == ChatType.FRIENDS )
-                                    params.put("friends", 1);
-                                else if ( mType == ChatType.ADMIN )
-                                    params.put("admin", 1);
-
-                                if ( mLastMessageTime.equals("") == false )
-                                    params.put("time", mLastMessageTime);
-
-                                failed = !mHttp.post(SNEAK_BACKEND_URL, params, result);
-
-                                if ( !failed && result.size() > 0 )
-                                    mOutgoingMessages.remove(0);
-                            }
-                            else
-                            {
-                                // Build the request parameters
-                                String uri = SNEAK_BACKEND_URL + "?nopost=1&novote=1&noproblem=1&nocomment=1" + "&nonew=1&nopublished=1&nopubvotes=1&v=5&r=" + (++mNumRequests);
-                                // If we have previous messages, get only the
-                                // new ones
-                                if ( mLastMessageTime.equals("") == false )
-                                {
-                                    uri += "&time=" + mLastMessageTime;
-                                }
-
-                                // Request the appropiate chat type
-                                if ( mType == ChatType.FRIENDS )
-                                    uri += "&friends=1";
-                                else if ( mType == ChatType.ADMIN )
-                                    uri += "&admin=1";
-
-                                failed = !mHttp.get(uri, result);
-                            }
-
-                            // Get the response JSON value and construct the
-                            // chat messages from it
-                            if ( result.size() > 0 )
-                            {
-                                JSONObject root = new JSONObject(result.toString("UTF-8"));
-                                final boolean isFirstRequest = mLastMessageTime.equals("");
-                                mLastMessageTime = root.getString("ts");
-
-                                JSONArray events = root.getJSONArray("events");
-                                if ( events.length() > 0 )
-                                {
-                                    // Create a new list with the new messages
-                                    List<ChatMessage> newList = new ArrayList<ChatMessage>();
-                                    for (int i = 0; i < events.length(); ++i)
-                                    {
-                                        JSONObject event = events.getJSONObject(i);
-                                        String icon = event.getString("icon");
-                                        String title = event.getString("title");
-                                        int ts = event.getInt("ts");
-                                        String status = event.getString("status");
-                                        String who = event.getString("who");
-                                        String userid = event.getString("uid");
-
-                                        // Remove the escaped slashes from the
-                                        // icon path
-                                        icon = icon.replace("\\/", "/");
-
-                                        // Parse the date
-                                        Date when = new Date(ts * 1000L);
-
-                                        // Construct the message and add it to
-                                        // the message list
-                                        ChatType type = ChatType.PUBLIC;
-                                        if ( status.equals("amigo") )
-                                            type = ChatType.FRIENDS;
-                                        else if ( status.equals("admin") )
-                                            type = ChatType.ADMIN;
-                                        ChatMessage msg = new ChatMessage(when, who, userid, title, type, icon);
-                                        newList.add(msg);
-
-                                        // Send a notification if they mentioned
-                                        // us
-                                        String lowercaseMsg = msg.getMessage().toLowerCase();
-                                        boolean notify = lowercaseMsg.contains(mUsername.toLowerCase()) || (mIsAdmin && lowercaseMsg.contains("admin"));
-                                        if ( !isFirstRequest && notify )
-                                        {
-                                            Notifications.theyMentionedMe(FisgoService.this, msg);
-                                        }
-                                    }
-
-                                    // Append all the previous messages
-                                    newList.addAll(mMessages);
-                                    mMessages = newList;
-
-                                    // Notify the handlers
-                                    notifyHandlers();
-                                }
-                            }
-
-                            // Make a small delay to poll again
-                            if ( failed )
-                            {
-                                mHttp.wait(mTimeToWaitWhenFailed);
-                            }
-                            else if ( mOutgoingMessages.size() == 0 )
-                            {
-                                mHttp.wait(mIsOnForeground ? mTimeToWait : mTimeToWaitWhenOnBackground);
-                            }
-                        }
-                        catch (InterruptedException e)
-                        {
-                        }
-                        catch (JSONException e)
-                        {
-                            e.printStackTrace();
-                        }
-                        catch (UnsupportedEncodingException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
+                    doPulse();
+                }
+                else
+                {
+                    mAlarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delay, mPendingIntent);
                 }
             }
         });
-        mThread.start();
+    }
+
+    private void doPulse()
+    {
+        final ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        int delayForNextPulse = mIsOnForeground ? mTimeToWait : mTimeToWaitWhenOnBackground;
+
+        try
+        {
+            if ( !mIsLoggedIn )
+            {
+                clearSession();
+                return;
+            }
+
+            final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
+            if ( !isConnected )
+            {
+                return;
+            }
+
+            boolean failed = false;
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+            boolean containsChat = mOutgoingMessages.size() > 0;
+
+            if ( containsChat )
+            {
+                Map<String, Object> params = new HashMap<String, Object>();
+
+                params.put("k", mMyKey);
+                params.put("v", 5);
+                params.put("r", ++mNumRequests);
+                params.put("chat", mOutgoingMessages.get(0));
+                params.put("nopost", 1);
+                params.put("novote", 1);
+                params.put("noproblem", 1);
+                params.put("nocomment", 1);
+                params.put("nonew", 1);
+                params.put("nopublished", 1);
+                params.put("nopubvotes", 1);
+
+                // Request the appropiate chat type
+                if ( mType == ChatType.FRIENDS )
+                    params.put("friends", 1);
+                else if ( mType == ChatType.ADMIN )
+                    params.put("admin", 1);
+
+                if ( mLastMessageTime.equals("") == false )
+                    params.put("time", mLastMessageTime);
+
+                failed = !mHttp.post(SNEAK_BACKEND_URL, params, result);
+
+                if ( !failed && result.size() > 0 )
+                    mOutgoingMessages.remove(0);
+            }
+            else
+            {
+                // Build the request parameters
+                String uri = SNEAK_BACKEND_URL + "?nopost=1&novote=1&noproblem=1&nocomment=1" + "&nonew=1&nopublished=1&nopubvotes=1&v=5&r=" + (++mNumRequests);
+                // If we have previous messages, get only the
+                // new ones
+                if ( mLastMessageTime.equals("") == false )
+                {
+                    uri += "&time=" + mLastMessageTime;
+                }
+
+                // Request the appropiate chat type
+                if ( mType == ChatType.FRIENDS )
+                    uri += "&friends=1";
+                else if ( mType == ChatType.ADMIN )
+                    uri += "&admin=1";
+
+                failed = !mHttp.get(uri, result);
+            }
+
+            // Get the response JSON value and construct the
+            // chat messages from it
+            if ( result.size() > 0 )
+            {
+                JSONObject root = new JSONObject(result.toString("UTF-8"));
+                final boolean isFirstRequest = mLastMessageTime.equals("");
+                mLastMessageTime = root.getString("ts");
+
+                JSONArray events = root.getJSONArray("events");
+                if ( events.length() > 0 )
+                {
+                    // Create a new list with the new messages
+                    List<ChatMessage> newList = new ArrayList<ChatMessage>();
+                    for (int i = 0; i < events.length(); ++i)
+                    {
+                        JSONObject event = events.getJSONObject(i);
+                        String icon = event.getString("icon");
+                        String title = event.getString("title");
+                        int ts = event.getInt("ts");
+                        String status = event.getString("status");
+                        String who = event.getString("who");
+                        String userid = event.getString("uid");
+
+                        // Remove the escaped slashes from the
+                        // icon path
+                        icon = icon.replace("\\/", "/");
+
+                        // Parse the date
+                        Date when = new Date(ts * 1000L);
+
+                        // Construct the message and add it to
+                        // the message list
+                        ChatType type = ChatType.PUBLIC;
+                        if ( status.equals("amigo") )
+                            type = ChatType.FRIENDS;
+                        else if ( status.equals("admin") )
+                            type = ChatType.ADMIN;
+                        ChatMessage msg = new ChatMessage(when, who, userid, title, type, icon);
+                        newList.add(msg);
+
+                        // Send a notification if they mentioned us
+                        final Locale locale = getResources().getConfiguration().locale;
+                        String lowercaseMsg = msg.getMessage().toLowerCase(locale);
+                        boolean notify = lowercaseMsg.contains(mUsername.toLowerCase(locale));
+                        notify = notify || (mIsAdmin && lowercaseMsg.contains("admin"));
+                        if ( !isFirstRequest && notify )
+                        {
+                            Notifications.theyMentionedMe(FisgoService.this, msg);
+                        }
+                    }
+
+                    // Append all the previous messages
+                    newList.addAll(mMessages);
+                    mMessages = newList;
+
+                    // Notify the handlers
+                    notifyHandlers();
+                }
+            }
+
+            // Make a small delay to poll again
+            if ( failed )
+            {
+                delayForNextPulse = mTimeToWaitWhenFailed;
+            }
+            else if ( mOutgoingMessages.size() > 0 )
+            {
+                delayForNextPulse = mDelayBetweenMessages;
+            }
+        }
+
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+        }
+
+        reschedule(delayForNextPulse);
     }
 
     @Override
@@ -280,10 +319,7 @@ public class FisgoService extends Service
     public void wakeUp()
     {
         Log.i(TAG, "Waking up FisgoService");
-        synchronized (mHttp)
-        {
-            mHttp.notify();
-        }
+        reschedule(0);
     }
 
     @Override
@@ -303,6 +339,11 @@ public class FisgoService extends Service
         private final Pattern mBasekeyPattern = Pattern.compile("base_key=\"([^\"]+)\"");
         private final Pattern mFriendPattern = Pattern.compile("<div class=\"friends-item\"><a href=\"\\/user\\/([^\"]+)\"");
 
+        public void doPulse()
+        {
+            reschedule(0);
+        }
+
         public boolean isAdmin()
         {
             return mIsAdmin;
@@ -317,7 +358,7 @@ public class FisgoService extends Service
         {
             mIsLoggedIn = false;
             clearSession();
-            mThread.interrupt();
+            reschedule(0);
         }
 
         public LoginStatus logIn(String username, String password)
@@ -398,7 +439,7 @@ public class FisgoService extends Service
                 Notifications.startOnForeground(FisgoService.this);
             }
 
-            mThread.interrupt();
+            reschedule(0);
 
             return mIsLoggedIn ? LoginStatus.OK : LoginStatus.INVALID_PASSWORD;
         }
@@ -439,7 +480,7 @@ public class FisgoService extends Service
             if ( mIsLoggedIn )
             {
                 mOutgoingMessages.add(msg);
-                mThread.interrupt();
+                reschedule(0);
             }
         }
 
@@ -448,12 +489,9 @@ public class FisgoService extends Service
             if ( type != mType )
             {
                 // Set the new chat type, and reset all the message lists
-                synchronized (mHttp)
-                {
-                    mType = type;
-                    clearSession();
-                    mThread.interrupt();
-                }
+                mType = type;
+                clearSession();
+                reschedule(0);
             }
         }
 
@@ -461,24 +499,21 @@ public class FisgoService extends Service
         {
             String url = null;
 
-            synchronized (mHttp)
+            String result = mHttp.postData(UPLOAD_URL, data, progressUpdater);
+            if ( result.equals("") == false )
             {
-                String result = mHttp.postData(UPLOAD_URL, data, progressUpdater);
-                if ( result.equals("") == false )
+                JSONObject root;
+                try
                 {
-                    JSONObject root;
-                    try
+                    root = new JSONObject(result);
+                    if ( root.has("url") )
                     {
-                        root = new JSONObject(result);
-                        if ( root.has("url") )
-                        {
-                            url = root.getString("url").replace("\\/", "/");
-                        }
+                        url = root.getString("url").replace("\\/", "/");
                     }
-                    catch (JSONException e)
-                    {
-                        e.printStackTrace();
-                    }
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
                 }
             }
 
@@ -508,8 +543,9 @@ public class FisgoService extends Service
 
             return status;
         }
-        
-        public String getUserInfo(String userid) {
+
+        public String getUserInfo(String userid)
+        {
             String url = GET_USER_INFO_URL + "?id=" + userid;
             return mHttp.get(url);
         }

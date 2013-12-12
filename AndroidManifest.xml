@@ -52,6 +52,8 @@
         </activity>
         <activity android:name="net.meneame.fisgodroid.SettingsActivity" >
         </activity>
+        
+        <receiver android:name="net.meneame.fisgodroid.FisgoScheduler" />
     </application>
 
 </manifest>
