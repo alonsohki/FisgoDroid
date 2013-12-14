@@ -15,15 +15,6 @@
         android:background="@drawable/action_bar_displayer"
         android:clickable="true" />
 
-    <ProgressBar
-        android:id="@+id/camera_progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:indeterminate="false"
-        android:max="100"
-        android:visibility="gone" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -58,6 +49,15 @@
         android:layout_height="1dp"
         android:background="@color/meneame_light" />
 
+    <ProgressBar
+        android:id="@+id/camera_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:indeterminate="false"
+        android:max="100"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/input_bar"
         android:layout_width="match_parent"
@@ -91,8 +91,6 @@
             android:inputType="text"
             android:maxLength="230"
             android:paddingRight="10dp" >
-
-            <requestFocus />
         </EditText>
 
         <ImageButton
