@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -38,7 +39,7 @@ public class LoginActivity extends ActionBarActivity
     private static final String PREFS_NAME = "FisgoDroid";
     private static final String PREF_USERNAME = "username";
     private static final String PREF_PASSWORD = "password";
-    
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -65,7 +66,7 @@ public class LoginActivity extends ActionBarActivity
         public void onServiceConnected(ComponentName arg0, IBinder binder)
         {
             mFisgoBinder = (FisgoService.FisgoBinder) binder;
-            if (mFisgoBinder.isLoggedIn() == true)
+            if ( mFisgoBinder.isLoggedIn() == true )
             {
                 goToChat();
             }
@@ -81,13 +82,13 @@ public class LoginActivity extends ActionBarActivity
     protected void onResume()
     {
         super.onResume();
-        
+
         // Start and bind the chat service
         Intent intent = new Intent(this, FisgoService.class);
         startService(intent);
         bindService(intent, mServiceConn, BIND_AUTO_CREATE);
     }
-    
+
     @Override
     protected void onStart()
     {
@@ -113,14 +114,14 @@ public class LoginActivity extends ActionBarActivity
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.chat_username);
         mPasswordView = (EditText) findViewById(R.id.password);
-        mRememberMeCheckbox = (CheckBox)findViewById(R.id.checkbox_remember_me);
-        
+        mRememberMeCheckbox = (CheckBox) findViewById(R.id.checkbox_remember_me);
+
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener()
         {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent)
             {
-                if (id == R.id.login || id == EditorInfo.IME_NULL)
+                if ( id == R.id.login || id == EditorInfo.IME_NULL )
                 {
                     attemptLogin();
                     return true;
@@ -128,10 +129,9 @@ public class LoginActivity extends ActionBarActivity
                 return false;
             }
         });
-        
-        
+
         // Restore remembered username / password
-        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);   
+        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String username = pref.getString(PREF_USERNAME, null);
         String password = pref.getString(PREF_PASSWORD, null);
         if ( username != null && password != null )
@@ -140,7 +140,6 @@ public class LoginActivity extends ActionBarActivity
             mPasswordView.setText(password);
             mRememberMeCheckbox.setChecked(true);
         }
-
 
         mLoginFormView = findViewById(R.id.login_form);
         mLoginStatusView = findViewById(R.id.login_status);
@@ -154,8 +153,7 @@ public class LoginActivity extends ActionBarActivity
                 attemptLogin();
             }
         });
-        
-        
+
         // Handle clicks on the "Remember me" checkbox to
         // forget credentials when disabling it.
         mRememberMeCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener()
@@ -176,7 +174,7 @@ public class LoginActivity extends ActionBarActivity
         getMenuInflater().inflate(R.menu.login, menu);
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -186,7 +184,7 @@ public class LoginActivity extends ActionBarActivity
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
-        
+
         return false;
     }
 
@@ -197,7 +195,7 @@ public class LoginActivity extends ActionBarActivity
      */
     public void attemptLogin()
     {
-        if (mAuthTask != null)
+        if ( mAuthTask != null )
         {
             return;
         }
@@ -215,12 +213,12 @@ public class LoginActivity extends ActionBarActivity
         mUsername = mUsernameView.getText().toString().trim();
         mPassword = mPasswordView.getText().toString().trim();
         mRememberMe = mRememberMeCheckbox.isChecked();
-        
+
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password.
-        if (TextUtils.isEmpty(mPassword))
+        if ( TextUtils.isEmpty(mPassword) )
         {
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
@@ -228,14 +226,14 @@ public class LoginActivity extends ActionBarActivity
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(mUsername))
+        if ( TextUtils.isEmpty(mUsername) )
         {
             mUsernameView.setError(getString(R.string.error_field_required));
             focusView = mUsernameView;
             cancel = true;
         }
 
-        if (cancel)
+        if ( cancel )
         {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -261,7 +259,7 @@ public class LoginActivity extends ActionBarActivity
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2 )
         {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
@@ -284,12 +282,23 @@ public class LoginActivity extends ActionBarActivity
                     mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
-        } else
+        }
+        else
         {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+
+        ActionBar actionBar = getSupportActionBar();
+        if ( show )
+        {
+            actionBar.hide();
+        }
+        else
+        {
+            actionBar.show();
         }
     }
 
@@ -302,14 +311,14 @@ public class LoginActivity extends ActionBarActivity
         @Override
         protected LoginStatus doInBackground(Void... params)
         {
-            if (mFisgoBinder == null)
+            if ( mFisgoBinder == null )
                 return LoginStatus.NETWORK_FAILED;
 
             try
             {
                 return mFisgoBinder.logIn(mUsername, mPassword);
             }
-            catch ( IllegalArgumentException e )
+            catch (IllegalArgumentException e)
             {
                 return LoginStatus.INVALID_USERNAME;
             }
@@ -356,17 +365,14 @@ public class LoginActivity extends ActionBarActivity
             showProgress(false);
         }
     }
-    
-    private void rememberCredentials ( String username, String password )
+
+    private void rememberCredentials(String username, String password)
     {
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        .edit()
-        .putString(PREF_USERNAME, username)
-        .putString(PREF_PASSWORD, password)
-        .commit();
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_USERNAME, username).putString(PREF_PASSWORD, password).commit();
     }
-    
-    private void goToChat() {
+
+    private void goToChat()
+    {
         Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

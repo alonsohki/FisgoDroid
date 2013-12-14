@@ -5,7 +5,6 @@
         android:id="@+id/action_take_picture"
         android:icon="@drawable/camera"
         android:title="@string/action_take_picture"
-        android:actionLayout="@layout/take_picture_layout"
         yourapp:showAsAction="always">
     </item>
     <item
@@ -28,8 +27,8 @@
     </item>
     <item
         android:id="@+id/action_logout"
-        android:title="@string/logout"
         android:icon="@drawable/logout"
+        android:title="@string/logout"
         yourapp:showAsAction="ifRoom">
     </item>
 
