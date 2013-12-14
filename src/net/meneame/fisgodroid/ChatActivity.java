@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -46,7 +47,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -75,7 +75,8 @@ public class ChatActivity extends ActionBarActivity
     private File mCameraTempFile = null;
     private MenuItem mCameraMenuItem;
     private ProgressBar mCameraProgress;
-    private NotificationsIndicatorDrawable mNotificationsDrawable;
+    //private NotificationsIndicatorDrawable mNotificationsDrawable;
+    private View mActionBarDisplayer;
 
     // Create a handler to update the view from the UI thread
     // when the message list changes.
@@ -143,11 +144,11 @@ public class ChatActivity extends ActionBarActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle(R.string.general);
         actionBar.setDisplayHomeAsUpEnabled(false);
-        
+
         Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-        mNotificationsDrawable = new NotificationsIndicatorDrawable(defaultBitmap);
-        mNotificationsDrawable.setNotificationCount(1);
-        //actionBar.setIcon(mNotificationsDrawable);
+        //mNotificationsDrawable = new NotificationsIndicatorDrawable(defaultBitmap);
+        //mNotificationsDrawable.setNotificationCount(1);
+        // actionBar.setIcon(mNotificationsDrawable);
 
         if ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT )
         {
@@ -276,15 +277,16 @@ public class ChatActivity extends ActionBarActivity
         });
 
         // Display the action bar again when they click the shower button
-        findViewById(R.id.action_bar_displayer).setOnClickListener(new OnClickListener()
+        mActionBarDisplayer = findViewById(R.id.action_bar_displayer);
+        mActionBarDisplayer.setOnClickListener(new OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                ActionBar actionBar = getSupportActionBar();
-                actionBar.show();
+                setActionBarVisible(true);
             }
         });
+        setActionBarVisible(true);
 
         // Update the listener in the image upload singleton to restore ongoing
         // uploads
@@ -469,8 +471,7 @@ public class ChatActivity extends ActionBarActivity
         switch (item.getItemId())
         {
         case R.id.action_hide_action_bar:
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.hide();
+            setActionBarVisible(false);
             return true;
 
         case R.id.action_take_picture:
@@ -744,6 +745,36 @@ public class ChatActivity extends ActionBarActivity
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[] {}));
 
         startActivityForResult(chooserIntent, REQUEST_PICTURE);
+    }
+
+    private void setActionBarVisible(boolean visible)
+    {
+        ActionBar actionBar = getSupportActionBar();
+        if ( !visible )
+        {
+            actionBar.hide();
+        }
+        else
+        {
+            actionBar.show();
+        }
+        adjustActionBarPadding(visible);
+    }
+
+    private void adjustActionBarPadding(boolean visible)
+    {
+        if ( !visible )
+        {
+            mMessages.setPadding(mMessages.getPaddingLeft(), 0, mMessages.getPaddingRight(), mMessages.getPaddingBottom());
+        }
+        else
+        {
+            final TypedArray styledAttributes = getTheme().obtainStyledAttributes(new int[] { R.attr.actionBarSize });
+            int actionBarSize = (int) styledAttributes.getDimension(0, 0);
+            styledAttributes.recycle();
+            int paddingTop = actionBarSize - mActionBarDisplayer.getHeight();
+            mMessages.setPadding(mMessages.getPaddingLeft(), paddingTop, mMessages.getPaddingRight(), mMessages.getPaddingBottom());
+        }
     }
 
     private ImageUpload.Listener mImageUploadListener = new ImageUpload.Listener()
