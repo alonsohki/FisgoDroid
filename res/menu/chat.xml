@@ -1,22 +1,36 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:yourapp="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/action_logout"
-        android:orderInCategory="202"
-        android:showAsAction="never"
-        android:title="@string/logout">
-    </item>
-    <item
-        android:id="@+id/action_savelog"
-        android:orderInCategory="201"
-        android:showAsAction="never"
-        android:title="@string/savelog">
+        android:id="@+id/action_take_picture"
+        android:icon="@drawable/camera"
+        android:title="@string/action_take_picture"
+        android:actionLayout="@layout/take_picture_layout"
+        yourapp:showAsAction="always">
     </item>
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="200"
-        android:showAsAction="never"
-        android:title="@string/settings">
+        android:icon="@drawable/settings"
+        android:title="@string/settings"
+        yourapp:showAsAction="always">
+    </item>
+    <item
+        android:id="@+id/action_only_friends"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/action_only_friends"
+        yourapp:showAsAction="never">
+    </item>
+    <item
+        android:id="@+id/action_savelog"
+        android:title="@string/savelog"
+        yourapp:showAsAction="never">
+    </item>
+    <item
+        android:id="@+id/action_logout"
+        android:title="@string/logout"
+        android:icon="@drawable/logout"
+        yourapp:showAsAction="ifRoom">
     </item>
 
 </menu>

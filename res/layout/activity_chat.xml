@@ -1,159 +1,107 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatActivity"
-    tools:ignore="MergeRootFrame" >
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context=".ChatActivity" >
+
+    <ProgressBar
+        android:id="@+id/camera_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:indeterminate="false"
+        android:max="100"
+        android:visibility="gone" />
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <LinearLayout
-            android:id="@+id/chat_type_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <ImageButton
-                android:id="@+id/button_settings"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/settings"
-                android:layout_marginRight="6dp"
-                android:layout_marginLeft="6dp" />
-
-            <Spinner
-                android:id="@+id/chat_spinner"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:orientation="vertical" >
-
-                <ImageButton
-                    android:id="@+id/camera_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center_vertical"
-                    android:background="@android:drawable/ic_menu_camera" />
-
-                <ProgressBar
-                    android:id="@+id/camera_spinner"
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:indeterminate="true"
-                    android:indeterminateOnly="true"
-                    android:visibility="gone" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View
-            android:id="@+id/separator1"
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:layout_below="@id/chat_type_bar"
-            android:layout_margin="0dp"
-            android:background="@android:color/darker_gray"
-            android:padding="0dp" />
-
-        <LinearLayout
-            android:id="@+id/input_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/separator1"
-            android:background="#FFFFFFFF"
-            android:orientation="horizontal"
-            android:padding="2dp" >
-
-            <net.meneame.fisgodroid.ThreeStateChecboxHackView
-                android:id="@+id/checkbox_friends"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="2dp"
-                android:background="@drawable/chat_friend_selector"
-                android:button="@android:color/transparent"
-                android:checked="false"
-                android:textSize="0sp" />
-
-            <EditText
-                android:id="@+id/chat_messagebox"
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="2dp"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:ems="10"
-                android:hint="@string/messagebox_hint"
-                android:imeOptions="actionSend"
-                android:inputType="text"
-                android:maxLength="230"
-                android:paddingRight="10dp" >
-
-                <requestFocus />
-            </EditText>
-
-            <ImageButton
-                android:id="@+id/smileys_button"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:layout_marginRight="8dp"
-                android:background="@drawable/smiley_selector" />
-
-            <ImageButton
-                android:id="@+id/button_send"
-                android:layout_width="32dp"
-                android:layout_height="26dp"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:background="@drawable/send_button_selector" />
-        </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/camera_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:layout_below="@id/input_bar"
-            android:layout_margin="0dp"
-            android:background="@android:color/white"
-            android:indeterminate="false"
-            android:indeterminateOnly="false"
-            android:max="100"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:padding="0dp"
-            android:progress="0" />
+        android:layout_height="0dp"
+        android:layout_weight="1" >
 
         <ListView
             android:id="@+id/chat_messages"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:layout_below="@id/camera_progress"
-            android:layout_weight="1"
-            android:background="#FFFEFA"
-            android:padding="2dp"
-            android:stackFromBottom="false" >
+            android:layout_height="match_parent"
+            android:background="#FFFFFFFF"
+            android:divider="@color/messages_divider"
+            android:dividerHeight="0.5dp"
+            android:stackFromBottom="true"
+            android:transcriptMode="normal" >
         </ListView>
 
         <net.meneame.fisgodroid.SmileyPickerView
             android:id="@+id/smiley_picker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignRight="@id/camera_progress"
-            android:layout_below="@id/camera_progress"
-            android:background="#CF000000" >
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="0dp"
+            android:background="@drawable/smiley_picker_background" >
         </net.meneame.fisgodroid.SmileyPickerView>
     </RelativeLayout>
+
+    <View
+        android:id="@+id/separator1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/meneame_light" />
+
+    <LinearLayout
+        android:id="@+id/input_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:background="#FFF6F6F6"
+        android:orientation="horizontal"
+        android:padding="4dp" >
+
+        <net.meneame.fisgodroid.ThreeStateChecboxHackView
+            android:id="@+id/checkbox_friends"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="2dp"
+            android:background="@drawable/chat_friend_selector"
+            android:button="@android:color/transparent"
+            android:checked="false"
+            android:textSize="0sp" />
+
+        <EditText
+            android:id="@+id/chat_messagebox"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:ems="10"
+            android:hint="@string/messagebox_hint"
+            android:imeOptions="actionSend"
+            android:inputType="text"
+            android:maxLength="230"
+            android:paddingRight="10dp" >
+
+            <requestFocus />
+        </EditText>
+
+        <ImageButton
+            android:id="@+id/smileys_button"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/smiley_selector" />
+
+        <ImageButton
+            android:id="@+id/button_send"
+            android:layout_width="32dp"
+            android:layout_height="26dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:background="@drawable/send_button_selector" />
+    </LinearLayout>
 
 </LinearLayout>

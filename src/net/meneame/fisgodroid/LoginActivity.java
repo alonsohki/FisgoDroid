@@ -3,7 +3,6 @@ package net.meneame.fisgodroid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -32,7 +32,7 @@ import com.google.analytics.tracking.android.EasyTracker;
  * Activity which displays a login screen to the user, offering registration as
  * well.
  */
-public class LoginActivity extends Activity
+public class LoginActivity extends ActionBarActivity
 {
     // Shared preferences settings for remember username/password feature.
     private static final String PREFS_NAME = "FisgoDroid";
@@ -67,8 +67,7 @@ public class LoginActivity extends Activity
             mFisgoBinder = (FisgoService.FisgoBinder) binder;
             if (mFisgoBinder.isLoggedIn() == true)
             {
-                finish();
-                startActivity(new Intent(LoginActivity.this, ChatActivity.class));
+                goToChat();
             }
         }
 
@@ -328,8 +327,7 @@ public class LoginActivity extends Activity
                 {
                     rememberCredentials(mUsername, mPassword);
                 }
-                startActivity(new Intent(LoginActivity.this, ChatActivity.class));
-                finish();
+                goToChat();
             }
             else
             {
@@ -366,5 +364,12 @@ public class LoginActivity extends Activity
         .putString(PREF_USERNAME, username)
         .putString(PREF_PASSWORD, password)
         .commit();
+    }
+    
+    private void goToChat() {
+        Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 }

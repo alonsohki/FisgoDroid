@@ -10,7 +10,6 @@ import java.util.List;
 
 import net.meneame.fisgodroid.SmileyPickerView.OnSmileySelectedListener;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -32,6 +31,8 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -39,21 +40,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
+import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 
-public class ChatActivity extends Activity
+public class ChatActivity extends ActionBarActivity
 {
     // Request codes for activities
     private static final int REQUEST_PICTURE = 1;
@@ -65,12 +63,7 @@ public class ChatActivity extends Activity
     private ThreeStateChecboxHackView mCheckboxFriends;
     private ListView mMessages;
     private EditText mMessagebox;
-    private ImageButton mButtonSettings;
     private ImageButton mSendButton;
-    private ImageButton mCameraButton;
-    private ProgressBar mCameraProgress;
-    private ProgressBar mCameraSpinner;
-    private Spinner mChatSpinner;
     private ImageButton mSmileyButton;
     private SmileyPickerView mSmileyPicker;
     private ChatType mType = ChatType.PUBLIC;
@@ -78,7 +71,8 @@ public class ChatActivity extends Activity
     private ChatMessageAdapter mAdapter;
     private Date mLastMessage = null;
     private File mCameraTempFile = null;
-    private ArrayAdapter<String> mChatSpinnerAdapter = null;
+    private MenuItem mCameraMenuItem;
+    private ProgressBar mCameraProgress;
 
     // Create a handler to update the view from the UI thread
     // when the message list changes.
@@ -113,8 +107,6 @@ public class ChatActivity extends Activity
                 mMessages.setAdapter(mAdapter);
                 mFisgoBinder.addHandler(mHandler);
                 mFisgoBinder.setOnForeground(true);
-                if ( mChatSpinnerAdapter != null )
-                    mChatSpinnerAdapter.notifyDataSetChanged();
                 if ( mCheckboxFriends != null )
                 {
                     Drawable whipDrawable = getResources().getDrawable(R.drawable.ic_whip);
@@ -129,49 +121,34 @@ public class ChatActivity extends Activity
         }
     };
 
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    private void showSettingsButtonIfRequired()
+    @Override
+    protected void onResume()
     {
-        // Hide the settings button if we have a HW button.
-        // boolean hasMenuKey =
-        // ViewConfiguration.get(this).hasPermanentMenuKey();
-        // if (!hasMenuKey) {
-        // mButtonSettings.setVisibility(View.VISIBLE);
-        // }
+        super.onResume();
+
+        // Avoid the edit field auto-gaining focus
+        final View mainLayout = findViewById(R.id.main_layout);
+        mainLayout.requestFocus();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_chat);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(R.string.general);
+        actionBar.setDisplayHomeAsUpEnabled(false);
 
         // Get views
         mCheckboxFriends = (ThreeStateChecboxHackView) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
         mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
-        mButtonSettings = (ImageButton) findViewById(R.id.button_settings);
         mSendButton = (ImageButton) findViewById(R.id.button_send);
-        mCameraButton = (ImageButton) findViewById(R.id.camera_button);
-        mCameraProgress = (ProgressBar) findViewById(R.id.camera_progress);
-        mCameraSpinner = (ProgressBar) findViewById(R.id.camera_spinner);
-        mChatSpinner = (Spinner) findViewById(R.id.chat_spinner);
         mSmileyButton = (ImageButton) findViewById(R.id.smileys_button);
         mSmileyPicker = (SmileyPickerView) findViewById(R.id.smiley_picker);
-
-        mButtonSettings.setOnClickListener(new OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                openOptionsMenu();
-            }
-        });
-        // mButtonSettings.setVisibility(View.GONE);
-        showSettingsButtonIfRequired();
+        mCameraProgress = (ProgressBar) findViewById(R.id.camera_progress);
 
         // Restore stuff from shared prefs
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -239,51 +216,17 @@ public class ChatActivity extends Activity
             }
         });
 
-        // Set the different types of chat options
-        mChatSpinnerAdapter = new ArrayAdapter<String>(this, R.layout.chat_spinner_item)
+        // Close the keyboard when clicking outside the edit box
+        mMessagebox.setOnFocusChangeListener(new OnFocusChangeListener()
         {
             @Override
-            public int getCount()
+            public void onFocusChange(View v, boolean hasFocus)
             {
-                return ChatType.values().length - ((mFisgoBinder != null && mFisgoBinder.isAdmin()) ? 0 : 1);
-            }
-
-            @Override
-            public String getItem(int position)
-            {
-                int stringId = -1;
-                switch (ChatType.values()[position])
+                if ( !hasFocus )
                 {
-                case PUBLIC:
-                    stringId = R.string.general;
-                    break;
-                case FRIENDS:
-                    stringId = R.string.friends;
-                    break;
-                case ADMIN:
-                    stringId = R.string.admin;
-                    break;
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
-
-                if ( stringId != -1 )
-                    return getResources().getString(stringId);
-                return "";
-            }
-        };
-        mChatSpinner.setAdapter(mChatSpinnerAdapter);
-        mChatSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-        {
-
-            @Override
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long arg3)
-            {
-                setType(ChatType.values()[position]);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0)
-            {
-                setType(ChatType.PUBLIC);
             }
         });
 
@@ -319,16 +262,6 @@ public class ChatActivity extends Activity
             }
         });
 
-        // Send an intent to pick an image when they tap the camera button
-        mCameraButton.setOnClickListener(new OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                takePicture();
-            }
-        });
-
         ImageUpload.updateListener(mImageUploadListener);
     }
 
@@ -349,7 +282,7 @@ public class ChatActivity extends Activity
     protected void onStart()
     {
         super.onStart();
-        
+
         EasyTracker.getInstance(this).activityStart(this);
 
         Notifications.setOnForeground(getApplicationContext(), true);
@@ -363,7 +296,7 @@ public class ChatActivity extends Activity
     protected void onStop()
     {
         super.onStop();
-        
+
         EasyTracker.getInstance(this).activityStop(this);
 
         Notifications.setOnForeground(getApplicationContext(), false);
@@ -499,6 +432,7 @@ public class ChatActivity extends Activity
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.chat, menu);
+        mCameraMenuItem = menu.findItem(R.id.action_take_picture);
         return true;
     }
 
@@ -507,6 +441,10 @@ public class ChatActivity extends Activity
     {
         switch (item.getItemId())
         {
+        case R.id.action_take_picture:
+            takePicture();
+            return true;
+            
         case R.id.action_settings:
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
@@ -517,13 +455,20 @@ public class ChatActivity extends Activity
             finish();
             startActivity(new Intent(this, LoginActivity.class));
             return true;
+
         case R.id.action_savelog:
             LogSaver saver = new LogSaver(getApplicationContext(), mFisgoBinder.getMessages());
             saver.save();
             return true;
+
+        case R.id.action_only_friends:
+            boolean checked = item.isChecked();
+            item.setChecked(!checked);
+            setType(!checked ? ChatType.FRIENDS : ChatType.PUBLIC);
+            return true;
         }
 
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
     private void sendChat()
@@ -607,23 +552,30 @@ public class ChatActivity extends Activity
 
     public void setType(ChatType type)
     {
-        // This might seem a weird way to do this, but this way
-        // we avoid an infinite recursion from setSelection
-        // calling the spinner handler, and calling this function
-        // back.
-        if ( type != mType && mChatSpinner != null )
-        {
-            mType = type;
-            mChatSpinner.setSelection(type.ordinal(), false);
-        }
-
         mType = type;
-
         if ( mCheckboxFriends != null )
             mCheckboxFriends.setVisibility(type == ChatType.PUBLIC ? View.VISIBLE : View.GONE);
 
         if ( mFisgoBinder != null )
             mFisgoBinder.setType(mType);
+
+        // Update the action bar title
+        ActionBar actionBar = getSupportActionBar();
+        switch (mType)
+        {
+        case PUBLIC:
+            actionBar.setTitle(R.string.general);
+            break;
+        case FRIENDS:
+            actionBar.setTitle(R.string.friends);
+            break;
+        case ADMIN:
+            actionBar.setTitle(R.string.admin);
+            break;
+
+        default:
+            break;
+        }
     }
 
     public void updateMessages(List<ChatMessage> messages)
@@ -767,6 +719,7 @@ public class ChatActivity extends Activity
         @Override
         public void onProgressUpdate(float progress)
         {
+            mCameraProgress.setIndeterminate(false);
             mCameraProgress.setMax(100);
             mCameraProgress.setProgress((int) (100 * progress));
         }
@@ -775,9 +728,9 @@ public class ChatActivity extends Activity
         public void onFinished(String url)
         {
             // Restore the camera button
-            mCameraButton.setVisibility(View.VISIBLE);
-            mCameraSpinner.setVisibility(View.GONE);
             mCameraProgress.setProgress(0);
+            mCameraProgress.setVisibility(View.GONE);
+            mCameraMenuItem.setEnabled(true);
 
             // Did everything go ok?
             if ( url != null )
@@ -790,9 +743,10 @@ public class ChatActivity extends Activity
         public void onStart()
         {
             // Hide the camera button and display a progress bar
-            mCameraButton.setVisibility(View.GONE);
-            mCameraSpinner.setVisibility(View.VISIBLE);
+            mCameraMenuItem.setEnabled(false);
             mCameraProgress.setProgress(0);
+            mCameraProgress.setIndeterminate(true);
+            mCameraProgress.setVisibility(View.VISIBLE);
         }
     };
 }

@@ -3,6 +3,7 @@ package net.meneame.fisgodroid;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -46,7 +47,7 @@ public class ChatMessageAdapter extends BaseAdapter
     @Override
     public Object getItem(int position)
     {
-        return mMessages.get(position);
+        return mMessages.get(getCount() - position - 1);
     }
 
     @Override

@@ -3,4 +3,7 @@
 	<color name="text_chat_general">#9b0000</color>
 	<color name="text_chat_friends">#255c25</color>
 	<color name="text_chat_admin">#f00000</color>
+	<color name="meneame">#ff8000</color>
+	<color name="meneame_light">#ffa000</color>
+	<color name="messages_divider">#30ffa000</color>
 </resources>

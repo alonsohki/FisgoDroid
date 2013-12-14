@@ -1,5 +1,7 @@
 package net.meneame.fisgodroid;
 
+import java.util.List;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -17,8 +19,6 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 
-import java.util.List;
-
 import com.google.analytics.tracking.android.EasyTracker;
 
 /**
@@ -34,6 +34,20 @@ import com.google.analytics.tracking.android.EasyTracker;
  */
 public class SettingsActivity extends PreferenceActivity
 {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        overridePendingTransition(R.anim.anim_settings_in, R.anim.anim_fade_out);
+    }
+    
+    @Override
+    public void finish() {
+        super.finish();
+        
+        overridePendingTransition(R.anim.anim_fade_in, R.anim.anim_settings_out);
+    }
+    
     @Override
     protected void onStart() {
         super.onStart();

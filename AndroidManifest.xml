@@ -25,6 +25,7 @@
         <activity
             android:name="net.meneame.fisgodroid.LoginActivity"
             android:label="@string/title_activity_login"
+            android:theme="@style/MeneameTheme"
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,7 +40,8 @@
 
         <activity
             android:name="net.meneame.fisgodroid.ChatActivity"
-            android:label="@string/title_activity_chat" >
+            android:label="@string/title_activity_chat"
+            android:theme="@style/MeneameTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".LoginActivity" />
@@ -51,9 +53,12 @@
             android:name="net.meneame.fisgodroid.ProfileActivity"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
-        <activity android:name="net.meneame.fisgodroid.SettingsActivity" >
-        </activity>
         
+        <activity
+            android:name="net.meneame.fisgodroid.SettingsActivity"
+            android:theme="@style/MeneameTheme" >
+        </activity>
+
         <receiver android:name="net.meneame.fisgodroid.FisgoScheduler" />
     </application>
 

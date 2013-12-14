@@ -24,4 +24,21 @@
         <item name="android:padding">16dp</item>
     </style>
 
+    <!-- the theme applied to the application or activity -->
+    <style name="MeneameTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/MeneameActionBar</item>
+        <item name="actionDropDownStyle">@style/DropDownNav.MeneameTheme</item>
+    </style>
+
+    <!-- ActionBar styles -->
+    <style name="MeneameActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/actionbar_background</item>
+        <item name="background">@drawable/actionbar_background</item>
+    </style>
+
+    <style name="DropDownNav.MeneameTheme" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
+        <item name="android:background">@color/meneame</item>
+        <item name="android:popupBackground">@color/meneame</item>
+    </style>
+
 </resources>
