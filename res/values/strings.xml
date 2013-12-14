@@ -28,4 +28,5 @@
     <string name="hello_world">Hello world!</string>
 	<string name="action_take_picture">Take picture</string>
 	<string name="action_only_friends">Only friends chat</string>
+	<string name="hide_action_bar">Hide action bar</string>
 </resources>

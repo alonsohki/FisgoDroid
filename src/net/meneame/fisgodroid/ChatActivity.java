@@ -19,6 +19,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -141,6 +142,11 @@ public class ChatActivity extends ActionBarActivity
         actionBar.setTitle(R.string.general);
         actionBar.setDisplayHomeAsUpEnabled(false);
 
+        if ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT )
+        {
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
+
         // Get views
         mCheckboxFriends = (ThreeStateChecboxHackView) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
@@ -262,6 +268,20 @@ public class ChatActivity extends ActionBarActivity
             }
         });
 
+        // Display the action bar again when they click the shower button
+        findViewById(R.id.action_bar_displayer).setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                ActionBar actionBar = getSupportActionBar();
+                actionBar.show();
+            }
+        });
+
+        // Update the listener in the image upload singleton to restore ongoing
+        // uploads
+        // after device rotation refresh.
         ImageUpload.updateListener(mImageUploadListener);
     }
 
@@ -441,10 +461,15 @@ public class ChatActivity extends ActionBarActivity
     {
         switch (item.getItemId())
         {
+        case R.id.action_hide_action_bar:
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.hide();
+            return true;
+
         case R.id.action_take_picture:
             takePicture();
             return true;
-            
+
         case R.id.action_settings:
             startActivity(new Intent(this, SettingsActivity.class));
             return true;

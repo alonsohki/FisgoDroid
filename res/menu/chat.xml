@@ -2,6 +2,11 @@
     xmlns:yourapp="http://schemas.android.com/apk/res-auto" >
 
     <item
+        android:id="@+id/action_hide_action_bar"
+        android:icon="@drawable/ic_hide_action_bar"
+        yourapp:showAsAction="always"
+        android:title="@string/hide_action_bar"/>
+    <item
         android:id="@+id/action_take_picture"
         android:icon="@drawable/camera"
         android:title="@string/action_take_picture"
@@ -10,8 +15,9 @@
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/settings"
+        
         android:title="@string/settings"
-        yourapp:showAsAction="always">
+        yourapp:showAsAction="ifRoom">
     </item>
     <item
         android:id="@+id/action_only_friends"
@@ -29,7 +35,7 @@
         android:id="@+id/action_logout"
         android:icon="@drawable/logout"
         android:title="@string/logout"
-        yourapp:showAsAction="ifRoom">
+        yourapp:showAsAction="always">
     </item>
 
 </menu>

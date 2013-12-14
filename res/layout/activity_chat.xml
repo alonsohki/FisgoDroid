@@ -8,6 +8,13 @@
     android:orientation="vertical"
     tools:context=".ChatActivity" >
 
+    <View
+        android:id="@+id/action_bar_displayer"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@drawable/action_bar_displayer"
+        android:clickable="true" />
+
     <ProgressBar
         android:id="@+id/camera_progress"
         style="?android:attr/progressBarStyleHorizontal"
