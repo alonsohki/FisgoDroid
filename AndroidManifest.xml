@@ -25,7 +25,7 @@
         <activity
             android:name="net.meneame.fisgodroid.LoginActivity"
             android:label="@string/title_activity_login"
-            android:theme="@style/MeneameTheme"
+            android:theme="@style/MeneameTheme.Overlay"
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,7 +41,7 @@
         <activity
             android:name="net.meneame.fisgodroid.ChatActivity"
             android:label="@string/title_activity_chat"
-            android:theme="@style/MeneameTheme" >
+            android:theme="@style/MeneameTheme.Overlay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".LoginActivity" />
