@@ -11,6 +11,7 @@
     <style name="MeneameTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/MeneameActionBar</item>
         <item name="android:actionDropDownStyle">@style/DropDownNav.MeneameTheme</item>
+        <item name="android:windowActionBarOverlay">true</item>
     </style>
 
 </resources>
