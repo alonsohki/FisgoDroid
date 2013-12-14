@@ -24,7 +24,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PointF;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -39,6 +39,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -79,7 +80,7 @@ public class ChatActivity extends ActionBarActivity
     private File mCameraTempFile = null;
     private MenuItem mCameraMenuItem;
     private ProgressBar mCameraProgress;
-    // private NotificationsIndicatorDrawable mNotificationsDrawable;
+    private NotificationsIndicatorDrawable mNotificationsDrawable;
     private View mActionBarDisplayer;
 
     // Create a handler to update the view from the UI thread
@@ -145,21 +146,24 @@ public class ChatActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        // Setup the action bar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle(R.string.general);
         actionBar.setDisplayHomeAsUpEnabled(false);
 
-        Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-        // mNotificationsDrawable = new
-        // NotificationsIndicatorDrawable(defaultBitmap);
-        // mNotificationsDrawable.setNotificationCount(1);
-        // actionBar.setIcon(mNotificationsDrawable);
-
+        // Set the icon drawable to reuse it for notifications
+        final Drawable defaultDrawable = getResources().getDrawable(R.drawable.ic_launcher);
+        final int backgroundColor = getResources().getColor(R.color.meneame_light);
+        mNotificationsDrawable = new NotificationsIndicatorDrawable(Color.RED, backgroundColor, Color.WHITE, defaultDrawable);
+        actionBar.setIcon(mNotificationsDrawable);
+        
+        // Display the title only if we are in landscape mode
         if ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT )
         {
             actionBar.setDisplayShowTitleEnabled(false);
         }
 
+        
         // Get views
         mCheckboxFriends = (ThreeStateChecboxHackView) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
@@ -498,6 +502,7 @@ public class ChatActivity extends ActionBarActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.chat, menu);
         mCameraMenuItem = menu.findItem(R.id.action_take_picture);
+
         return true;
     }
 
@@ -506,6 +511,10 @@ public class ChatActivity extends ActionBarActivity
     {
         switch (item.getItemId())
         {
+        case android.R.id.home:
+            Log.v("A", "Display notifications");
+            return true;
+            
         case R.id.action_hide_action_bar:
             setActionBarVisible(false);
             return true;
@@ -811,6 +820,13 @@ public class ChatActivity extends ActionBarActivity
             int paddingTop = actionBarSize - mActionBarDisplayer.getHeight();
             mMessages.setPadding(mMessages.getPaddingLeft(), paddingTop, mMessages.getPaddingRight(), mMessages.getPaddingBottom());
         }
+    }
+    
+    private void setNotificationCount(int count) {
+        if (count > 0 && count != mNotificationsDrawable.getNotificationCount()) {
+            setActionBarVisible(true);
+        }
+        mNotificationsDrawable.setNotificationCount(count);
     }
 
     private ImageUpload.Listener mImageUploadListener = new ImageUpload.Listener()

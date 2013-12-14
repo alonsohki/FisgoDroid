@@ -101,13 +101,18 @@ public class FisgoService extends Service
 
         reschedule(0);
     }
-    
+
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        final boolean doReschedule = intent.getBooleanExtra("reschedule", false);
-        if (doReschedule) {
-            final int delay = intent.getIntExtra("rescheduleDelay", 0);
-            reschedule(delay);
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        if ( intent != null )
+        {
+            final boolean doReschedule = intent.getBooleanExtra("reschedule", false);
+            if ( doReschedule )
+            {
+                final int delay = intent.getIntExtra("rescheduleDelay", 0);
+                reschedule(delay);
+            }
         }
         return super.onStartCommand(intent, flags, startId);
     }
