@@ -11,7 +11,7 @@
     <View
         android:id="@+id/action_bar_displayer"
         android:layout_width="match_parent"
-        android:layout_height="10dp"
+        android:layout_height="12dp"
         android:background="@drawable/action_bar_displayer"
         android:clickable="true" />
 

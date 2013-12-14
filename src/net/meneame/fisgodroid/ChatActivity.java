@@ -46,6 +46,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -74,6 +75,7 @@ public class ChatActivity extends ActionBarActivity
     private File mCameraTempFile = null;
     private MenuItem mCameraMenuItem;
     private ProgressBar mCameraProgress;
+    private NotificationsIndicatorDrawable mNotificationsDrawable;
 
     // Create a handler to update the view from the UI thread
     // when the message list changes.
@@ -141,6 +143,11 @@ public class ChatActivity extends ActionBarActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle(R.string.general);
         actionBar.setDisplayHomeAsUpEnabled(false);
+        
+        Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        mNotificationsDrawable = new NotificationsIndicatorDrawable(defaultBitmap);
+        mNotificationsDrawable.setNotificationCount(1);
+        //actionBar.setIcon(mNotificationsDrawable);
 
         if ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT )
         {

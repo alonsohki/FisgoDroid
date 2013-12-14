@@ -9,9 +9,6 @@
         android:width="1dp"
         android:color="@color/meneame" />
 
-    <gradient
-        android:angle="90"
-        android:endColor="@color/meneame"
-        android:startColor="@color/meneame_light" />
+    <solid android:color="@color/meneame_light" />
 
 </shape>
