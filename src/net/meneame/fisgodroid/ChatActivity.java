@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -33,6 +34,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -40,9 +42,11 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -75,7 +79,7 @@ public class ChatActivity extends ActionBarActivity
     private File mCameraTempFile = null;
     private MenuItem mCameraMenuItem;
     private ProgressBar mCameraProgress;
-    //private NotificationsIndicatorDrawable mNotificationsDrawable;
+    // private NotificationsIndicatorDrawable mNotificationsDrawable;
     private View mActionBarDisplayer;
 
     // Create a handler to update the view from the UI thread
@@ -146,8 +150,9 @@ public class ChatActivity extends ActionBarActivity
         actionBar.setDisplayHomeAsUpEnabled(false);
 
         Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-        //mNotificationsDrawable = new NotificationsIndicatorDrawable(defaultBitmap);
-        //mNotificationsDrawable.setNotificationCount(1);
+        // mNotificationsDrawable = new
+        // NotificationsIndicatorDrawable(defaultBitmap);
+        // mNotificationsDrawable.setNotificationCount(1);
         // actionBar.setIcon(mNotificationsDrawable);
 
         if ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT )
@@ -284,6 +289,37 @@ public class ChatActivity extends ActionBarActivity
             public void onClick(View v)
             {
                 setActionBarVisible(true);
+            }
+        });
+        // Also allow to display it by dragging
+        mActionBarDisplayer.setOnTouchListener(new OnTouchListener()
+        {
+            private float mInitialY = -1.0f;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                final int pointerIndex = MotionEventCompat.getActionIndex(event);
+                switch (event.getAction())
+                {
+                case MotionEvent.ACTION_DOWN:
+                    mInitialY = MotionEventCompat.getY(event, pointerIndex);
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    if ( mInitialY != -1.0f )
+                    {
+                        final float finalY = MotionEventCompat.getY(event, pointerIndex);
+                        if ( (finalY - mInitialY) > 2.0f )
+
+                        {
+                            mInitialY = -1.0f;
+                            setActionBarVisible(true);
+                        }
+                    }
+                    break;
+                }
+                return false;
             }
         });
         setActionBarVisible(true);
