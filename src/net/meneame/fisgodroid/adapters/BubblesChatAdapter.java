@@ -1,9 +1,8 @@
 package net.meneame.fisgodroid.adapters;
 
-import android.content.Context;
 import net.meneame.fisgodroid.ChatBaseView;
 import net.meneame.fisgodroid.ChatBubbleView;
-import net.meneame.fisgodroid.ChatMessageAdapter;
+import android.content.Context;
 
 public class BubblesChatAdapter extends ChatMessageAdapter
 {

@@ -10,6 +10,7 @@ import java.util.List;
 
 import net.meneame.fisgodroid.SmileyPickerView.OnSmileySelectedListener;
 import net.meneame.fisgodroid.adapters.BubblesChatAdapter;
+import net.meneame.fisgodroid.adapters.ChatMessageAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
