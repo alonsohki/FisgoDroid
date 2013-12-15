@@ -44,6 +44,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -159,6 +160,8 @@ public class ChatActivity extends ActionBarActivity
         if (mFisgoBinder != null) {
             updateMessages(mFisgoBinder.getMessages());
         }
+        
+        setActionBarVisible(true);
     }
 
     @Override
@@ -840,14 +843,15 @@ public class ChatActivity extends ActionBarActivity
             final TypedArray styledAttributes = getTheme().obtainStyledAttributes(new int[] { R.attr.actionBarSize });
             int actionBarSize = (int) styledAttributes.getDimension(0, 0);
             styledAttributes.recycle();
-            int paddingTop = actionBarSize - mActionBarDisplayer.getHeight();
+            int displayerHeight = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics());
+            int paddingTop = actionBarSize - displayerHeight;
             mMessages.setPadding(mMessages.getPaddingLeft(), paddingTop, mMessages.getPaddingRight(), mMessages.getPaddingBottom());
         }
     }
 
     private void setNotificationCount(int count)
     {
-        if ( count > 0 && count != mNotificationsDrawable.getNotificationCount() )
+        if ( count > 0 && count > mNotificationsDrawable.getNotificationCount() )
         {
             setActionBarVisible(true);
         }
