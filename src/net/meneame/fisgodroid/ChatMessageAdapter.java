@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-public class ChatMessageAdapter extends BaseAdapter
+public abstract class ChatMessageAdapter extends BaseAdapter
 {
     private List<ChatMessage> mMessages = null;
     private Context mContext;
@@ -55,14 +55,16 @@ public class ChatMessageAdapter extends BaseAdapter
     {
         return getItem(position).hashCode();
     }
+    
+    public abstract ChatBaseView createView(Context context);
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        ChatLineView line = (ChatLineView)convertView;
+        ChatBaseView line = (ChatBaseView)convertView;
         if ( line == null )
         {
-            line = new ChatLineView(mContext);
+            line = createView(mContext);
         }
         ChatMessage chatmsg = (ChatMessage)getItem(position);
         String lowercaseMsg = chatmsg.getMessage().toLowerCase();

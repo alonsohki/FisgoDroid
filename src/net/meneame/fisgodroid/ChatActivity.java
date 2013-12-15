@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.meneame.fisgodroid.SmileyPickerView.OnSmileySelectedListener;
+import net.meneame.fisgodroid.adapters.BubblesChatAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -112,7 +113,7 @@ public class ChatActivity extends ActionBarActivity
             else
             {
                 mFisgoBinder.setType(mType);
-                mAdapter = new ChatMessageAdapter(ChatActivity.this);
+                mAdapter = new BubblesChatAdapter(ChatActivity.this);
                 mMessages.setAdapter(mAdapter);
                 mFisgoBinder.addHandler(mHandler);
                 mFisgoBinder.setOnForeground(true);
