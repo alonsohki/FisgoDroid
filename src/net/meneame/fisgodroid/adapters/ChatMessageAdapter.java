@@ -48,7 +48,7 @@ public abstract class ChatMessageAdapter extends BaseAdapter
     @Override
     public Object getItem(int position)
     {
-        return mMessages.get(getCount() - position - 1);
+        return mMessages.get(position);
     }
 
     @Override

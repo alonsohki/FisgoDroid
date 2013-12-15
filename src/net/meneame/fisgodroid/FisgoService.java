@@ -52,7 +52,7 @@ public class FisgoService extends Service
     private boolean mIsLoggedIn = false;
     private boolean mIsAdmin = false;
     private IHttpService mHttp = new HttpService();
-    private List<ChatMessage> mMessages = new ArrayList<ChatMessage>();
+    private List<ChatMessage> mMessages = new LinkedList<ChatMessage>();
     private List<String> mFriendNames = new ArrayList<String>();
     private String mLastMessageTime = "";
     private String mUsername;
@@ -224,7 +224,7 @@ public class FisgoService extends Service
                 if ( events.length() > 0 )
                 {
                     // Create a new list with the new messages
-                    List<ChatMessage> newList = new ArrayList<ChatMessage>();
+                    List<ChatMessage> newList = new LinkedList<ChatMessage>();
                     for (int i = 0; i < events.length(); ++i)
                     {
                         JSONObject event = events.getJSONObject(i);
@@ -250,7 +250,7 @@ public class FisgoService extends Service
                         else if ( status.equals("admin") )
                             type = ChatType.ADMIN;
                         ChatMessage msg = new ChatMessage(when, who, userid, title, type, icon);
-                        newList.add(msg);
+                        newList.add(0, msg);
 
                         // Send a notification if they mentioned us
                         final Locale locale = getResources().getConfiguration().locale;
@@ -264,7 +264,7 @@ public class FisgoService extends Service
                     }
 
                     // Append all the previous messages
-                    newList.addAll(mMessages);
+                    newList.addAll(0, mMessages);
                     mMessages = newList;
 
                     // Notify the handlers

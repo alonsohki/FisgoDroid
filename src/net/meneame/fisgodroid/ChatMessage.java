@@ -12,6 +12,16 @@ public class ChatMessage
     private String icon;
     private String userid;
 
+    public ChatMessage(ChatMessage copyFrom)
+    {
+        when = copyFrom.when;
+        user = copyFrom.user;
+        message = copyFrom.message;
+        type = copyFrom.type;
+        icon = copyFrom.icon;
+        userid = copyFrom.userid;
+    }
+    
     public ChatMessage(Date when, String user, String userid, String message, ChatType type, String icon)
     {
         setWhen(when);
