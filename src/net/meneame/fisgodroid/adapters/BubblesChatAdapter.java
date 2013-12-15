@@ -11,15 +11,27 @@ import android.util.Log;
 
 public class BubblesChatAdapter extends ChatMessageAdapter
 {
+    boolean mJoinBubbles = true;
+
     public BubblesChatAdapter(Context context)
     {
         super(context);
     }
 
+    public void setJoinBubbles(boolean set)
+    {
+        mJoinBubbles = set;
+    }
+
+    public boolean getJoinBubbles()
+    {
+        return mJoinBubbles;
+    }
+
     @Override
     public void setMessages(List<ChatMessage> messages)
     {
-        if ( messages.size() < 2 )
+        if ( !mJoinBubbles || messages.size() < 2 )
         {
             super.setMessages(messages);
         }
@@ -40,7 +52,8 @@ public class BubblesChatAdapter extends ChatMessageAdapter
                 if ( current.getUserid().equals(previous.getUserid()) && (current.getWhen().getTime() - previous.getWhen().getTime()) < 60000 )
                 {
                     // Join the messages together
-                    if (!cloned) {
+                    if ( !cloned )
+                    {
                         // Clone the last message and replace it in the new list
                         previous = new ChatMessage(previous);
                         newList.remove(newList.size() - 1);

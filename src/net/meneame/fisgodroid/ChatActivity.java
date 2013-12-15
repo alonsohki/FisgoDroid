@@ -11,6 +11,7 @@ import java.util.List;
 import net.meneame.fisgodroid.SmileyPickerView.OnSmileySelectedListener;
 import net.meneame.fisgodroid.adapters.BubblesChatAdapter;
 import net.meneame.fisgodroid.adapters.ChatMessageAdapter;
+import net.meneame.fisgodroid.adapters.LegacyChatAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -35,6 +36,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBar;
@@ -114,8 +116,6 @@ public class ChatActivity extends ActionBarActivity
             else
             {
                 mFisgoBinder.setType(mType);
-                mAdapter = new BubblesChatAdapter(ChatActivity.this);
-                mMessages.setAdapter(mAdapter);
                 mFisgoBinder.addHandler(mHandler);
                 mFisgoBinder.setOnForeground(true);
                 if ( mCheckboxFriends != null )
@@ -123,6 +123,7 @@ public class ChatActivity extends ActionBarActivity
                     Drawable whipDrawable = getResources().getDrawable(R.drawable.ic_whip);
                     mCheckboxFriends.setThirdStateDrawable(mFisgoBinder.isAdmin() ? whipDrawable : null);
                 }
+                updateMessages(mFisgoBinder.getMessages());
             }
         }
 
@@ -140,6 +141,24 @@ public class ChatActivity extends ActionBarActivity
         // Avoid the edit field auto-gaining focus
         final View mainLayout = findViewById(R.id.main_layout);
         mainLayout.requestFocus();
+
+        // Setup the message adapter
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean useBubbles = prefs.getBoolean("chat_enable_bubbles", true);
+        if ( !useBubbles )
+        {
+            mAdapter = new LegacyChatAdapter(this);
+        }
+        else
+        {
+            mAdapter = new BubblesChatAdapter(ChatActivity.this);
+            boolean join = prefs.getBoolean("chat_join_bubbles", true);
+            ((BubblesChatAdapter) mAdapter).setJoinBubbles(join);
+        }
+        mMessages.setAdapter(mAdapter);
+        if (mFisgoBinder != null) {
+            updateMessages(mFisgoBinder.getMessages());
+        }
     }
 
     @Override

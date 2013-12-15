@@ -1,0 +1,14 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="chat_enable_bubbles"
+        android:title="@string/pref_title_enable_chat_bubbles" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:dependency="chat_enable_bubbles"
+        android:key="chat_join_bubbles"
+        android:summary="@string/pref_description_join_chat_bubbles"
+        android:title="@string/pref_title_join_chat_bubbles" />
+
+</PreferenceScreen>

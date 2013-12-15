@@ -5,12 +5,18 @@
     <!-- Strings related to Settings -->
 
 
-    <!-- Example General settings -->
+    <!-- General settings -->
     <string name="pref_header_general">General</string>
     <string name="pref_title_enable_animated_smileys">Enable animated smileys</string>
     <string name="pref_description_enable_animated_smileys">Animates the chat smileys, but it will slow down the application and increase battery usage.</string>
 
-    <!-- Example settings for Notifications -->
+    <!-- Settings for Chat -->
+    <string name="pref_header_chat">Chat</string>
+    <string name="pref_title_enable_chat_bubbles">Enable chat bubbles</string>
+    <string name="pref_title_join_chat_bubbles">Join chat bubbles</string>
+    <string name="pref_description_join_chat_bubbles">Join consecutive messages from the same user into the same chat bubble</string>
+    
+    <!-- Settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>
     <string name="pref_title_ringtone">Ringtone</string>

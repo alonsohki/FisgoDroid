@@ -6,6 +6,9 @@
         android:fragment="net.meneame.fisgodroid.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
     <header
+        android:fragment="net.meneame.fisgodroid.SettingsActivity$ChatPreferenceFragment"
+        android:title="@string/pref_header_chat" />
+    <header
         android:fragment="net.meneame.fisgodroid.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
 
