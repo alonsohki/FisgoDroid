@@ -122,7 +122,7 @@ public class ChatBaseView extends LinearLayout
             Spanned message = Html.fromHtml(parsedMessage, null, Smileys.getTagHandler(getContext(), mMessage));
             mMessage.setText(message);
             mUsername.setText(mChatMsg.getUser());
-            Picasso.with(getContext()).load(mChatMsg.getIcon()).placeholder(R.drawable.ic_launcher).into(mAvatar);
+            Picasso.with(getContext()).load(mChatMsg.getIcon()).placeholder(R.drawable.default_avatar).into(mAvatar);
             
             mTimestamp.setText(dateFormat.format(mChatMsg.getWhen()));
         }
