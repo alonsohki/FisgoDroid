@@ -158,14 +158,13 @@ public class ChatActivity extends ActionBarActivity
         final int backgroundColor = getResources().getColor(R.color.meneame_light);
         mNotificationsDrawable = new NotificationsIndicatorDrawable(Color.RED, backgroundColor, Color.WHITE, defaultDrawable);
         actionBar.setIcon(mNotificationsDrawable);
-        
+
         // Display the title only if we are in landscape mode
         if ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT )
         {
             actionBar.setDisplayShowTitleEnabled(false);
         }
 
-        
         // Get views
         mCheckboxFriends = (ThreeStateChecboxHackView) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
@@ -343,7 +342,10 @@ public class ChatActivity extends ActionBarActivity
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_SENDAS, getSendAs().ordinal()).commit();
 
         super.onDestroy();
-        mFisgoBinder.removeHandler(mHandler);
+        if ( mFisgoBinder != null )
+        {
+            mFisgoBinder.removeHandler(mHandler);
+        }
         unbindService(mServiceConn);
 
         ImageUpload.updateListener(null);
@@ -516,7 +518,7 @@ public class ChatActivity extends ActionBarActivity
         case android.R.id.home:
             Log.v("A", "Display notifications");
             return true;
-            
+
         case R.id.action_hide_action_bar:
             setActionBarVisible(false);
             return true;
@@ -823,9 +825,11 @@ public class ChatActivity extends ActionBarActivity
             mMessages.setPadding(mMessages.getPaddingLeft(), paddingTop, mMessages.getPaddingRight(), mMessages.getPaddingBottom());
         }
     }
-    
-    private void setNotificationCount(int count) {
-        if (count > 0 && count != mNotificationsDrawable.getNotificationCount()) {
+
+    private void setNotificationCount(int count)
+    {
+        if ( count > 0 && count != mNotificationsDrawable.getNotificationCount() )
+        {
             setActionBarVisible(true);
         }
         mNotificationsDrawable.setNotificationCount(count);
