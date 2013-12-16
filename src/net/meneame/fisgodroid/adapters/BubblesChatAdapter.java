@@ -49,9 +49,11 @@ public class BubblesChatAdapter extends ChatMessageAdapter
             for (int pos = 1; pos < messages.size(); ++pos)
             {
                 current = messages.get(pos);
-                if ( current.getUserid().equals(previous.getUserid()) && (current.getWhen().getTime() - previous.getWhen().getTime()) < 60000 )
+                if ( current.getUserid().equals(previous.getUserid()) &&
+                        (current.getWhen().getTime() - previous.getWhen().getTime()) < 60000 &&
+                        current.getType() == previous.getType() )
                 {
-                    // Join the messages together
+                    // Join the messages
                     if ( !cloned )
                     {
                         // Clone the last message and replace it in the new list
