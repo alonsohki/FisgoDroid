@@ -5,4 +5,5 @@
 	<color name="text_chat_admin">#f00000</color>
 	<color name="meneame">#ff8000</color>
 	<color name="meneame_light">#ffa000</color>
+	<color name="notifications_color">#f00</color>
 </resources>

@@ -12,6 +12,7 @@ import net.meneame.fisgodroid.SmileyPickerView.OnSmileySelectedListener;
 import net.meneame.fisgodroid.adapters.BubblesChatAdapter;
 import net.meneame.fisgodroid.adapters.ChatMessageAdapter;
 import net.meneame.fisgodroid.adapters.LegacyChatAdapter;
+import net.meneame.fisgodroid.notifications.NotificationsIndicatorDrawable;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -39,12 +40,14 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.text.method.HideReturnsTransformationMethod;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -87,6 +90,9 @@ public class ChatActivity extends ActionBarActivity
     private ProgressBar mCameraProgress;
     private NotificationsIndicatorDrawable mNotificationsDrawable;
     private View mActionBarDisplayer;
+    private DrawerLayout mDrawerLayout;
+    
+    private boolean mIsActionBarVisible = true;
 
     // Create a handler to update the view from the UI thread
     // when the message list changes.
@@ -140,8 +146,37 @@ public class ChatActivity extends ActionBarActivity
         super.onResume();
 
         // Avoid the edit field auto-gaining focus
-        final View mainLayout = findViewById(R.id.main_layout);
-        mainLayout.requestFocus();
+        mDrawerLayout.requestFocus();
+        mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener()
+        {
+            @Override
+            public void onDrawerStateChanged(int state)
+            {
+                switch (state)
+                {
+                case DrawerLayout.STATE_SETTLING:
+                case DrawerLayout.STATE_DRAGGING:
+                    setActionBarVisible(false);
+                    break;
+                }
+            }
+
+            @Override
+            public void onDrawerSlide(View arg0, float arg1)
+            {
+            }
+
+            @Override
+            public void onDrawerOpened(View arg0)
+            {
+            }
+
+            @Override
+            public void onDrawerClosed(View arg0)
+            {
+                setActionBarVisible(true);
+            }
+        });
 
         // Setup the message adapter
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -157,11 +192,12 @@ public class ChatActivity extends ActionBarActivity
             ((BubblesChatAdapter) mAdapter).setJoinBubbles(join);
         }
         mMessages.setAdapter(mAdapter);
-        if (mFisgoBinder != null) {
+        if ( mFisgoBinder != null )
+        {
             updateMessages(mFisgoBinder.getMessages());
         }
-        
-        setActionBarVisible(true);
+
+        setActionBarVisible(mIsActionBarVisible);
     }
 
     @Override
@@ -188,6 +224,7 @@ public class ChatActivity extends ActionBarActivity
         }
 
         // Get views
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.main_layout);
         mCheckboxFriends = (ThreeStateChecboxHackView) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
         mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
@@ -538,7 +575,7 @@ public class ChatActivity extends ActionBarActivity
         switch (item.getItemId())
         {
         case android.R.id.home:
-            Log.v("A", "Display notifications");
+            mDrawerLayout.openDrawer(Gravity.LEFT);
             return true;
 
         case R.id.action_hide_action_bar:
@@ -830,6 +867,7 @@ public class ChatActivity extends ActionBarActivity
             actionBar.show();
         }
         adjustActionBarPadding(visible);
+        mIsActionBarVisible = visible;
     }
 
     private void adjustActionBarPadding(boolean visible)
@@ -843,7 +881,7 @@ public class ChatActivity extends ActionBarActivity
             final TypedArray styledAttributes = getTheme().obtainStyledAttributes(new int[] { R.attr.actionBarSize });
             int actionBarSize = (int) styledAttributes.getDimension(0, 0);
             styledAttributes.recycle();
-            int displayerHeight = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics());
+            int displayerHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12, getResources().getDisplayMetrics());
             int paddingTop = actionBarSize - displayerHeight;
             mMessages.setPadding(mMessages.getPaddingLeft(), paddingTop, mMessages.getPaddingRight(), mMessages.getPaddingBottom());
         }

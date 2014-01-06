@@ -53,10 +53,13 @@
             android:name="net.meneame.fisgodroid.ProfileActivity"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
-        
         <activity
             android:name="net.meneame.fisgodroid.SettingsActivity"
             android:theme="@style/MeneameTheme" >
+        </activity>
+        <activity
+            android:name="net.meneame.fisgodroid.DrawerActivity"
+            android:theme="@style/MeneameTheme.Overlay" >
         </activity>
 
         <receiver android:name="net.meneame.fisgodroid.FisgoScheduler" />

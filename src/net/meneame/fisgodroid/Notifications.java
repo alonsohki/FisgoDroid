@@ -3,6 +3,10 @@ package net.meneame.fisgodroid;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.meneame.fisgodroid.R;
+import net.meneame.fisgodroid.R.drawable;
+import net.meneame.fisgodroid.R.string;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
