@@ -1,5 +1,6 @@
 package net.meneame.fisgodroid.notifications;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -9,6 +10,8 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
 public class NotificationsIndicatorDrawable extends Drawable
 {
@@ -79,12 +82,15 @@ public class NotificationsIndicatorDrawable extends Drawable
 
     private static void setTextSizeToFit(String text, Paint textPaint, float targetWidth, float targetHeight)
     {
-        float sizeHigh = 100.0f;
+        float sizeHigh = 250.0f;
         float sizeLow = 2.0f;
         float current;
         final Rect bounds = new Rect();
 
         textPaint.getTextBounds(text, 0, text.length(), bounds);
+
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        final float maxDiff = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, metrics);
 
         // Specialize the algorithm depending on the biggest dimension
         if ( bounds.width() > bounds.height() )
@@ -92,11 +98,16 @@ public class NotificationsIndicatorDrawable extends Drawable
             float width;
             do
             {
+                if ( Math.abs(sizeHigh - sizeLow) < 2 )
+                {
+                    break;
+                }
+                
                 current = (float) Math.floor((sizeLow + sizeHigh) * 0.5f);
                 textPaint.setTextSize(current);
                 width = textPaint.measureText(text);
 
-                if ( Math.abs(targetWidth - width) < 2.0f )
+                if ( Math.abs(targetWidth - width) < maxDiff )
                 {
                     break;
                 }
@@ -117,12 +128,17 @@ public class NotificationsIndicatorDrawable extends Drawable
             float height;
             do
             {
+                if ( Math.abs(sizeHigh - sizeLow) < 2 )
+                {
+                    break;
+                }
+                
                 current = (float) Math.floor((sizeLow + sizeHigh) * 0.5f);
                 textPaint.setTextSize(current);
                 textPaint.getTextBounds(text, 0, text.length(), bounds);
                 height = bounds.height();
 
-                if ( Math.abs(targetHeight - height) < 2.0f )
+                if ( Math.abs(targetHeight - height) < maxDiff )
                 {
                     break;
                 }

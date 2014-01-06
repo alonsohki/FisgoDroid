@@ -7,4 +7,5 @@
 	<item name="time_to_wait_when_on_background" format="integer" type="integer">16000</item>
 	<item name="bugsense_api_key" format="string" type="string">19f552be</item>
 	<item name="smiley_size" format="integer" type="integer">32</item>
+	<item name="time_poll_notifications" format="integer" type="integer">15000</item>
 </resources>

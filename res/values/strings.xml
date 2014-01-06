@@ -31,4 +31,7 @@
 	<string name="hide_action_bar">Hide action bar</string>
 	<string name="notifications">Notifications</string>
 	<string name="private_messages">new private messages</string>
+	<string name="new_posts">new posts</string>
+	<string name="new_comments">new comment responses</string>
+	<string name="new_friends">new friends</string>
 </resources>

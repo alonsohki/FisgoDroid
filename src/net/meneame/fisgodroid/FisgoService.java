@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -16,7 +17,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +48,7 @@ public class FisgoService extends Service
     private static final String UPLOAD_URL = "http://www.meneame.net/backend/tmp_upload.php";
     private static final String GET_FRIEND_URL = "http://www.meneame.net/backend/get_friend.php";
     private static final String GET_USER_INFO_URL = "http://www.meneame.net/backend/get_user_info.php";
+    private static final String GET_NOTIFICATIONS_URL = "http://www.meneame.net/backend/notifications.json.php";
 
     private FisgoBinder mBinder = new FisgoBinder();
     private boolean mIsLoggedIn = false;
@@ -554,6 +555,28 @@ public class FisgoService extends Service
         {
             String url = GET_USER_INFO_URL + "?id=" + userid;
             return mHttp.get(url);
+        }
+        
+        public Map<String, Integer> getNotifications()
+        {
+            Map<String, Integer> notifications = new HashMap<String, Integer>();
+            String jsonData = mHttp.get(GET_NOTIFICATIONS_URL);
+            if (jsonData != null) {
+                try
+                {
+                    JSONObject root = new JSONObject(jsonData);
+                    for (Iterator<String> keys = root.keys(); keys.hasNext(); ) {
+                        String key = keys.next();
+                        Integer count = root.getInt(key);
+                        notifications.put(key, count);
+                    }
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            return notifications;
         }
     }
 }

@@ -17,9 +17,15 @@ import android.widget.ListView;
 
 public class NotificationsLayout extends LinearLayout
 {
+    public interface Listener
+    {
+        public void onNotificationClick(String baseUrl);
+    }
+    
     private ListView mListView;
     private final List<NotificationElement> mElements = new ArrayList<NotificationElement>();
     private ElementAdapter mAdapter;
+    private Listener mListener;
 
     public NotificationsLayout(Context context)
     {
@@ -57,12 +63,17 @@ public class NotificationsLayout extends LinearLayout
                 Object tag = arg1.getTag();
                 if ( tag instanceof NotificationElement )
                 {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(((NotificationElement) tag).getBaseUrl()));
-                    getContext().startActivity(i);
+                    NotificationElement element = (NotificationElement)tag;
+                    if (mListener != null) {
+                        mListener.onNotificationClick(element.getBaseUrl());
+                    }
                 }
             }
         });
+    }
+    
+    public void setListener(Listener listener) {
+        mListener = listener;
     }
 
     public void addNotificationsElement(String type, String baseUrl, int title)

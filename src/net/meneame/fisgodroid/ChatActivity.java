@@ -13,6 +13,8 @@ import net.meneame.fisgodroid.adapters.BubblesChatAdapter;
 import net.meneame.fisgodroid.adapters.ChatMessageAdapter;
 import net.meneame.fisgodroid.adapters.LegacyChatAdapter;
 import net.meneame.fisgodroid.notifications.NotificationsIndicatorDrawable;
+import net.meneame.fisgodroid.notifications.NotificationsLayout;
+import net.meneame.fisgodroid.notifications.NotificationsPoller;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -45,7 +47,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.HideReturnsTransformationMethod;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -91,8 +92,11 @@ public class ChatActivity extends ActionBarActivity
     private NotificationsIndicatorDrawable mNotificationsDrawable;
     private View mActionBarDisplayer;
     private DrawerLayout mDrawerLayout;
-    
+    private NotificationsLayout mNotificationsLayout;
+
     private boolean mIsActionBarVisible = true;
+    private boolean mIsDrawerOpen = false;
+    private final NotificationsPoller mNotificationsPoller = new NotificationsPoller();
 
     // Create a handler to update the view from the UI thread
     // when the message list changes.
@@ -132,11 +136,14 @@ public class ChatActivity extends ActionBarActivity
                 }
                 updateMessages(mFisgoBinder.getMessages());
             }
+
+            mNotificationsPoller.start(mFisgoBinder, getResources().getInteger(R.integer.time_poll_notifications));
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0)
         {
+            mNotificationsPoller.stop();
         }
     };
 
@@ -169,11 +176,13 @@ public class ChatActivity extends ActionBarActivity
             @Override
             public void onDrawerOpened(View arg0)
             {
+                mIsDrawerOpen = true;
             }
 
             @Override
             public void onDrawerClosed(View arg0)
             {
+                mIsDrawerOpen = false;
                 setActionBarVisible(true);
             }
         });
@@ -211,12 +220,6 @@ public class ChatActivity extends ActionBarActivity
         actionBar.setTitle(R.string.general);
         actionBar.setDisplayHomeAsUpEnabled(false);
 
-        // Set the icon drawable to reuse it for notifications
-        final Drawable defaultDrawable = getResources().getDrawable(R.drawable.ic_launcher);
-        final int backgroundColor = getResources().getColor(R.color.meneame_light);
-        mNotificationsDrawable = new NotificationsIndicatorDrawable(Color.RED, backgroundColor, Color.WHITE, defaultDrawable);
-        actionBar.setIcon(mNotificationsDrawable);
-
         // Display the title only if we are in landscape mode
         if ( getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT )
         {
@@ -225,6 +228,7 @@ public class ChatActivity extends ActionBarActivity
 
         // Get views
         mDrawerLayout = (DrawerLayout) findViewById(R.id.main_layout);
+        mNotificationsLayout = (NotificationsLayout) findViewById(R.id.left_drawer);
         mCheckboxFriends = (ThreeStateChecboxHackView) findViewById(R.id.checkbox_friends);
         mMessages = (ListView) findViewById(R.id.chat_messages);
         mMessagebox = (EditText) findViewById(R.id.chat_messagebox);
@@ -392,6 +396,48 @@ public class ChatActivity extends ActionBarActivity
         // uploads
         // after device rotation refresh.
         ImageUpload.updateListener(mImageUploadListener);
+
+        // Setup the notifications
+        mNotificationsLayout.addNotificationsElement("privates", "http://www.meneame.net/notame/_priv", R.string.private_messages);
+        mNotificationsLayout.addNotificationsElement("posts", "http://www.meneame.net/notame/%U/_conversation", R.string.new_posts);
+        mNotificationsLayout.addNotificationsElement("comments", "http://www.meneame.net/user/%U/conversation", R.string.new_comments);
+        mNotificationsLayout.addNotificationsElement("friends", "http://www.meneame.net/user/%U/friends_new", R.string.new_friends);
+        mNotificationsLayout.setListener(new NotificationsLayout.Listener()
+        {
+            @Override
+            public void onNotificationClick(String baseUrl)
+            {
+                if ( mFisgoBinder != null )
+                {
+                    final String username = mFisgoBinder.getUsername();
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(baseUrl.replace("%U", username)));
+                    startActivity(i);
+                }
+            }
+        });
+        mNotificationsPoller.setListener(new NotificationsPoller.Listener()
+        {
+            @Override
+            public void onNotificationsUpdate(final String type, final int count)
+            {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        if ( type.equalsIgnoreCase("total") )
+                        {
+                            setNotificationCount(count);
+                        }
+                        else
+                        {
+                            mNotificationsLayout.setNotificationCount(type, count);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -408,6 +454,8 @@ public class ChatActivity extends ActionBarActivity
         unbindService(mServiceConn);
 
         ImageUpload.updateListener(null);
+
+        mNotificationsPoller.stop();
     }
 
     @Override
@@ -889,11 +937,23 @@ public class ChatActivity extends ActionBarActivity
 
     private void setNotificationCount(int count)
     {
-        if ( count > 0 && count > mNotificationsDrawable.getNotificationCount() )
+        if ( mNotificationsDrawable != null && count > 0 && count > mNotificationsDrawable.getNotificationCount() )
         {
-            setActionBarVisible(true);
+            if ( mIsDrawerOpen == false )
+            {
+                setActionBarVisible(true);
+            }
         }
-        mNotificationsDrawable.setNotificationCount(count);
+
+        if ( mNotificationsDrawable == null || count != mNotificationsDrawable.getNotificationCount() )
+        {
+            // Set the icon drawable to reuse it for notifications
+            final Drawable defaultDrawable = getResources().getDrawable(R.drawable.ic_launcher);
+            final int backgroundColor = getResources().getColor(R.color.meneame_light);
+            mNotificationsDrawable = new NotificationsIndicatorDrawable(Color.RED, backgroundColor, Color.WHITE, defaultDrawable);
+            mNotificationsDrawable.setNotificationCount(count);
+            getSupportActionBar().setIcon(mNotificationsDrawable);
+        }
     }
 
     private ImageUpload.Listener mImageUploadListener = new ImageUpload.Listener()
