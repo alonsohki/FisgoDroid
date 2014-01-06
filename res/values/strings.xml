@@ -34,4 +34,5 @@
 	<string name="new_posts">new posts</string>
 	<string name="new_comments">new comment responses</string>
 	<string name="new_friends">new friends</string>
+	<string name="you_have_notifications">You have %d new notifications!</string>
 </resources>

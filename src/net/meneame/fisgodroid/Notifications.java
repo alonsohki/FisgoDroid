@@ -24,8 +24,9 @@ import android.text.Html;
 public class Notifications
 {
     private static final int STICKY_NOTIFICATION_ID = 1;
-    private static int msNotificationId = 2;
-    private static int msLastNotificationId = 2;
+    private static final int NOTIFICATION_NOTIFICATION_ID = 2;
+    private static int msNotificationId = 3;
+    private static int msLastNotificationId = 3;
 
     private static boolean msOnForeground = false;
     private static List<ChatMessage> msNotifications = new ArrayList<ChatMessage>();
@@ -52,6 +53,8 @@ public class Notifications
             {
                 mNotificationManager.cancel(msLastNotificationId);
             }
+
+            mNotificationManager.cancel(NOTIFICATION_NOTIFICATION_ID);
         }
     }
 
@@ -72,32 +75,72 @@ public class Notifications
 
     private static Notification buildNotification(Context context, boolean playSound, ChatMessage chatMsg)
     {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         Resources res = context.getResources();
-
+        String message;
         String title = res.getString(R.string.app_name);
         String tapToOpen = res.getString(R.string.click_to_open);
         boolean hasNewMessages = msNotifications.size() > 0;
+
+        // Build a different message depending on wether we have notifications
+        if ( chatMsg != null )
+        {
+            message = chatMsg.getUser() + ": " + chatMsg.getMessage();
+        }
+        else if ( !hasNewMessages )
+        {
+            message = tapToOpen;
+        }
+        else
+        {
+            message = String.format(res.getString(R.string.you_have_pending_notifications), msNotifications.size()) + "\n";
+            for (int i = msNotifications.size() - 1; i >= 0; --i)
+            {
+                ChatMessage msg = msNotifications.get(i);
+                message = message + "<" + msg.getUser() + "> " + msg.getMessage() + "\n";
+            }
+        }
+
+        // Make it Android 4 stylish
+        NotificationCompat.InboxStyle bigTextStyle = new NotificationCompat.InboxStyle();
+        bigTextStyle.setBigContentTitle(title);
+        if ( chatMsg != null )
+        {
+            String msg = "<b>" + chatMsg.getUser() + "</b> " + chatMsg.getMessage();
+            bigTextStyle.addLine(Html.fromHtml(msg));
+        }
+        else if ( !hasNewMessages )
+        {
+            bigTextStyle.addLine(tapToOpen);
+        }
+        else
+        {
+            bigTextStyle.addLine(String.format(res.getString(R.string.you_have_pending_notifications), msNotifications.size()));
+            for (int i = msNotifications.size() - 1; i >= 0; --i)
+            {
+                ChatMessage msg = msNotifications.get(i);
+                bigTextStyle.addLine(Html.fromHtml("<b>" + msg.getUser() + "</b> " + msg.getMessage()));
+            }
+        }
+
+        boolean useLights = hasNewMessages || chatMsg != null;
+        int icon = (hasNewMessages || chatMsg != null) ? R.drawable.ic_new_messages : R.drawable.ic_launcher;
+        return buildNotification(context, playSound, useLights, icon, message, bigTextStyle);
+    }
+
+    private static Notification buildNotification(Context context, boolean playSound, boolean useLights, int icon, String message, NotificationCompat.InboxStyle bigTextStyle)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Resources res = context.getResources();
+        String title = res.getString(R.string.app_name);
+
         int defaults = 0;
 
         // Build the compatible notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context).setContentTitle(title).setAutoCancel(true);
-        if ( hasNewMessages || chatMsg != null )
+        if ( useLights )
             builder.setLights(0xffff6000, 500, 1000);
-        
-        // Choose the most appropiate icon
-        int icon = -1;
-        if ( hasNewMessages || chatMsg != null )
-        {
-            icon = R.drawable.ic_new_messages;
-        }
-        else
-        {
-            icon = R.drawable.ic_launcher;
-        }
         builder.setSmallIcon(icon);
 
-        
         if ( playSound )
         {
             String ringtone = prefs.getString("notifications_new_message_ringtone", null);
@@ -119,50 +162,11 @@ public class Notifications
             }
         }
 
-        // Build a different message depending on wether we have notifications
-        if ( chatMsg != null )
+        builder.setContentText(message);
+        if ( bigTextStyle != null )
         {
-            String message = chatMsg.getUser() + ": " + chatMsg.getMessage();
-            builder.setContentText(message);
+            builder.setStyle(bigTextStyle);
         }
-        else if ( !hasNewMessages )
-        {
-            builder.setContentText(tapToOpen);
-        }
-        else
-        {
-            String message = String.format(res.getString(R.string.you_have_pending_notifications), msNotifications.size()) + "\n";
-            for (int i = msNotifications.size() - 1; i >= 0; --i)
-            {
-                ChatMessage msg = msNotifications.get(i);
-                message = message + "<" + msg.getUser() + "> " + msg.getMessage() + "\n";
-            }
-            builder.setContentText(message);
-        }
-
-        // Make it Android 4 stylish
-        NotificationCompat.InboxStyle bigTextStyle = new NotificationCompat.InboxStyle();
-        bigTextStyle.setBigContentTitle(title);
-        if ( chatMsg != null )
-        {
-            String message = "<b>" + chatMsg.getUser() + "</b> " + chatMsg.getMessage();
-            bigTextStyle.addLine(Html.fromHtml(message));
-        }
-        else if ( !hasNewMessages )
-        {
-            bigTextStyle.addLine(tapToOpen);
-        }
-        else
-        {
-            bigTextStyle.addLine(String.format(res.getString(R.string.you_have_pending_notifications), msNotifications.size()));
-            for (int i = msNotifications.size() - 1; i >= 0; --i)
-            {
-                ChatMessage msg = msNotifications.get(i);
-                bigTextStyle.addLine(Html.fromHtml("<b>" + msg.getUser() + "</b> " + msg.getMessage()));
-            }
-        }
-        builder.setStyle(bigTextStyle);
-
         builder.setDefaults(defaults);
 
         // Creates an explicit intent for ChatActivity
@@ -210,6 +214,29 @@ public class Notifications
                 {
                     singleNotification(service, message);
                 }
+            }
+        }
+    }
+
+    public static void newNotificationCount(Context context, int count)
+    {
+        if ( !isRunningInForeground() )
+        {
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            
+            if ( count > 0 )
+            {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                if ( prefs.getBoolean("notifications_web_notifications", true) )
+                {
+                    String message = context.getResources().getString(R.string.you_have_notifications);
+                    message = String.format(message, Integer.valueOf(count));
+                    notificationManager.notify(NOTIFICATION_NOTIFICATION_ID, buildNotification(context, true, true, R.drawable.ic_launcher, message, null));
+                }
+            }
+            else
+            {
+                notificationManager.cancel(NOTIFICATION_NOTIFICATION_ID);
             }
         }
     }

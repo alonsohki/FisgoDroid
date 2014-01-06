@@ -945,7 +945,8 @@ public class ChatActivity extends ActionBarActivity
             }
         }
 
-        if ( mNotificationsDrawable == null || count != mNotificationsDrawable.getNotificationCount() )
+        final int previousCount = mNotificationsDrawable == null ? 0 : mNotificationsDrawable.getNotificationCount();
+        if ( mNotificationsDrawable == null || count != previousCount )
         {
             // Set the icon drawable to reuse it for notifications
             final Drawable defaultDrawable = getResources().getDrawable(R.drawable.ic_launcher);
@@ -953,6 +954,11 @@ public class ChatActivity extends ActionBarActivity
             mNotificationsDrawable = new NotificationsIndicatorDrawable(Color.RED, backgroundColor, Color.WHITE, defaultDrawable);
             mNotificationsDrawable.setNotificationCount(count);
             getSupportActionBar().setIcon(mNotificationsDrawable);
+
+            if ( count > previousCount || count == 0 )
+            {
+                Notifications.newNotificationCount(this, count);
+            }
         }
     }
 

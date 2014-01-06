@@ -18,6 +18,8 @@
     
     <!-- Settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_title_web_notifications">Enable web notifications</string>
+    <string name="pref_description_web_notifications">Private messages, comment responses, etc…</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>
     <string name="pref_title_ringtone">Ringtone</string>
     <string name="pref_ringtone_silent">Silent</string>
