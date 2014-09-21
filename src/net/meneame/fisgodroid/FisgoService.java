@@ -339,8 +339,6 @@ public class FisgoService extends Service
     {
         private Set<Handler> mHandlers = new HashSet<Handler>();
 
-        private final Pattern mUseripPattern = Pattern.compile("<input type=\"hidden\" name=\"userip\" value=\"([^\"]+)\"/>");
-        private final Pattern mIpcontrolPattern = Pattern.compile("<input type=\"hidden\" name=\"useripcontrol\" value=\"([^\"]+)\"/>");
         private final Pattern mAdminPattern = Pattern.compile("<a href=\"/admin/bans\\.php\">admin</a>");
         private final Pattern mMykeyPattern = Pattern.compile("var mykey = (\\d+);");
         private final Pattern mBasekeyPattern = Pattern.compile("base_key=\"([^\"]+)\"");
@@ -370,6 +368,8 @@ public class FisgoService extends Service
 
         public LoginStatus logIn(String username, String password)
         {
+            Matcher m;
+            
             if ( username.equalsIgnoreCase("whizzo") )
                 return LoginStatus.INVALID_PASSWORD;
 
@@ -377,24 +377,10 @@ public class FisgoService extends Service
             if ( "".equals(step1) )
                 return LoginStatus.NETWORK_FAILED;
 
-            // Get the userip field
-            Matcher m = mUseripPattern.matcher(step1);
-            if ( !m.find() )
-                Log.e(TAG, "Couldn't find the userip form field");
-            String userip = m.group(1);
-
-            // Get the ip control field
-            m = mIpcontrolPattern.matcher(step1);
-            if ( !m.find() )
-                Log.e(TAG, "Couldn't find the ip control form field");
-            String ipcontrol = m.group(1);
-
             // Prepare the POST request
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("username", username);
             params.put("password", password);
-            params.put("userip", userip);
-            params.put("useripcontrol", ipcontrol);
             params.put("persistent", 1);
             params.put("processlogin", 1);
             params.put("return", "");
