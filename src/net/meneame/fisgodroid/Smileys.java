@@ -61,6 +61,18 @@ public class Smileys
             addSmiley(new Smiley(":wall:", "wall", R.drawable.wall));
             addSmiley(new Smiley(";)", "wink", R.drawable.wink));
             addSmiley(new Smiley(":wow:", "wow", R.drawable.wow));
+            addSmiley(new Smiley(":peineta:", "peineta", R.drawable.peineta));
+            addSmiley(new Smiley(":calzador:", "calzador", R.drawable.calzador));
+            addSmiley(new Smiley(":clap:", "clap", R.drawable.clap));
+            addSmiley(new Smiley(":coletas:", "coletas", R.drawable.coletas));
+            addSmiley(new Smiley(":eli:", "eli", R.drawable.eli));
+            addSmiley(new Smiley(":ferrari:", "ferrari", R.drawable.ferrari));
+            addSmiley(new Smiley(":foreveralone:", "foreveralone", R.drawable.foreveralone));
+            addSmiley(new Smiley(":pagafantas:", "pagafantas", R.drawable.pagafantas));
+            addSmiley(new Smiley(":popcorn:", "popcorn", R.drawable.popcorn));
+            addSmiley(new Smiley(":professor:", "professor", R.drawable.professor));
+            addSmiley(new Smiley(":takemymoney:", "takemymoney", R.drawable.takemymoney));
+            addSmiley(new Smiley(":tinfoil:", "tinfoil", R.drawable.tinfoil));
         }
     }
 

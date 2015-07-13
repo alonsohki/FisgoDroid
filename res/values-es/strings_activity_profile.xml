@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="profile_user_name">Nombre de usuario:</string>
+	<string name="profile_name">Nombre:</string>
+	<string name="profile_fetch_error">Error recuperando la informacion de usuario</string>
+	<string name="profile_bio">Bio:</string>
+</resources>

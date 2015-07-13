@@ -1,0 +1,30 @@
+<resources>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+
+    <!-- General settings -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_title_enable_animated_smileys">Activar iconos animados</string>
+    <string name="pref_description_enable_animated_smileys">Animar los iconos de chat, pero esto ralentizara la aplicacion e incrementara el uso de bateria.</string>
+
+    <!-- Settings for Chat -->
+    <string name="pref_header_chat">Chat</string>
+    <string name="pref_title_enable_chat_bubbles">Activar chat en burbujas</string>
+    <string name="pref_title_join_chat_bubbles">Agrupar chat en burbujas</string>
+    <string name="pref_description_join_chat_bubbles">Agrupa los mensajes consecutivos de un mismo usuario en la misma burbuja de chat</string>
+    
+    <!-- Settings for Notifications -->
+    <string name="pref_header_notifications">Notificaciones</string>
+    <string name="pref_title_web_notifications">Activar notificaciones web</string>
+    <string name="pref_description_web_notifications">Mensajes privados, respuestas de comentarios, etc…</string>
+    <string name="pref_title_new_message_notifications">Notificaciones de nuevos mensajes</string>
+    <string name="pref_title_ringtone">Tono</string>
+    <string name="pref_ringtone_silent">Silencio</string>
+    <string name="pref_title_vibrate">Vibracion</string>
+    <string name="pref_title_group_notifications">Agrupar notificaciones</string>
+    <string name="pref_description_group_notifications">Usar una unica notificacion para todos los mensajes recibidos.</string>
+
+</resources>
