@@ -23,4 +23,16 @@
     <string name="savelog">Guardar log</string>
     <string name="save_successful">Guardado con éxito</string>
     <string name="save_failed">No se pudo guardar</string>
+    <string name="settings">Configuracion</string>
+    <string name="title_activity_new_chat">NewChatActivity</string>
+    <string name="hello_world">Hola mundo!</string>
+    <string name="action_take_picture">Tomar foto</string>
+    <string name="action_only_friends">Solo amigos</string>
+    <string name="hide_action_bar">Ocultar barra de accion</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="private_messages">nuevo mensaje privado</string>
+    <string name="new_posts">nueva nota</string>
+    <string name="new_comments">nueva respuesta a comentario</string>
+    <string name="new_friends">nuevo amigo</string>
+    <string name="you_have_notifications">Tienes %d nuevas notificaciones!</string>
 </resources>
